@@ -1,0 +1,16 @@
+# --- Framework web y servidor ---
+fastapi>=0.115
+uvicorn[standard]>=0.32
+
+# --- Base de datos PostgreSQL ---
+sqlalchemy>=2.0
+psycopg[binary]>=3.2
+
+# --- Configuración y validación ---
+pydantic>=2.9
+pydantic-settings>=2.6
+
+# --- Calidad de código y pruebas (desarrollo) ---
+ruff>=0.7
+pytest>=8.3
+httpx>=0.27
