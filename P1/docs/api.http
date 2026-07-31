@@ -1,7 +1,11 @@
 ### Requests de prueba (extensión REST Client de VS Code)
+### Ejecutar la petición 1 primero: su respuesta alimenta la variable {{id}}
+### que usan todas las demás.
+
 @host = http://127.0.0.1:8000/api/v1/solicitudes
 
-### 1. Registrar una solicitud
+### 1. Registrar una solicitud  ->  201
+# @name crearSolicitud
 POST {{host}}
 Content-Type: application/json
 
@@ -13,14 +17,25 @@ Content-Type: application/json
   "estado": "registrada"
 }
 
-### 2. Listar todas las solicitudes
+### El id se toma de la respuesta anterior; no hay que copiarlo a mano.
+@id = {{crearSolicitud.response.body.$.id}}
+
+### 2. Listar todas las solicitudes  ->  200
 GET {{host}}
 
-### 3. Obtener una solicitud (reemplazar el UUID)
-GET {{host}}/00000000-0000-0000-0000-000000000000
+### 3. Obtener una solicitud por su id  ->  200
+GET {{host}}/{{id}}
 
-### 4. Reemplazar por completo una solicitud
-PUT {{host}}/00000000-0000-0000-0000-000000000000
+### 4. Actualizar solo el estado  ->  200
+PATCH {{host}}/{{id}}/estado
+Content-Type: application/json
+
+{
+  "estado": "en_proceso"
+}
+
+### 5. Reemplazar por completo una solicitud  ->  200
+PUT {{host}}/{{id}}
 Content-Type: application/json
 
 {
@@ -28,28 +43,63 @@ Content-Type: application/json
   "area_solicitante": "Infraestructura TI",
   "prioridad": 2,
   "costo_estimado": 4100.50,
-  "estado": "registrada"
-}
-
-### 5. Actualizar solo el estado
-PATCH {{host}}/00000000-0000-0000-0000-000000000000/estado
-Content-Type: application/json
-
-{
   "estado": "en_proceso"
 }
 
-### 6. Eliminar una solicitud
-DELETE {{host}}/00000000-0000-0000-0000-000000000000
-
-### 7. Caso inválido: prioridad fuera de rango (debe responder 422)
+### 6. Prioridad fuera de rango  ->  422
 POST {{host}}
 Content-Type: application/json
 
 {
-  "titulo": "Prueba inválida",
-  "area_solicitante": "QA",
+  "titulo": "Prueba invalida",
+  "area_solicitante": "Calidad",
   "prioridad": 9,
   "costo_estimado": 100.00,
   "estado": "registrada"
 }
+
+### 7. Campo no declarado en el esquema  ->  422 (extra_forbidden)
+POST {{host}}
+Content-Type: application/json
+
+{
+  "titulo": "Intento con campo extra",
+  "area_solicitante": "Calidad",
+  "prioridad": 1,
+  "costo_estimado": 50.00,
+  "estado": "registrada",
+  "campo_extra": "x"
+}
+
+### 8. Costo negativo  ->  422
+POST {{host}}
+Content-Type: application/json
+
+{
+  "titulo": "Costo negativo",
+  "area_solicitante": "Calidad",
+  "prioridad": 1,
+  "costo_estimado": -10.00,
+  "estado": "registrada"
+}
+
+### 9. Transición de estado prohibida  ->  409
+### Requiere haber ejecutado antes la petición 4 (estado = en_proceso).
+PATCH {{host}}/{{id}}/estado
+Content-Type: application/json
+
+{
+  "estado": "registrada"
+}
+
+### 10. Identificador inexistente  ->  404
+GET {{host}}/00000000-0000-0000-0000-000000000000
+
+### 11. Eliminar la solicitud  ->  204
+DELETE {{host}}/{{id}}
+
+### 12. Consultar la solicitud eliminada  ->  404
+GET {{host}}/{{id}}
+
+### 13. Verificación del servicio  ->  200
+GET http://127.0.0.1:8000/salud
