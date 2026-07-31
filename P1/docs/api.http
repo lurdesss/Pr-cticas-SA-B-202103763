@@ -1,0 +1,55 @@
+### Requests de prueba (extensión REST Client de VS Code)
+@host = http://127.0.0.1:8000/api/v1/solicitudes
+
+### 1. Registrar una solicitud
+POST {{host}}
+Content-Type: application/json
+
+{
+  "titulo": "Adquisición de nuevo servidor",
+  "area_solicitante": "Infraestructura TI",
+  "prioridad": 3,
+  "costo_estimado": 2500.00,
+  "estado": "registrada"
+}
+
+### 2. Listar todas las solicitudes
+GET {{host}}
+
+### 3. Obtener una solicitud (reemplazar el UUID)
+GET {{host}}/00000000-0000-0000-0000-000000000000
+
+### 4. Reemplazar por completo una solicitud
+PUT {{host}}/00000000-0000-0000-0000-000000000000
+Content-Type: application/json
+
+{
+  "titulo": "Adquisición de servidor y licencias",
+  "area_solicitante": "Infraestructura TI",
+  "prioridad": 2,
+  "costo_estimado": 4100.50,
+  "estado": "registrada"
+}
+
+### 5. Actualizar solo el estado
+PATCH {{host}}/00000000-0000-0000-0000-000000000000/estado
+Content-Type: application/json
+
+{
+  "estado": "en_proceso"
+}
+
+### 6. Eliminar una solicitud
+DELETE {{host}}/00000000-0000-0000-0000-000000000000
+
+### 7. Caso inválido: prioridad fuera de rango (debe responder 422)
+POST {{host}}
+Content-Type: application/json
+
+{
+  "titulo": "Prueba inválida",
+  "area_solicitante": "QA",
+  "prioridad": 9,
+  "costo_estimado": 100.00,
+  "estado": "registrada"
+}
