@@ -1,0 +1,224 @@
+/* Paleta y tokens de diseño.
+   Los tres colores de estado no son decorativos: corresponden a los tres
+   estados reales del JWT que maneja el backend. */
+:root {
+  --fondo: #101828;
+  --superficie: #1a2333;
+  --borde: #2a3547;
+  --texto: #e4e8f0;
+  --apagado: #8a96ac;
+  --acento: #6e8bff;
+
+  --estado-valido: #3dd68c;
+  --estado-renovable: #f5a524;
+  --estado-expirado: #f2545b;
+
+  --radio: 10px;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", monospace;
+  --sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--sans);
+  line-height: 1.55;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+main { width: 100%; max-width: 640px; }
+
+h1 {
+  font-size: 1.6rem;
+  margin: 0 0 .25rem;
+  letter-spacing: -.02em;
+}
+
+.subtitulo { color: var(--apagado); margin: 0 0 1.75rem; font-size: .95rem; }
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.tarjeta h2 { font-size: 1rem; margin: 0 0 1rem; font-weight: 600; }
+
+label {
+  display: block;
+  font-size: .8rem;
+  color: var(--apagado);
+  margin-bottom: .35rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+input, select {
+  width: 100%;
+  padding: .65rem .8rem;
+  margin-bottom: 1rem;
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  color: var(--texto);
+  font-size: .95rem;
+  font-family: inherit;
+}
+
+input:focus, select:focus {
+  outline: 2px solid var(--acento);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+button {
+  padding: .65rem 1.1rem;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--fondo);
+  color: var(--texto);
+  font-size: .9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+
+button:hover { border-color: var(--acento); }
+button:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+button.principal {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: #0b1020;
+  font-weight: 600;
+  width: 100%;
+}
+
+button.principal:hover { filter: brightness(1.1); }
+
+.fila { display: flex; gap: .6rem; flex-wrap: wrap; }
+
+.pestanas { display: flex; gap: .5rem; margin-bottom: 1.25rem; }
+.pestanas button { flex: 1; }
+.pestanas button[aria-selected="true"] {
+  border-color: var(--acento);
+  color: var(--acento);
+}
+
+.oculto { display: none !important; }
+
+/* --- Elemento distintivo: línea de vida del token --- */
+.ciclo-token { font-family: var(--mono); }
+
+.barra-ciclo {
+  display: flex;
+  height: 8px;
+  border-radius: 99px;
+  overflow: hidden;
+  background: var(--borde);
+  margin: .75rem 0 .5rem;
+}
+
+.zona-valido { background: var(--estado-valido); }
+.zona-renovable { background: var(--estado-renovable); }
+
+.marcador {
+  position: relative;
+  height: 14px;
+  margin-top: -11px;
+}
+
+.marcador span {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 14px;
+  background: var(--texto);
+  transition: left .95s linear;
+}
+
+.leyenda {
+  display: flex;
+  justify-content: space-between;
+  font-size: .72rem;
+  color: var(--apagado);
+}
+
+.estado-actual {
+  font-family: var(--mono);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.estado-valido { color: var(--estado-valido); }
+.estado-renovable { color: var(--estado-renovable); }
+.estado-expirado { color: var(--estado-expirado); }
+
+.datos { list-style: none; padding: 0; margin: 0; }
+
+.datos li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .55rem 0;
+  border-bottom: 1px solid var(--borde);
+  font-size: .9rem;
+}
+
+.datos li:last-child { border-bottom: none; }
+.datos span:first-child { color: var(--apagado); }
+.datos span:last-child { font-family: var(--mono); text-align: right; }
+
+.bitacora {
+  font-family: var(--mono);
+  font-size: .78rem;
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bitacora li {
+  padding: .4rem .6rem;
+  border-left: 2px solid var(--borde);
+  margin-bottom: .3rem;
+  color: var(--apagado);
+  word-break: break-word;
+}
+
+.bitacora li.ok { border-left-color: var(--estado-valido); color: var(--texto); }
+.bitacora li.aviso { border-left-color: var(--estado-renovable); color: var(--texto); }
+.bitacora li.error { border-left-color: var(--estado-expirado); color: var(--texto); }
+
+.alerta {
+  padding: .7rem .9rem;
+  border-radius: 8px;
+  font-size: .88rem;
+  margin-bottom: 1rem;
+  border: 1px solid;
+}
+
+.alerta.error { border-color: var(--estado-expirado); color: var(--estado-expirado); }
+.alerta.ok { border-color: var(--estado-valido); color: var(--estado-valido); }
+
+.nota {
+  font-size: .8rem;
+  color: var(--apagado);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--borde);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

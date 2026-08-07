@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesión iniciada — Módulo de autenticación</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <main>
+    <h1>Sesión iniciada</h1>
+    <p class="subtitulo" id="saludo">Comprobando la sesión…</p>
+
+    <section class="tarjeta">
+      <h2>Datos de la sesión</h2>
+      <ul class="datos">
+        <li><span>Nombre</span><span id="dato-nombre">—</span></li>
+        <li><span>Correo</span><span id="dato-correo">—</span></li>
+        <li><span>Rol</span><span id="dato-rol">—</span></li>
+        <li><span>Identificador</span><span id="dato-id">—</span></li>
+      </ul>
+    </section>
+
+    <section class="tarjeta ciclo-token">
+      <h2>Ciclo de vida del token</h2>
+      <p class="estado-actual" id="estado-token">—</p>
+
+      <div class="barra-ciclo" aria-hidden="true">
+        <div class="zona-valido" id="zona-valido"></div>
+        <div class="zona-renovable" id="zona-renovable"></div>
+      </div>
+      <div class="marcador" aria-hidden="true"><span id="marcador"></span></div>
+
+      <div class="leyenda">
+        <span>emisión</span>
+        <span>vence</span>
+        <span>fin de la gracia</span>
+      </div>
+
+      <p class="nota">
+        Pasado el vencimiento, la siguiente petición renueva el token de forma
+        automática mientras siga dentro de la ventana de gracia. Superada esa
+        ventana, hay que iniciar sesión de nuevo.
+      </p>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Rutas protegidas por rol</h2>
+      <div class="fila">
+        <button id="btn-ruta1">Probar ruta 1 (solo Admin)</button>
+        <button id="btn-ruta2">Probar ruta 2 (Admin y Cliente)</button>
+        <button id="btn-salir">Cerrar sesión</button>
+      </div>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Bitácora de peticiones</h2>
+      <ul class="bitacora" id="bitacora">
+        <li>Sin peticiones todavía.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="api.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>
