@@ -1,0 +1,136 @@
+### Peticiones de prueba (extensión REST Client de VS Code)
+### Requiere los tres servicios levantados.
+### La cookie de sesión se conserva automáticamente entre peticiones.
+
+@backend = http://127.0.0.1:8000
+@authz = http://127.0.0.1:8001
+
+### 1. Salud del backend  ->  200
+GET {{backend}}/salud
+
+### 2. Salud del microservicio de autorización  ->  200
+GET {{authz}}/salud
+
+### 3. Matriz de permisos vigente  ->  200
+GET {{authz}}/autorizacion/politicas
+
+### 4. Registrar un Admin  ->  201 + cookie HttpOnly
+POST {{backend}}/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Ana Administradora",
+  "correo": "admin@academia.test",
+  "password": "ClaveSegura123",
+  "rol": "admin"
+}
+
+### 5. Datos de la sesión activa  ->  200
+GET {{backend}}/auth/yo
+
+### 6. Admin accede a la ruta 1  ->  200
+GET {{backend}}/recursos/ruta1
+
+### 7. Admin accede a la ruta 2  ->  200
+GET {{backend}}/recursos/ruta2
+
+### 8. Cerrar sesión  ->  200
+POST {{backend}}/auth/logout
+
+### 9. Ruta protegida sin sesión  ->  401
+GET {{backend}}/recursos/ruta2
+
+### 10. Registrar un Cliente  ->  201
+POST {{backend}}/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Carlos Cliente",
+  "correo": "cliente@academia.test",
+  "password": "ClaveSegura123",
+  "rol": "cliente"
+}
+
+### 11. Cliente intenta la ruta 1  ->  403
+GET {{backend}}/recursos/ruta1
+
+### 12. Cliente accede a la ruta 2  ->  200
+GET {{backend}}/recursos/ruta2
+
+### 13. Login con contraseña incorrecta  ->  401
+POST {{backend}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@academia.test",
+  "password": "ClaveEquivocada"
+}
+
+### 14. Login con correo inexistente  ->  401 con el MISMO mensaje que el anterior
+POST {{backend}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "nadie@academia.test",
+  "password": "ClaveSegura123"
+}
+
+### 15. Correo duplicado  ->  409
+POST {{backend}}/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Otra Persona",
+  "correo": "admin@academia.test",
+  "password": "ClaveSegura123",
+  "rol": "cliente"
+}
+
+### 16. Contraseña demasiado corta  ->  422
+POST {{backend}}/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Prueba Corta",
+  "correo": "corta@academia.test",
+  "password": "abc",
+  "rol": "cliente"
+}
+
+### 17. Rol inexistente  ->  422
+POST {{backend}}/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Rol Invalido",
+  "correo": "rol@academia.test",
+  "password": "ClaveSegura123",
+  "rol": "superadmin"
+}
+
+### 18. Consulta directa al microservicio: cliente sin permiso  ->  permitido=false
+POST {{authz}}/autorizacion/verificar
+Content-Type: application/json
+
+{
+  "rol": "cliente",
+  "permiso": "ruta1:leer"
+}
+
+### 19. Consulta directa: admin con permiso  ->  permitido=true
+POST {{authz}}/autorizacion/verificar
+Content-Type: application/json
+
+{
+  "rol": "admin",
+  "permiso": "ruta1:leer"
+}
+
+### 20. Rol desconocido: se niega por defecto  ->  permitido=false
+POST {{authz}}/autorizacion/verificar
+Content-Type: application/json
+
+{
+  "rol": "superusuario",
+  "permiso": "ruta1:leer"
+}
