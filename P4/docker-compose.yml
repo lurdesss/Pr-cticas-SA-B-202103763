@@ -1,0 +1,183 @@
+# Aroma - Practica 4 Software Avanzado
+# Levanta todo el sistema con: docker compose up --build
+name: aroma-p4
+
+services:
+
+  # ---------------------------------------------------------------- datos
+  postgres:
+    image: postgres:16-alpine
+    container_name: aroma-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aroma}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aroma}
+      POSTGRES_DB: postgres
+    volumes:
+      - datos-postgres:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aroma} -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [aroma]
+
+  # ------------------------------------------------- autorizacion (P2)
+  authz-service:
+    build: ./services/authz-service
+    container_name: aroma-authz
+    environment:
+      PUERTO: "8001"
+    ports:
+      - "8082:8001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8001/openapi.json').status==200 else 1)"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+    networks: [aroma]
+
+  # ------------------------------------------------ autenticacion (P2)
+  auth-service:
+    build: ./services/auth-service
+    container_name: aroma-auth
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-aroma}:${POSTGRES_PASSWORD:-aroma}@postgres:5432/auth_db
+      JWT_SECRETO: ${JWT_SECRETO:?Define JWT_SECRETO en P4/.env}
+      AES_CLAVE: ${AES_CLAVE:?Define AES_CLAVE en P4/.env}
+      INDICE_CIEGO_CLAVE: ${INDICE_CIEGO_CLAVE:?Define INDICE_CIEGO_CLAVE en P4/.env}
+      JWT_TTL_SEGUNDOS: ${JWT_TTL_SEGUNDOS:-180}
+      JWT_GRACIA_RENOVACION_SEGUNDOS: ${JWT_GRACIA_RENOVACION_SEGUNDOS:-60}
+      COOKIE_SECURE: "false"
+      COOKIE_SAMESITE: "lax"
+      ORIGENES_PERMITIDOS: "http://localhost:8080,http://127.0.0.1:8080"
+      # Variable de URL de autorizacion configurada correctamente (Paso 5)
+      AUTHZ_URL: "http://authz-service:8001"
+    ports:
+      - "8081:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      authz-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/openapi.json').status==200 else 1)"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 25s
+    networks: [aroma]
+
+  # -------------------------------------------------- catalogo (GraphQL)
+  catalogo-service:
+    build: ./services/catalogo-service
+    container_name: aroma-catalogo
+    environment:
+      PUERTO: "4001"
+      DATABASE_URL: postgres://${POSTGRES_USER:-aroma}:${POSTGRES_PASSWORD:-aroma}@postgres:5432/catalogo_db
+    ports:
+      - "4001:4001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [aroma]
+
+  # ------------------------------------------------ inventario (GraphQL)
+  inventario-service:
+    build: ./services/inventario-service
+    container_name: aroma-inventario
+    environment:
+      PUERTO: "4002"
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-aroma}:${POSTGRES_PASSWORD:-aroma}@postgres:5432/inventario_db
+    ports:
+      - "4002:4002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [aroma]
+
+  # ---------------------------------------------------- pedidos (REST)
+  pedidos-service:
+    build: ./services/pedidos-service
+    container_name: aroma-pedidos
+    environment:
+      PUERTO: "4003"
+      DATABASE_URL: postgres://${POSTGRES_USER:-aroma}:${POSTGRES_PASSWORD:-aroma}@postgres:5432/pedidos_db
+      CATALOGO_URL: "http://catalogo-service:4001"
+    ports:
+      - "4003:4003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      catalogo-service:
+        condition: service_started
+    networks: [aroma]
+
+  # ---------------------------------------------------- resenas (REST)
+  resenas-service:
+    build: ./services/resenas-service
+    container_name: aroma-resenas
+    environment:
+      PUERTO: "4004"
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-aroma}:${POSTGRES_PASSWORD:-aroma}@postgres:5432/resenas_db
+    ports:
+      - "4004:4004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [aroma]
+
+  # ------------------------------------------------------- API Gateway
+  gateway:
+    build: ./gateway
+    container_name: aroma-gateway
+    environment:
+      PUERTO: "8000"
+      AUTH_SERVICE_URL: "http://auth-service:8000"
+      AUTHZ_SERVICE_URL: "http://authz-service:8001"
+      CATALOGO_SERVICE_URL: "http://catalogo-service:4001"
+      INVENTARIO_SERVICE_URL: "http://inventario-service:4002"
+      PEDIDOS_SERVICE_URL: "http://pedidos-service:4003"
+      RESENAS_SERVICE_URL: "http://resenas-service:4004"
+      AUTHZ_MAX_REINTENTOS: "4"
+      AUTHZ_BACKOFF_INICIAL_MS: "200"
+      AUTHZ_BACKOFF_FACTOR: "2"
+    ports:
+      - "8000:8000"
+    depends_on:
+      auth-service:
+        condition: service_started
+      authz-service:
+        condition: service_started
+      catalogo-service:
+        condition: service_started
+      inventario-service:
+        condition: service_started
+      pedidos-service:
+        condition: service_started
+      resenas-service:
+        condition: service_started
+    networks: [aroma]
+
+  # --------------------------------- salida al exterior (edge / ingress)
+  edge:
+    build:
+      context: .
+      dockerfile: infra/edge/Dockerfile
+    container_name: aroma-edge
+    ports:
+      - "8080:80"
+    depends_on:
+      gateway:
+        condition: service_started
+    networks: [aroma]
+
+networks:
+  aroma:
+    driver: bridge
+
+volumes:
+  datos-postgres:

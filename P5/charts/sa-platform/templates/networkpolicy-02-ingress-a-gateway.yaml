@@ -1,0 +1,22 @@
+# Unica puerta de entrada externa: solo el Ingress Controller (namespace
+# ingress-nginx, que minikube etiqueta automaticamente con
+# kubernetes.io/metadata.name) puede alcanzar al gateway. Nadie mas desde
+# fuera del namespace llega a nada.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: permitir-ingress-a-gateway
+  labels: {{ include "sa-platform.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000

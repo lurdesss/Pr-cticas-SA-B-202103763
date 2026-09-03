@@ -1,0 +1,736 @@
+<mxfile host="app.diagrams.net" agent="P3-SoftwareAvanzado" pages="5">
+  <diagram id="Sec_1___Autenticaci_n_e_integraci_n_con_la_Pr_ctica_2" name="Sec 1 · Autenticación e integración con la Práctica 2">
+    <mxGraphModel dx="2115" dy="945" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1720" pageHeight="796" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tit" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=26;fontStyle=1;fontColor=#1F3864;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Secuencia - Autenticación con OAuth corporativo y control de acceso con el módulo de la P2&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34" width="900" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontColor=#555555;" value="Toda petición pasa por aquí antes de llegar a la lógica de negocio" vertex="1">
+          <mxGeometry height="24" width="1000" x="40" y="56" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_op" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#F0F0F0;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" value="Operador" vertex="1">
+          <mxGeometry height="644" width="170" x="40" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_gw" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" value="API Gateway" vertex="1">
+          <mxGeometry height="644" width="170" x="250" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_oa" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" value="OAuth Corporativo&#xa;(externo)" vertex="1">
+          <mxGeometry height="644" width="170" x="460" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_au" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" value="ms-autenticacion&#xa;(P2)" vertex="1">
+          <mxGeometry height="644" width="170" x="670" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_az" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" value="ms-autorizacion&#xa;(P2)" vertex="1">
+          <mxGeometry height="644" width="170" x="880" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_lo" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" value="ms-lotes" vertex="1">
+          <mxGeometry height="644" width="170" x="1090" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="m0" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" value="1: GET /api/lotes (token corporativo + cookie de sesión)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="125" y="190" as="sourcePoint" />
+            <mxPoint x="335" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" value="2: validar sesión">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="335" y="232" as="sourcePoint" />
+            <mxPoint x="755" y="232" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" value="3: verificar el token corporativo (12 h)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="755" y="274" as="sourcePoint" />
+            <mxPoint x="545" y="274" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" value="4: token vigente, empleado activo">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545" y="316" as="sourcePoint" />
+            <mxPoint x="755" y="316" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" value="5: verificar(cookie): VALIDO | EXPIRADO_RENOVABLE | RECHAZADO">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="825" y="358" />
+              <mxPoint x="825" y="384" />
+            </Array>
+            <mxPoint x="755" y="358" as="sourcePoint" />
+            <mxPoint x="755" y="384" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" value="6: usuario y rol (+ cookie nueva si se renovó)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="755" y="400" as="sourcePoint" />
+            <mxPoint x="335" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" value="7: GET /lotes con X-Usuario, X-Rol y X-Correlacion">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="335" y="442" as="sourcePoint" />
+            <mxPoint x="1175" y="442" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" value="8: ¿el rol tiene el permiso &#39;lote:leer&#39;?">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1175" y="484" as="sourcePoint" />
+            <mxPoint x="965" y="484" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" value="9: permitido">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965" y="526" as="sourcePoint" />
+            <mxPoint x="1175" y="526" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" value="10: 200 lista de lotes">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1175" y="568" as="sourcePoint" />
+            <mxPoint x="335" y="568" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" value="11: 200">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="335" y="610" as="sourcePoint" />
+            <mxPoint x="125" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fr0" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;width=110;height=26;fontSize=11;fillColor=none;strokeColor=#8C8C8C;align=left;verticalAlign=top;" value="alt  [permitido]  ·  [denegado → 403]  ·  [sin respuesta → 503]" vertex="1">
+          <mxGeometry height="88" width="1184" x="26" y="458" as="geometry" />
+        </mxCell>
+        <mxCell id="nt0" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FAFAFA;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=11;size=16;" value="El token corporativo dura 12 h y acredita al empleado.&#xa;La sesión de la Práctica 2 dura minutos, se renueva sola&#xa;dentro de la ventana de gracia y viaja en cookie HTTP-only." vertex="1">
+          <mxGeometry height="110" width="230" x="1235" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="nt1" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FAFAFA;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=11;size=16;" value="Si ms-autorizacion no responde tras los reintentos&#xa;con backoff, la respuesta es 503, nunca 403: un fallo&#xa;de comunicación no es una denegación de permiso." vertex="1">
+          <mxGeometry height="110" width="245" x="1235" y="474" as="geometry" />
+        </mxCell>
+        <mxCell id="ley" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontSize=11;dashed=0;" value="LEYENDA&#xa;──▶  mensaje síncrono (REST)&#xa;- -▷  respuesta / retorno&#xa;──▷  mensaje asíncrono (evento)&#xa;alt / loop: marcos de interacción UML" vertex="1">
+          <mxGeometry height="120" width="340" x="1320" y="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="Sec_2___Carga_y_validaci_n_del_CSV" name="Sec 2 · Carga y validación del CSV">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1930" pageHeight="922" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tit" value="Secuencia · Carga del archivo y validación de las reglas del negocio" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=26;fontStyle=1;fontColor=#1F3864;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="900" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" value="Del archivo del operador al lote listo para entrar al flujo de aprobación" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="40" y="56" width="1000" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_mk" value="Maker" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#F0F0F0;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="170" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_gw" value="API Gateway" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="250" y="90" width="170" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_lo" value="ms-lotes" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="460" y="90" width="170" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_al" value="Almacenamiento&#xa;(externo)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="670" y="90" width="170" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_co" value="Core Bancario&#xa;(externo)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="880" y="90" width="170" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_bus" value="Bus de eventos" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="90" width="170" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_bi" value="ms-bitacora" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="90" width="170" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="m0" value="1: POST /lotes con el archivo CSV" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="125.0" y="190" as="sourcePoint" />
+            <mxPoint x="335.0" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m1" value="2: POST /lotes (+ identidad y correlación)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="335.0" y="232" as="sourcePoint" />
+            <mxPoint x="545.0" y="232" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="3: verificar formato, tamaño y cabecera del archivo" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="274" as="sourcePoint" />
+            <mxPoint x="545.0" y="300" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="615.0" y="274" />
+              <mxPoint x="615.0" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="4: guardar el archivo original" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="316" as="sourcePoint" />
+            <mxPoint x="755.0" y="316" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="5: ruta y hash del archivo" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="755.0" y="358" as="sourcePoint" />
+            <mxPoint x="545.0" y="358" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="6: leer las filas y crear las transacciones del lote" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="400" as="sourcePoint" />
+            <mxPoint x="545.0" y="426" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="615.0" y="400" />
+              <mxPoint x="615.0" y="426" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="7: consultar cuentas y saldo disponible" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="442" as="sourcePoint" />
+            <mxPoint x="965.0" y="442" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="8: cuentas válidas y saldos" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="484" as="sourcePoint" />
+            <mxPoint x="545.0" y="484" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="9: aplicar reglas: cuenta válida · límite · saldo · duplicados · fraude" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="526" as="sourcePoint" />
+            <mxPoint x="545.0" y="552" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="615.0" y="526" />
+              <mxPoint x="615.0" y="552" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="10: registrar hallazgos y fijar estado VALIDADO o RECHAZADO" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="568" as="sourcePoint" />
+            <mxPoint x="545.0" y="594" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="615.0" y="568" />
+              <mxPoint x="615.0" y="594" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="11: publicar LoteValidado" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="610" as="sourcePoint" />
+            <mxPoint x="1175.0" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="12: registrar carga y resultado de la validación" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="652" as="sourcePoint" />
+            <mxPoint x="1385.0" y="652" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="13: 201 con totales y hallazgos por línea" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="694" as="sourcePoint" />
+            <mxPoint x="335.0" y="694" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m13" value="14: 201 y resumen descargable" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="335.0" y="736" as="sourcePoint" />
+            <mxPoint x="125.0" y="736" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nt0" value="Un lote con errores no se descarta: queda como&#xa;RECHAZADO con el detalle por número de línea, para&#xa;que el operador sepa qué corregir." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FAFAFA;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=11;size=16;" vertex="1" parent="1">
+          <mxGeometry x="1445.0" y="516" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ley" value="LEYENDA&#xa;──▶  mensaje síncrono (REST)&#xa;- -▷  respuesta / retorno&#xa;──▷  mensaje asíncrono (evento)&#xa;alt / loop: marcos de interacción UML" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="100" width="340" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="Sec_3___Flujo_de_aprobaci_n_de_tres_pasos" name="Sec 3 · Flujo de aprobación de tres pasos">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2140" pageHeight="1342" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tit" value="Secuencia · Flujo de aprobación maker – checker – authorizer" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=26;fontStyle=1;fontColor=#1F3864;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="900" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" value="Tres personas distintas, tres permisos distintos, un solo lote" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="40" y="56" width="1000" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_mk" value="Maker" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#F0F0F0;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="170" height="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_ck" value="Checker" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#F0F0F0;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="250" y="90" width="170" height="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_az" value="Authorizer" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#F0F0F0;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="460" y="90" width="170" height="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_gw" value="API Gateway" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="670" y="90" width="170" height="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_ap" value="ms-aprobaciones" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="880" y="90" width="170" height="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_au" value="ms-autorizacion&#xa;(P2)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="90" width="170" height="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_bus" value="Bus de eventos" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="90" width="170" height="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_bi" value="ms-bitacora" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="1510" y="90" width="170" height="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="m0" value="1: POST /flujos (someter el lote validado)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="125.0" y="190" as="sourcePoint" />
+            <mxPoint x="755.0" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m1" value="2: abrirFlujo(idLote, monto, maker)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="755.0" y="232" as="sourcePoint" />
+            <mxPoint x="965.0" y="232" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="3: ¿MAKER tiene &#39;aprobacion:registrar&#39;?" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="274" as="sourcePoint" />
+            <mxPoint x="1175.0" y="274" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="4: permitido" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1175.0" y="316" as="sourcePoint" />
+            <mxPoint x="965.0" y="316" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="5: elegir la política por monto y crear los 3 pasos" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="358" as="sourcePoint" />
+            <mxPoint x="965.0" y="384" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1035.0" y="358" />
+              <mxPoint x="1035.0" y="384" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="6: paso 1 REGISTRO resuelto → estado PENDIENTE_PASO_2" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="400" as="sourcePoint" />
+            <mxPoint x="965.0" y="426" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1035.0" y="400" />
+              <mxPoint x="1035.0" y="426" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="7: registrar la decisión del paso 1" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="442" as="sourcePoint" />
+            <mxPoint x="1595.0" y="442" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="8: POST /flujos/{id}/decisiones (APROBADO)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="335.0" y="484" as="sourcePoint" />
+            <mxPoint x="755.0" y="484" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="9: decidir(idFlujo, usuario, CHECKER)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="755.0" y="526" as="sourcePoint" />
+            <mxPoint x="965.0" y="526" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="10: ¿CHECKER tiene &#39;aprobacion:verificar&#39;?" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="568" as="sourcePoint" />
+            <mxPoint x="1175.0" y="568" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="11: permitido" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1175.0" y="610" as="sourcePoint" />
+            <mxPoint x="965.0" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="12: validar segregación: checker ≠ maker" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="652" as="sourcePoint" />
+            <mxPoint x="965.0" y="678" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1035.0" y="652" />
+              <mxPoint x="1035.0" y="678" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="13: paso 2 VERIFICACION resuelto → PENDIENTE_PASO_3" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="694" as="sourcePoint" />
+            <mxPoint x="965.0" y="720" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1035.0" y="694" />
+              <mxPoint x="1035.0" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m13" value="14: registrar la decisión del paso 2" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="736" as="sourcePoint" />
+            <mxPoint x="1595.0" y="736" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m14" value="15: POST /flujos/{id}/decisiones (APROBADO)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.0" y="778" as="sourcePoint" />
+            <mxPoint x="755.0" y="778" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m15" value="16: decidir(idFlujo, usuario, AUTHORIZER)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="755.0" y="820" as="sourcePoint" />
+            <mxPoint x="965.0" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m16" value="17: ¿AUTHORIZER tiene &#39;aprobacion:autorizar&#39;?" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="862" as="sourcePoint" />
+            <mxPoint x="1175.0" y="862" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m17" value="18: permitido" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1175.0" y="904" as="sourcePoint" />
+            <mxPoint x="965.0" y="904" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m18" value="19: validar segregación: authorizer ≠ maker y ≠ checker" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="946" as="sourcePoint" />
+            <mxPoint x="965.0" y="972" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1035.0" y="946" />
+              <mxPoint x="1035.0" y="972" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m19" value="20: paso 3 AUTORIZACION resuelto → estado APROBADO" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="988" as="sourcePoint" />
+            <mxPoint x="965.0" y="1014" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1035.0" y="988" />
+              <mxPoint x="1035.0" y="1014" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m20" value="21: publicar LoteAprobado" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="1030" as="sourcePoint" />
+            <mxPoint x="1385.0" y="1030" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m21" value="22: registrar la decisión del paso 3 y el cierre del flujo" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="1072" as="sourcePoint" />
+            <mxPoint x="1595.0" y="1072" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m22" value="23: 200 estado APROBADO" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.0" y="1114" as="sourcePoint" />
+            <mxPoint x="755.0" y="1114" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m23" value="24: 200" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="755.0" y="1156" as="sourcePoint" />
+            <mxPoint x="545.0" y="1156" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fr0" value="alt  [APROBADO → avanza]  ·  [RECHAZADO → flujo cerrado, no se envía nada]  ·  [DEVUELTO → vuelve al maker]" style="shape=umlFrame;whiteSpace=wrap;html=1;width=110;height=26;fontSize=11;fillColor=none;strokeColor=#8C8C8C;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="26" y="458" width="1668" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="nt0" value="Si el mismo usuario intenta resolver dos pasos:&#xa;409 Conflicto. La regla está en la entidad y además&#xa;como restricción única en la base de datos." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FAFAFA;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=11;size=16;" vertex="1" parent="1">
+          <mxGeometry x="1655.0" y="642" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nt1" value="LoteAprobado es el único disparador del envío al core&#xa;y del correo a los beneficiarios. Se publica solo al&#xa;cerrarse el paso 3." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FAFAFA;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=11;size=16;" vertex="1" parent="1">
+          <mxGeometry x="1655.0" y="1020" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ley" value="LEYENDA&#xa;──▶  mensaje síncrono (REST)&#xa;- -▷  respuesta / retorno&#xa;──▷  mensaje asíncrono (evento)&#xa;alt / loop: marcos de interacción UML" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1740" y="100" width="340" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="Sec_4___Env_o_al_sistema_core_bancario" name="Sec 4 · Envío al sistema core bancario">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1590" pageHeight="838" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tit" value="Secuencia · Envío del lote aprobado al core bancario" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=26;fontStyle=1;fontColor=#1F3864;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="900" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" value="Idempotencia, reintentos con espera creciente y conciliación de la respuesta" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="40" y="56" width="1000" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_bus" value="Bus de eventos" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_tr" value="ms-transacciones" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="270" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_co" value="Core Bancario&#xa;(externo)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="500" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_lo" value="ms-lotes" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="730" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_bi" value="ms-bitacora" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="960" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="m0" value="1: consumir LoteAprobado" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="125.0" y="190" as="sourcePoint" />
+            <mxPoint x="355.0" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m1" value="2: ¿ya existe un envío con esta clave de idempotencia?" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="232" as="sourcePoint" />
+            <mxPoint x="355.0" y="258" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="425.0" y="232" />
+              <mxPoint x="425.0" y="258" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="3: armar el envío con sus ítems" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="274" as="sourcePoint" />
+            <mxPoint x="355.0" y="300" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="425.0" y="274" />
+              <mxPoint x="425.0" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="4: enviar el lote (intento 1, con clave de idempotencia)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="316" as="sourcePoint" />
+            <mxPoint x="585.0" y="316" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="5: sin respuesta (tiempo de espera agotado)" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="585.0" y="358" as="sourcePoint" />
+            <mxPoint x="355.0" y="358" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="6: esperar 200 ms → 400 ms → 800 ms" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="400" as="sourcePoint" />
+            <mxPoint x="355.0" y="426" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="425.0" y="400" />
+              <mxPoint x="425.0" y="426" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="7: reintentar con la MISMA clave de idempotencia" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="442" as="sourcePoint" />
+            <mxPoint x="585.0" y="442" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="8: aceptado: 1 190 transacciones, 10 rechazadas" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="585.0" y="484" as="sourcePoint" />
+            <mxPoint x="355.0" y="484" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="9: conciliar ítem por ítem y cerrar el envío" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="526" as="sourcePoint" />
+            <mxPoint x="355.0" y="552" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="425.0" y="526" />
+              <mxPoint x="425.0" y="552" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="10: publicar TransaccionEnviada" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="568" as="sourcePoint" />
+            <mxPoint x="125.0" y="568" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="11: consumir TransaccionEnviada → actualizar el historial" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="125.0" y="610" as="sourcePoint" />
+            <mxPoint x="815.0" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="12: registrar cada intento, su latencia y la respuesta" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="652" as="sourcePoint" />
+            <mxPoint x="1045.0" y="652" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fr0" value="alt  [el core responde]  ·  [se agotan los 4 intentos → EN_COLA_MUERTA + alerta]" style="shape=umlFrame;whiteSpace=wrap;html=1;width=110;height=26;fontSize=11;fillColor=none;strokeColor=#8C8C8C;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="26" y="290" width="1118" height="256" as="geometry" />
+        </mxCell>
+        <mxCell id="nt0" value="La clave de idempotencia evita el pago doble: el core&#xa;reconoce el reintento y no vuelve a debitar." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FAFAFA;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=11;size=16;" vertex="1" parent="1">
+          <mxGeometry x="1105.0" y="306" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nt1" value="Si se agotan los intentos, el envío queda EN_COLA_MUERTA&#xa;con alerta al operador. Nunca se marca como enviado sin&#xa;confirmación del core." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FAFAFA;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=11;size=16;" vertex="1" parent="1">
+          <mxGeometry x="1105.0" y="516" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ley" value="LEYENDA&#xa;──▶  mensaje síncrono (REST)&#xa;- -▷  respuesta / retorno&#xa;──▷  mensaje asíncrono (evento)&#xa;alt / loop: marcos de interacción UML" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="100" width="340" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="Sec_5___Notificaci_n_a_los_clientes" name="Sec 5 · Notificación a los clientes">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1820" pageHeight="838" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tit" value="Secuencia · Correo a todos los beneficiarios incluidos en el lote aprobado" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=26;fontStyle=1;fontColor=#1F3864;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="900" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" value="Un correo por beneficiario, aunque el evento se reciba dos veces" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="40" y="56" width="1000" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_bus" value="Bus de eventos" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_no" value="ms-notificaciones" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="270" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_lo" value="ms-lotes" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="500" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_co" value="Servicio de Correo&#xa;(externo)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="730" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_cl" value="Cliente /&#xa;beneficiario" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#F0F0F0;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="960" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_bi" value="ms-bitacora" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;size=54;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="90" width="170" height="686" as="geometry" />
+        </mxCell>
+        <mxCell id="m0" value="1: consumir LoteAprobado" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="125.0" y="190" as="sourcePoint" />
+            <mxPoint x="355.0" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m1" value="2: ¿esta clave de idempotencia ya se procesó? → si sí, salir" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="232" as="sourcePoint" />
+            <mxPoint x="355.0" y="258" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="425.0" y="232" />
+              <mxPoint x="425.0" y="258" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="3: GET /lotes/{id}/beneficiarios" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="274" as="sourcePoint" />
+            <mxPoint x="585.0" y="274" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="4: nombre, correo, monto y referencia de cada uno" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="585.0" y="316" as="sourcePoint" />
+            <mxPoint x="355.0" y="316" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="5: crear la solicitud y guardar los correos cifrados" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="358" as="sourcePoint" />
+            <mxPoint x="355.0" y="384" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="425.0" y="358" />
+              <mxPoint x="425.0" y="384" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="6: preparar el mensaje con la plantilla" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="400" as="sourcePoint" />
+            <mxPoint x="355.0" y="426" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="425.0" y="400" />
+              <mxPoint x="425.0" y="426" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="7: enviar el correo" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="442" as="sourcePoint" />
+            <mxPoint x="815.0" y="442" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="8: identificador del mensaje" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;dashed=1;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="815.0" y="484" as="sourcePoint" />
+            <mxPoint x="355.0" y="484" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="9: marcar el destinatario como ENVIADO" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;endSize=8;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="526" as="sourcePoint" />
+            <mxPoint x="355.0" y="552" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="425.0" y="526" />
+              <mxPoint x="425.0" y="552" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="10: &#39;su transacción está en proceso&#39;" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="815.0" y="568" as="sourcePoint" />
+            <mxPoint x="1045.0" y="568" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="11: aviso de entrega o de rebote" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="815.0" y="610" as="sourcePoint" />
+            <mxPoint x="355.0" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="12: registrar el resumen del envío del lote" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;endSize=10;rounded=0;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355.0" y="652" as="sourcePoint" />
+            <mxPoint x="1275.0" y="652" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fr0" value="loop  [para cada beneficiario]   ·   alt [rebote permanente → NO_ENTREGABLE + alerta; el lote no se revierte]" style="shape=umlFrame;whiteSpace=wrap;html=1;width=110;height=26;fontSize=11;fillColor=none;strokeColor=#8C8C8C;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="26" y="374" width="1348" height="172" as="geometry" />
+        </mxCell>
+        <mxCell id="nt0" value="loop [para cada beneficiario del lote]&#xa;El envío va por bloques, con control de tasa, para no&#xa;saturar al proveedor con 1 200 correos de golpe." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FAFAFA;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=11;size=16;" vertex="1" parent="1">
+          <mxGeometry x="1335.0" y="390" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nt1" value="El correo dice &#39;en proceso&#39;, no &#39;acreditada&#39;: la&#xa;acreditación depende del core y de la ventana de&#xa;compensación." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FAFAFA;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=11;size=16;" vertex="1" parent="1">
+          <mxGeometry x="1335.0" y="558" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ley" value="LEYENDA&#xa;──▶  mensaje síncrono (REST)&#xa;- -▷  respuesta / retorno&#xa;──▷  mensaje asíncrono (evento)&#xa;alt / loop: marcos de interacción UML" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="100" width="340" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

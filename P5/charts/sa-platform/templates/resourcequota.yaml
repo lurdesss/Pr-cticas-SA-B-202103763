@@ -1,0 +1,17 @@
+# Techo total de consumo del namespace. Sin esto, un HPA mal configurado
+# (o un ataque) podria escalar hasta agotar el nodo entero. Los valores
+# base estan pensados para un minikube con 4 GB de RAM (ver
+# docs/guia-windows.md); values-prod.yaml no los toca porque en esta
+# practica "produccion" sigue siendo el mismo cluster local.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: sa-platform-cuota
+  labels: {{ include "sa-platform.labels" . | nindent 4 }}
+spec:
+  hard:
+    requests.cpu: {{ .Values.recursosDelNamespace.quota.cpuRequests | quote }}
+    requests.memory: {{ .Values.recursosDelNamespace.quota.memoryRequests | quote }}
+    limits.cpu: {{ .Values.recursosDelNamespace.quota.cpuLimits | quote }}
+    limits.memory: {{ .Values.recursosDelNamespace.quota.memoryLimits | quote }}
+    pods: {{ .Values.recursosDelNamespace.quota.pods | quote }}

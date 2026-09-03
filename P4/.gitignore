@@ -1,0 +1,16 @@
+# entornos virtuales y dependencias
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# secretos
+.env
+services/auth-service/.env
+services/authz-service/.env
+
+# sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,413 @@
+openapi: 3.0.3
+info:
+  title: Aroma - API Gateway
+  version: 1.0.0
+  description: |
+    Contrato publico del sistema. Todo pasa por el edge (http://localhost:8080)
+    y de ahi al API Gateway.
+
+    Autenticacion: cookie HttpOnly emitida por el servicio de autenticacion de
+    la Practica 2. El navegador la envia sola; en Postman basta con activar el
+    manejo de cookies.
+
+    Cada ruta protegida exige un permiso que el gateway consulta al
+    microservicio de autorizacion. Codigos posibles:
+      401 sin sesion valida
+      403 la sesion existe pero el rol no tiene el permiso
+      503 el microservicio de autorizacion no respondio tras 4 intentos
+
+servers:
+  - url: http://localhost:8080/api
+    description: Edge local (Docker Compose)
+
+tags:
+  - name: sesion
+  - name: sistema
+  - name: catalogo
+  - name: inventario
+  - name: pedidos
+  - name: resenas
+
+paths:
+  /auth/registro:
+    post:
+      tags: [sesion]
+      summary: Crea una cuenta y abre sesion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombre, correo, password, rol]
+              properties:
+                nombre: { type: string, example: Jennifer Taperio }
+                correo: { type: string, format: email, example: admin@aroma.gt }
+                password: { type: string, minLength: 8, example: claveSegura123 }
+                rol: { type: string, enum: [admin, cliente] }
+      responses:
+        "201":
+          description: Cuenta creada. La cookie de sesion viaja en Set-Cookie.
+          headers:
+            Set-Cookie:
+              schema: { type: string, example: "acceso_token=...; HttpOnly; Path=/" }
+        "409": { description: El correo ya esta registrado }
+        "422": { description: Datos invalidos }
+
+  /auth/login:
+    post:
+      tags: [sesion]
+      summary: Valida credenciales y entrega la cookie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [correo, password]
+              properties:
+                correo: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200": { description: Sesion iniciada }
+        "401": { description: Correo o contrasena incorrectos }
+
+  /auth/yo:
+    get:
+      tags: [sesion]
+      summary: Datos de la sesion activa
+      description: |
+        Si el token entro en la ventana de gracia, la respuesta trae una cookie
+        nueva y la cabecera X-Token-Renovado.
+      responses:
+        "200":
+          description: Sesion valida
+          headers:
+            X-Token-Renovado:
+              schema: { type: string, enum: ["true"] }
+        "401": { description: Sin sesion }
+
+  /auth/logout:
+    post:
+      tags: [sesion]
+      summary: Borra la cookie de sesion
+      responses:
+        "200": { description: Sesion cerrada }
+
+  /salud:
+    get:
+      tags: [sistema]
+      summary: Estado del gateway y de cada microservicio
+      responses:
+        "200":
+          description: Todos los servicios responden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  servicio: { type: string }
+                  estado: { type: string, enum: [arriba, degradado] }
+                  dependencias:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        servicio: { type: string }
+                        estado: { type: string }
+                        codigo: { type: integer, nullable: true }
+                        ms: { type: integer }
+        "503": { description: Algun servicio no responde }
+
+  /diagnostico:
+    get:
+      tags: [sistema]
+      summary: Permisos que el microservicio de autorizacion concede al rol actual
+      responses:
+        "200": { description: Mapa permiso -> permitido }
+        "401": { description: Sin sesion }
+        "503": { description: El servicio de autorizacion no respondio }
+
+  /catalogo/graphql:
+    post:
+      tags: [catalogo]
+      summary: API GraphQL del menu
+      description: |
+        Permiso requerido: `catalogo:usar` (Admin y Cliente).
+        Las mutaciones exigen ademas rol Admin dentro del resolver.
+
+        Consulta de ejemplo:
+        ```graphql
+        query { productos(soloDisponibles: true) { id nombre precio categoria { nombre } } }
+        ```
+        Mutacion de ejemplo:
+        ```graphql
+        mutation { cambiarDisponibilidad(id: "1", disponible: false) { id disponible } }
+        ```
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PeticionGraphQL" }
+      responses:
+        "200": { description: Respuesta GraphQL }
+        "401": { description: Sin sesion }
+        "403": { description: El rol no tiene catalogo:usar }
+        "503": { description: Autorizacion o servicio destino no disponible }
+
+  /inventario/graphql:
+    post:
+      tags: [inventario]
+      summary: API GraphQL de bodega
+      description: |
+        Permiso requerido: `inventario:gestionar` (solo Admin).
+
+        ```graphql
+        query { insumos { id nombre existencia minimo bajoMinimo } }
+        mutation { registrarMovimiento(insumoId: "1", tipo: "entrada", cantidad: 5, motivo: "compra") { nombre existencia } }
+        ```
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PeticionGraphQL" }
+      responses:
+        "200": { description: Respuesta GraphQL }
+        "401": { description: Sin sesion }
+        "403": { description: El rol no tiene inventario:gestionar }
+
+  /pedidos:
+    get:
+      tags: [pedidos]
+      summary: Lista pedidos
+      description: |
+        Permiso `pedidos:leer`. Un Cliente ve solo los suyos; un Admin ve todos.
+      parameters:
+        - name: estado
+          in: query
+          schema: { type: string, enum: [recibido, preparando, listo, entregado, cancelado] }
+      responses:
+        "200":
+          description: Listado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+                  pedidos:
+                    type: array
+                    items: { $ref: "#/components/schemas/Pedido" }
+        "401": { description: Sin sesion }
+    post:
+      tags: [pedidos]
+      summary: Crea un pedido
+      description: |
+        Permiso `pedidos:crear`. El servicio consulta el precio vigente al
+        catalogo antes de guardar; si el catalogo no responde, devuelve 503 en
+        lugar de cobrar un precio adivinado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                notas: { type: string, maxLength: 200 }
+                items:
+                  type: array
+                  minItems: 1
+                  maxItems: 20
+                  items:
+                    type: object
+                    required: [productoId, cantidad]
+                    properties:
+                      productoId: { type: string, example: "1" }
+                      cantidad: { type: integer, minimum: 1, maximum: 50 }
+      responses:
+        "201":
+          description: Pedido creado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Pedido" }
+        "409": { description: Algun producto esta agotado }
+        "422": { description: Pedido vacio o cantidades invalidas }
+        "503": { description: El catalogo no respondio }
+
+  /pedidos/{id}:
+    get:
+      tags: [pedidos]
+      summary: Detalle de un pedido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Pedido
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Pedido" }
+        "403": { description: El pedido es de otra persona }
+        "404": { description: No existe }
+
+  /pedidos/{id}/estado:
+    patch:
+      tags: [pedidos]
+      summary: Cambia el estado de un pedido
+      description: Permiso `pedidos:gestionar` (solo Admin).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [estado]
+              properties:
+                estado: { type: string, enum: [recibido, preparando, listo, entregado, cancelado] }
+      responses:
+        "200": { description: Estado actualizado }
+        "403": { description: El rol no tiene pedidos:gestionar }
+        "404": { description: No existe }
+        "422": { description: Estado invalido }
+
+  /resenas:
+    get:
+      tags: [resenas]
+      summary: Lista resenas
+      description: Permiso `resenas:leer`.
+      parameters:
+        - name: producto_id
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Listado
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Resena" }
+    post:
+      tags: [resenas]
+      summary: Publica una resena
+      description: Permiso `resenas:escribir`. Una por persona y producto.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [producto_id, calificacion]
+              properties:
+                producto_id: { type: string, example: "1" }
+                calificacion: { type: integer, minimum: 1, maximum: 5 }
+                comentario: { type: string, maxLength: 500 }
+      responses:
+        "201":
+          description: Resena publicada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Resena" }
+        "409": { description: Ya habias opinado sobre ese producto }
+        "422": { description: Calificacion fuera de 1..5 }
+
+  /resenas/resumen/{producto_id}:
+    get:
+      tags: [resenas]
+      summary: Promedio y distribucion de un producto
+      parameters:
+        - name: producto_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Resumen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  producto_id: { type: string }
+                  total: { type: integer }
+                  promedio: { type: number }
+                  distribucion:
+                    type: object
+                    additionalProperties: { type: integer }
+
+  /resenas/promedios:
+    get:
+      tags: [resenas]
+      summary: Promedio de todos los productos con resenas
+      responses:
+        "200": { description: Listado de promedios }
+
+  /resenas/{id}:
+    delete:
+      tags: [resenas]
+      summary: Elimina una resena
+      description: Permiso `resenas:moderar` (solo Admin).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204": { description: Eliminada }
+        "403": { description: El rol no tiene resenas:moderar }
+        "404": { description: No existe }
+
+components:
+  schemas:
+    PeticionGraphQL:
+      type: object
+      required: [query]
+      properties:
+        query: { type: string }
+        variables: { type: object, additionalProperties: true }
+
+    Pedido:
+      type: object
+      properties:
+        id: { type: integer }
+        usuarioId: { type: string }
+        usuarioNombre: { type: string }
+        estado: { type: string }
+        notas: { type: string }
+        total: { type: number }
+        creadoEn: { type: string, format: date-time }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productoId: { type: string }
+              nombreProducto: { type: string }
+              precioUnitario: { type: number }
+              cantidad: { type: integer }
+              subtotal: { type: number }
+
+    Resena:
+      type: object
+      properties:
+        id: { type: integer }
+        producto_id: { type: string }
+        usuario_id: { type: string }
+        usuario_nombre: { type: string }
+        calificacion: { type: integer }
+        comentario: { type: string }
+        creado_en: { type: string, format: date-time }
+
+    Error:
+      type: object
+      properties:
+        detalle: { type: string }
+        codigo: { type: string }

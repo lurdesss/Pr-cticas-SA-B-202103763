@@ -1,0 +1,4 @@
+# Los scripts de arranque de los contenedores deben conservar saltos de
+# linea LF aunque se clonen en Windows; con CRLF el shell del contenedor
+# falla con "no such file or directory".
+*.sh text eol=lf

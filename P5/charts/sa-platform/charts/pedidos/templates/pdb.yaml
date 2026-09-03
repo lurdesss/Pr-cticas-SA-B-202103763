@@ -1,0 +1,11 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "sa-common.fullname" . }}-api
+  labels: {{ include "sa-common.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.api.pdb.minDisponibles }}
+  selector:
+    matchLabels:
+      {{ include "sa-common.selectorLabels" . | nindent 6 }}
+      sa-platform/rol: api

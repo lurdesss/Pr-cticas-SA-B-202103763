@@ -1,0 +1,851 @@
+{
+  "info": {
+    "name": "Aroma - Practica 4 (Software Avanzado)",
+    "description": "Contrato de los microservicios de Aroma a traves del API Gateway.\n\nAntes de empezar:\n1. Levanta el sistema con `docker compose up --build`.\n2. La variable {{base}} vale http://localhost:8080.\n3. Ejecuta 'Registrar Admin' o 'Registrar Cliente'. La cookie de sesion\n   se guarda sola en el cookie jar de Postman; no hay token que copiar.\n4. Para probar el 403, registra un Cliente y llama a Inventario.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "producto_id",
+      "value": "1"
+    },
+    {
+      "key": "pedido_id",
+      "value": "1"
+    },
+    {
+      "key": "insumo_id",
+      "value": "1"
+    },
+    {
+      "key": "resena_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Sistema",
+      "item": [
+        {
+          "name": "Salud de todos los servicios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/salud",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "salud"
+              ]
+            },
+            "description": "Sonda agregada del gateway. 200 si todos responden, 503 si alguno cayo."
+          },
+          "response": []
+        },
+        {
+          "name": "Diagnostico de permisos del rol",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/diagnostico",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "diagnostico"
+              ]
+            },
+            "description": "Pregunta al microservicio de autorizacion por cada permiso declarado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Sesion (autenticacion de la Practica 2)",
+      "item": [
+        {
+          "name": "Registrar Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/auth/registro",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "201 y cookie HttpOnly. Si el correo ya existe: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Admin Aroma\",\n  \"correo\": \"admin@aroma.gt\",\n  \"password\": \"claveSegura123\",\n  \"rol\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar Cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/auth/registro",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cliente Aroma\",\n  \"correo\": \"cliente@aroma.gt\",\n  \"password\": \"claveSegura123\",\n  \"rol\": \"cliente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/auth/login",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "401 tanto si el correo no existe como si la clave es incorrecta: el mismo mensaje impide enumerar usuarios.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@aroma.gt\",\n  \"password\": \"claveSegura123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Quien soy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/auth/yo",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "yo"
+              ]
+            },
+            "description": "Si el token esta en la ventana de gracia, la respuesta trae X-Token-Renovado: true y una cookie nueva."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/auth/logout",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Catalogo (GraphQL, Node.js)",
+      "item": [
+        {
+          "name": "Menu completo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/catalogo/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "catalogo",
+                "graphql"
+              ]
+            },
+            "description": "Permiso catalogo:usar. Admin y Cliente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query {\\n  categorias { id nombre descripcion }\\n  productos { id nombre precio disponible categoria { nombre } }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Solo lo disponible",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/catalogo/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "catalogo",
+                "graphql"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query($soloDisponibles: Boolean) {\\n  productos(soloDisponibles: $soloDisponibles) { id nombre precio }\\n}\",\n  \"variables\": {\n    \"soloDisponibles\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Un producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/catalogo/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "catalogo",
+                "graphql"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query($id: ID!) {\\n  producto(id: $id) { id nombre precio disponible categoria { nombre } }\\n}\",\n  \"variables\": {\n    \"id\": \"{{producto_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear producto (solo Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/catalogo/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "catalogo",
+                "graphql"
+              ]
+            },
+            "description": "Con una sesion Cliente el resolver responde FORBIDDEN.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($entrada: ProductoEntrada!) {\\n  crearProducto(entrada: $entrada) { id nombre precio }\\n}\",\n  \"variables\": {\n    \"entrada\": {\n      \"nombre\": \"Mocha de temporada\",\n      \"descripcion\": \"Chocolate y naranja\",\n      \"precio\": 28.0,\n      \"categoriaId\": \"1\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Agotar un producto (solo Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/catalogo/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "catalogo",
+                "graphql"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($id: ID!, $disponible: Boolean!) {\\n  cambiarDisponibilidad(id: $id, disponible: $disponible) { id nombre disponible }\\n}\",\n  \"variables\": {\n    \"id\": \"{{producto_id}}\",\n    \"disponible\": false\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Inventario (GraphQL, Python)",
+      "item": [
+        {
+          "name": "Insumos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/inventario/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "inventario",
+                "graphql"
+              ]
+            },
+            "description": "Permiso inventario:gestionar. Con sesion Cliente: 403 desde el gateway.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query {\\n  insumos { id nombre unidad existencia minimo bajoMinimo }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Insumos bajo minimo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/inventario/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "inventario",
+                "graphql"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query {\\n  insumosBajoMinimo { id nombre existencia minimo }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar entrada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/inventario/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "inventario",
+                "graphql"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($insumoId: ID!, $tipo: String!, $cantidad: Float!, $motivo: String!) {\\n  registrarMovimiento(insumoId: $insumoId, tipo: $tipo, cantidad: $cantidad, motivo: $motivo) {\\n    id nombre existencia bajoMinimo\\n  }\\n}\",\n  \"variables\": {\n    \"insumoId\": \"{{insumo_id}}\",\n    \"tipo\": \"entrada\",\n    \"cantidad\": 10.0,\n    \"motivo\": \"compra semanal\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar salida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/inventario/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "inventario",
+                "graphql"
+              ]
+            },
+            "description": "Si la cantidad supera la existencia, el servicio responde con el error de negocio.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($insumoId: ID!, $tipo: String!, $cantidad: Float!, $motivo: String!) {\\n  registrarMovimiento(insumoId: $insumoId, tipo: $tipo, cantidad: $cantidad, motivo: $motivo) {\\n    id nombre existencia bajoMinimo\\n  }\\n}\",\n  \"variables\": {\n    \"insumoId\": \"{{insumo_id}}\",\n    \"tipo\": \"salida\",\n    \"cantidad\": 3.0,\n    \"motivo\": \"consumo de barra\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Historial de un insumo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/inventario/graphql",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "inventario",
+                "graphql"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query($insumoId: ID!) {\\n  movimientos(insumoId: $insumoId, limite: 10) { id tipo cantidad motivo creadoEn }\\n}\",\n  \"variables\": {\n    \"insumoId\": \"{{insumo_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Pedidos (REST, Node.js)",
+      "item": [
+        {
+          "name": "Crear pedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/pedidos",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "pedidos"
+              ]
+            },
+            "description": "Permiso pedidos:crear. El precio lo consulta al catalogo por GraphQL: si el catalogo esta caido, 503.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": \"1\",\n      \"cantidad\": 2\n    },\n    {\n      \"productoId\": \"3\",\n      \"cantidad\": 1\n    }\n  ],\n  \"notas\": \"Para llevar\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mis pedidos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/pedidos",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "pedidos"
+              ]
+            },
+            "description": "Permiso pedidos:leer. Cliente ve los suyos, Admin ve todos."
+          },
+          "response": []
+        },
+        {
+          "name": "Pedidos en preparacion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/pedidos?estado=preparando",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "pedidos"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "preparando"
+                }
+              ]
+            },
+            "description": "Filtro por estado."
+          },
+          "response": []
+        },
+        {
+          "name": "Detalle de un pedido",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/pedidos/{{pedido_id}}",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "{{pedido_id}}"
+              ]
+            },
+            "description": "403 si el pedido es de otra persona y no eres Admin."
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar estado (solo Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/pedidos/{{pedido_id}}/estado",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "{{pedido_id}}",
+                "estado"
+              ]
+            },
+            "description": "Permiso pedidos:gestionar. Con sesion Cliente: 403 desde el gateway.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"preparando\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Resenas (REST, Python)",
+      "item": [
+        {
+          "name": "Publicar resena",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/api/resenas",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "resenas"
+              ]
+            },
+            "description": "Permiso resenas:escribir. La segunda resena del mismo producto por la misma persona: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"producto_id\": \"1\",\n  \"calificacion\": 5,\n  \"comentario\": \"El espresso sale parejo todos los dias.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar resenas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/resenas",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "resenas"
+              ]
+            },
+            "description": "Permiso resenas:leer."
+          },
+          "response": []
+        },
+        {
+          "name": "Resenas de un producto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/resenas?producto_id={{producto_id}}",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "resenas"
+              ],
+              "query": [
+                {
+                  "key": "producto_id",
+                  "value": "{{producto_id}}"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Resumen de un producto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/resenas/resumen/{{producto_id}}",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "resenas",
+                "resumen",
+                "{{producto_id}}"
+              ]
+            },
+            "description": "Promedio y distribucion de estrellas."
+          },
+          "response": []
+        },
+        {
+          "name": "Promedios de todos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/resenas/promedios",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "resenas",
+                "promedios"
+              ]
+            },
+            "description": "Lo consume el frontend para pintar las estrellas del menu."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar resena (solo Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/api/resenas/{{resena_id}}",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "api",
+                "resenas",
+                "{{resena_id}}"
+              ]
+            },
+            "description": "Permiso resenas:moderar. 204 si se borro."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

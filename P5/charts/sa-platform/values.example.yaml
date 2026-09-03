@@ -1,0 +1,37 @@
+# ============================================================================
+# values.example.yaml — plantilla de valores SENSIBLES con datos ficticios.
+# Este es el unico de los cuatro archivos de valores que documenta que
+# claves de acceso existen; ninguno de los otros tres (values.yaml,
+# values-dev.yaml, values-prod.yaml) deberia terminar con una clave REAL
+# commiteada. Para uso real:
+#
+#   cp charts/sa-platform/values.example.yaml charts/sa-platform/values-secretos.yaml
+#   # editar values-secretos.yaml con las claves reales
+#   helm install sa-platform charts/sa-platform \
+#     -f charts/sa-platform/values-dev.yaml \
+#     -f charts/sa-platform/values-secretos.yaml \
+#     --namespace sa-p5 --create-namespace
+#
+# El orden de los -f importa: Helm aplica cada archivo sobre el anterior,
+# asi que el ultimo (values-secretos.yaml) es el que gana.
+#
+# "values-secretos.yaml" debe quedar en .gitignore. Nunca se sube.
+# ============================================================================
+
+global:
+  db:
+    username: aroma
+    password: "REEMPLAZAR-clave-de-postgres-de-al-menos-20-caracteres"
+  broker:
+    username: aroma
+    password: "REEMPLAZAR-clave-de-rabbitmq-de-al-menos-20-caracteres"
+
+postgresql:
+  auth:
+    username: aroma
+    password: "REEMPLAZAR-debe-ser-IGUAL-a-global.db.password"
+
+rabbitmq:
+  auth:
+    username: aroma
+    password: "REEMPLAZAR-debe-ser-IGUAL-a-global.broker.password"

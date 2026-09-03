@@ -1,0 +1,21 @@
+# Solo el gateway puede llamar a los cuatro microservicios de negocio.
+# Un pod cualquiera del namespace (por ejemplo un pod de prueba) NO puede
+# alcanzarlos directamente: es el escenario que se pide demostrar
+# bloqueado en la evidencia de la practica.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: permitir-gateway-a-microservicios
+  labels: {{ include "sa-platform.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: ["catalogo", "inventario", "pedidos", "resenas"]
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sa-common.fullname" . }}
+  labels: {{ include "sa-common.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels: {{ include "sa-common.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels: {{ include "sa-common.labels" . | nindent 8 }}
+      annotations:
+        {{ include "sa-common.checksumConfigAnnotation" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "sa-common.fullname" . }}
+      securityContext: {{ include "sa-common.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: catalogo
+          image: {{ include "sa-common.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext: {{ include "sa-common.containerSecurityContext" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.servicio.puerto }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "sa-common.fullname" . }}
+            - secretRef:
+                name: {{ include "sa-common.fullname" . }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          resources: {{ .Values.recursos | toYaml | nindent 12 }}
+          startupProbe:
+            httpGet: { path: {{ .Values.sondas.arranque.rutaHttp }}, port: http }
+            initialDelaySeconds: {{ .Values.sondas.arranque.delayInicialSeg }}
+            periodSeconds: {{ .Values.sondas.arranque.periodoSeg }}
+            failureThreshold: {{ .Values.sondas.arranque.fallosPermitidos }}
+          livenessProbe:
+            httpGet: { path: {{ .Values.sondas.vida.rutaHttp }}, port: http }
+            periodSeconds: {{ .Values.sondas.vida.periodoSeg }}
+            timeoutSeconds: {{ .Values.sondas.vida.timeoutSeg }}
+            failureThreshold: {{ .Values.sondas.vida.fallosPermitidos }}
+          readinessProbe:
+            httpGet: { path: {{ .Values.sondas.disponible.rutaHttp }}, port: http }
+            periodSeconds: {{ .Values.sondas.disponible.periodoSeg }}
+            timeoutSeconds: {{ .Values.sondas.disponible.timeoutSeg }}
+            failureThreshold: {{ .Values.sondas.disponible.fallosPermitidos }}
+      volumes:
+        - name: tmp
+          emptyDir: {}

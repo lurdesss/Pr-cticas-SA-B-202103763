@@ -1,0 +1,13 @@
+# Punto de partida de confianza cero: sin reglas explicitas, NADIE puede
+# alcanzar a NADIE dentro de sa-p5. Kubernetes permite todo el trafico por
+# defecto (es la respuesta a la pregunta teorica correspondiente); esta
+# politica es la que invierte esa regla para el namespace completo.
+# Las politicas siguientes (02, 03, 04...) son las excepciones puntuales.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  labels: {{ include "sa-platform.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]

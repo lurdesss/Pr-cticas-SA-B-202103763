@@ -1,0 +1,275 @@
+<mxfile host="app.diagrams.net" agent="P3-SoftwareAvanzado">
+  <diagram id="Arquitectura_General" name="Arquitectura General">
+    <mxGraphModel dx="2307" dy="1031" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1650" pageHeight="1020" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=26;fontStyle=1;fontColor=#1F3864;" value="Diagrama de Arquitectura General" vertex="1">
+          <mxGeometry height="34" width="900" x="60" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontColor=#555555;" value="Sistema de procesamiento de transacciones bancarias" vertex="1">
+          <mxGeometry height="22" width="1200" x="60" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="portal" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="Portal Web" vertex="1">
+          <mxGeometry height="66" width="340" x="420" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="portal_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="maker · checker · authorizer · auditor" vertex="1">
+          <mxGeometry height="20" width="320" x="430" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="gw" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#000000;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="API Gateway" vertex="1">
+          <mxGeometry height="66" width="640" x="270" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="gw_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="punto único de entrada · enrutamiento · validación del token · límite de uso · identificador de correlación" vertex="1">
+          <mxGeometry height="20" width="1040" x="70" y="256" as="geometry" />
+        </mxCell>
+        <mxCell id="lotes" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="ms-lotes" vertex="1">
+          <mxGeometry height="86" width="340" x="60" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="lotes_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="carga y validación de CSV&#xa;historial y descarga" vertex="1">
+          <mxGeometry height="40" width="320" x="70" y="362" as="geometry" />
+        </mxCell>
+        <mxCell id="bd_lotes" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;align=center;" value="BD lotes" vertex="1">
+          <mxGeometry height="54" width="120" x="100" y="456" as="geometry" />
+        </mxCell>
+        <mxCell id="l_lotes" edge="1" parent="1" source="lotes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=none;strokeColor=#000000;" target="bd_lotes" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="160.04" y="430" />
+              <mxPoint x="160.04" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aprob" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="ms-aprobaciones" vertex="1">
+          <mxGeometry height="86" width="340" x="420" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="aprob_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="flujo maker-checker-authorizer&#xa;políticas por monto" vertex="1">
+          <mxGeometry height="40" width="320" x="430" y="362" as="geometry" />
+        </mxCell>
+        <mxCell id="bd_aprob" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;align=center;" value="BD aprobaciones" vertex="1">
+          <mxGeometry height="54" width="130" x="570" y="436" as="geometry" />
+        </mxCell>
+        <mxCell id="l_aprob" edge="1" parent="1" source="aprob" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=none;strokeColor=#000000;" target="bd_aprob" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="635" y="420" />
+              <mxPoint x="635" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="trans" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="ms-transacciones" vertex="1">
+          <mxGeometry height="86" width="340" x="780" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="trans_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="envío al core bancario&#xa;conciliación de respuestas" vertex="1">
+          <mxGeometry height="40" width="215" x="842.5" y="376" as="geometry" />
+        </mxCell>
+        <mxCell id="bd_trans" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;align=center;" value="BD transacciones" vertex="1">
+          <mxGeometry height="54" width="130" x="970" y="446" as="geometry" />
+        </mxCell>
+        <mxCell id="l_trans" edge="1" parent="1" source="trans" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=none;strokeColor=#000000;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" target="bd_trans" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bus" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#000000;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="Bus de eventos  ·  mensajería asíncrona" vertex="1">
+          <mxGeometry height="60" width="560" x="310" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="bus_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="LoteValidado · LoteAprobado · TransaccionEnviada · NotificacionEnviada" vertex="1">
+          <mxGeometry height="20" width="330" x="420" y="561" as="geometry" />
+        </mxCell>
+        <mxCell id="notif" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="ms-notificaciones" vertex="1">
+          <mxGeometry height="86" width="340" x="60" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="notif_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="correo a beneficiarios&#xa;plantillas y reintentos" vertex="1">
+          <mxGeometry height="40" width="320" x="70" y="662" as="geometry" />
+        </mxCell>
+        <mxCell id="bd_notif" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;align=center;" value="BD notificaciones" vertex="1">
+          <mxGeometry height="54" width="160" x="150" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="l2_notif" edge="1" parent="1" source="notif" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=none;strokeColor=#000000;" target="bd_notif" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bit" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="ms-bitacora" vertex="1">
+          <mxGeometry height="86" width="340" x="420" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="bit_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="logging centralizado&#xa;auditable y consultable" vertex="1">
+          <mxGeometry height="40" width="320" x="430" y="662" as="geometry" />
+        </mxCell>
+        <mxCell id="bd_bit" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;align=center;" value="BD bitacora" vertex="1">
+          <mxGeometry height="54" width="160" x="510" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="l2_bit" edge="1" parent="1" source="bit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=none;strokeColor=#000000;" target="bd_bit" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oauth" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;dashed=1;dashPattern=8 4;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="OAuth Corporativo" vertex="1">
+          <mxGeometry height="66" width="340" x="1220" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="oauth_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="externo · token de 12 h · quién eres" vertex="1">
+          <mxGeometry height="20" width="320" x="1230" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="auth" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="ms-autenticacion  (Práctica 2)" vertex="1">
+          <mxGeometry height="66" width="340" x="1220" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="auth_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="sesión en cookie · renovación · cifrado" vertex="1">
+          <mxGeometry height="20" width="320" x="1230" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="bd_auth" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;align=center;" value="BD autenticacion" vertex="1">
+          <mxGeometry height="48" width="160" x="1310" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="l_auth" edge="1" parent="1" source="auth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=none;strokeColor=#000000;" target="bd_auth" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="autz" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="ms-autorizacion  (Práctica 2)" vertex="1">
+          <mxGeometry height="66" width="340" x="1220" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="autz_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="permisos por rol · qué puedes hacer" vertex="1">
+          <mxGeometry height="20" width="320" x="1230" y="416" as="geometry" />
+        </mxCell>
+        <mxCell id="bd_autz" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;align=center;" value="BD autorizacion" vertex="1">
+          <mxGeometry height="48" width="160" x="1310" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="l_autz" edge="1" parent="1" source="autz" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=none;strokeColor=#000000;" target="bd_autz" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="core" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;dashed=1;dashPattern=8 4;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="Core Bancario" vertex="1">
+          <mxGeometry height="62" width="340" x="1220" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="core_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="externo · compensación interbancaria" vertex="1">
+          <mxGeometry height="20" width="320" x="1230" y="574" as="geometry" />
+        </mxCell>
+        <mxCell id="mail" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;dashed=1;dashPattern=8 4;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="Servicio de Correo" vertex="1">
+          <mxGeometry height="62" width="340" x="1220" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="mail_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="externo · correo saliente" vertex="1">
+          <mxGeometry height="20" width="320" x="1230" y="664" as="geometry" />
+        </mxCell>
+        <mxCell id="alm" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;dashed=1;dashPattern=8 4;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=6;align=center;" value="Almacenamiento de Archivos" vertex="1">
+          <mxGeometry height="62" width="340" x="1220" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="alm_s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#444444;" value="externo · CSV originales y de resultado" vertex="1">
+          <mxGeometry height="20" width="320" x="1230" y="754" as="geometry" />
+        </mxCell>
+        <mxCell id="r0" edge="1" parent="1" source="portal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="gw" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="auth" value="valida la sesión">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" edge="1" parent="1" source="auth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="oauth" value="verifica al empleado">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="lotes" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480.01" y="308" />
+              <mxPoint x="280.01" y="308" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r4" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="aprob" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" edge="1" parent="1" source="lotes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="autz" value="¿este rol puede?">
+          <mxGeometry relative="1" x="0.1905" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="200.01" y="260" />
+              <mxPoint x="1300.01" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r6" edge="1" parent="1" source="aprob" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="autz" value="¿este rol puede?">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="280" />
+              <mxPoint x="1280" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r7" edge="1" parent="1" source="lotes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="alm" value="guarda y recupera el CSV">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="320.01" y="320" />
+              <mxPoint x="1240.01" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r8" edge="1" parent="1" source="lotes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="core" value="consulta cuenta y saldo">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="240.01" y="300" />
+              <mxPoint x="1260.04" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r9" edge="1" parent="1" source="trans" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="core" value="envía las transacciones">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="960" y="520" />
+              <mxPoint x="1390" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r10" edge="1" parent="1" source="notif" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="mail" value="solicita el envío">
+          <mxGeometry relative="1" x="0.0579" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="340" y="810" />
+              <mxPoint x="810" y="810" />
+              <mxPoint x="810" y="661" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r11" edge="1" parent="1" source="notif" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;endFill=1;endSize=6;strokeColor=#000000;" target="lotes" value="consulta beneficiarios">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a0" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=open;endFill=0;endSize=8;dashed=1;strokeColor=#666666;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="bus" value="LoteValidado">
+          <mxGeometry relative="1" x="-0.3571" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="330" y="473.04" />
+              <mxPoint x="450" y="473.04" />
+            </Array>
+            <mxPoint x="330.0044827586207" y="416.0000000000001" as="sourcePoint" />
+            <mxPoint x="580.0044827586207" y="530.0000000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a1" edge="1" parent="1" source="aprob" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=open;endFill=0;endSize=8;dashed=1;strokeColor=#666666;" target="bus" value="LoteAprobado">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="470" />
+              <mxPoint x="520" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a2" edge="1" parent="1" source="trans" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=open;endFill=0;endSize=8;dashed=1;strokeColor=#666666;" target="bus" value="TransaccionEnviada">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="920.03" y="473.03" />
+              <mxPoint x="720.03" y="473.03" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a3" edge="1" parent="1" source="bus" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=open;endFill=0;endSize=8;dashed=1;strokeColor=#666666;" target="trans" value="consume">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760.03" y="490" />
+              <mxPoint x="950.03" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a4" edge="1" parent="1" source="bus" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=open;endFill=0;endSize=8;dashed=1;strokeColor=#666666;" target="notif" value="consume">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="610" />
+              <mxPoint x="280" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a5" edge="1" parent="1" source="bus" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=open;endFill=0;endSize=8;dashed=1;strokeColor=#666666;" target="bit" value="consume todos los eventos">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ley" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontSize=11;dashed=0;" value="LEYENDA&lt;br&gt;&lt;br&gt;──▶   llamada síncrona (REST): quien llama espera la respuesta&lt;br&gt;- -▷   evento asíncrono: quien publica no espera a nadie&lt;br&gt;Borde continuo: microservicio propio, con base de datos independiente&lt;br&gt;Borde punteado: sistema externo a la solución&lt;br&gt;&lt;br&gt;Esta vista escribe qué hace cada parte del negocio y cómo se comunican entre sí." vertex="1">
+          <mxGeometry height="150" width="1060" x="60" y="830" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

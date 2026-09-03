@@ -1,0 +1,25 @@
+# Solo pedidos (productor y worker consumidor, ambos con
+# app.kubernetes.io/name=pedidos) y el Cronjob 2 (que publica el resumen)
+# pueden hablarle al broker. catalogo, inventario y resenas no lo
+# necesitan y por eso no aparecen aqui.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: permitir-servicios-a-rabbitmq
+  labels: {{ include "sa-platform.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pedidos
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ include "sa-platform.nombreCronResumen" . }}
+      ports:
+        - protocol: TCP
+          port: 5672

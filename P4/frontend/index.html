@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aroma · Entrar</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <main class="acceso">
+    <section class="acceso__tarjeta">
+      <p class="marca">Aroma</p>
+      <p class="marca__linea">Cafeteria de especialidad</p>
+
+      <div class="pestanas" role="tablist">
+        <button type="button" role="tab" data-vista="login" aria-selected="true">Entrar</button>
+        <button type="button" role="tab" data-vista="registro" aria-selected="false">Crear cuenta</button>
+      </div>
+
+      <form id="form-login">
+        <label for="login-correo">Correo</label>
+        <input id="login-correo" name="correo" type="email" required autocomplete="email">
+
+        <label for="login-password">Contrasena</label>
+        <input id="login-password" name="password" type="password" required minlength="8" autocomplete="current-password">
+
+        <div class="acciones">
+          <button class="principal" type="submit">Entrar</button>
+        </div>
+      </form>
+
+      <form id="form-registro" hidden>
+        <label for="reg-nombre">Nombre</label>
+        <input id="reg-nombre" name="nombre" type="text" required maxlength="80">
+
+        <label for="reg-correo">Correo</label>
+        <input id="reg-correo" name="correo" type="email" required autocomplete="email">
+
+        <label for="reg-password">Contrasena</label>
+        <input id="reg-password" name="password" type="password" required minlength="8" autocomplete="new-password">
+
+        <label for="reg-rol">Rol</label>
+        <select id="reg-rol" name="rol">
+          <option value="admin">Admin — administra el negocio</option>
+          <option value="cliente">Cliente — pide y opina</option>
+        </select>
+
+        <div class="acciones">
+          <button class="principal" type="submit">Crear cuenta</button>
+        </div>
+      </form>
+
+      <p id="aviso" class="aviso" hidden></p>
+
+      <p class="silencio mono" style="margin-top:26px;font-size:.72rem">
+        La sesion viaja en una cookie HttpOnly emitida por el servicio de
+        autenticacion de la Practica 2. Ningun script de esta pagina puede leerla.
+      </p>
+    </section>
+  </main>
+
+  <script type="module" src="acceso.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+# Consumidor: procesa pedidos.eventos y resumenes.ejecucion de forma
+# independiente de la API. Sin puerto HTTP: la sonda de vida comprueba
+# que el proceso siga corriendo (busybox "ps", incluido en node:20-alpine,
+# sin instalar nada extra).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sa-common.fullname" . }}-worker
+  labels: {{ include "sa-common.labels" . | nindent 4 }}
+    sa-platform/rol: worker
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels:
+      {{ include "sa-common.selectorLabels" . | nindent 6 }}
+      sa-platform/rol: worker
+  template:
+    metadata:
+      labels:
+        {{ include "sa-common.labels" . | nindent 8 }}
+        sa-platform/rol: worker
+      annotations:
+        {{ include "sa-common.checksumConfigAnnotation" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "sa-common.fullname" . }}
+      securityContext: {{ include "sa-common.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: pedidos-worker
+          image: {{ include "sa-common.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["node", "src/worker.js"]
+          securityContext: {{ include "sa-common.containerSecurityContext" . | nindent 12 }}
+          envFrom:
+            - configMapRef: { name: {{ include "sa-common.fullname" . }} }
+            - secretRef: { name: {{ include "sa-common.fullname" . }} }
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+          resources: {{ .Values.worker.recursos | toYaml | nindent 12 }}
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "ps | grep '[w]orker.js'"]
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 3
+      volumes:
+        - name: tmp
+          emptyDir: {}

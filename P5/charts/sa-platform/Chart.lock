@@ -1,0 +1,27 @@
+dependencies:
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 16.7.27
+- name: rabbitmq
+  repository: https://charts.bitnami.com/bitnami
+  version: 15.5.3
+- name: gateway
+  repository: file://charts/gateway
+  version: 0.1.0
+- name: catalogo
+  repository: file://charts/catalogo
+  version: 0.1.0
+- name: inventario
+  repository: file://charts/inventario
+  version: 0.1.0
+- name: pedidos
+  repository: file://charts/pedidos
+  version: 0.1.0
+- name: resenas
+  repository: file://charts/resenas
+  version: 0.1.0
+- name: sa-common
+  repository: file://charts/sa-common
+  version: 0.1.0
+digest: sha256:6a46d895c55c31657e6d86a52e05d75a0fdb8a66af8a2d9fe3d7ae44457c4c6f
+generated: "2026-08-29T10:43:06.560374-06:00"

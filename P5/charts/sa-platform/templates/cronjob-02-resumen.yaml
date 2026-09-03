@@ -1,0 +1,51 @@
+# Cronjob 2: cada 10 minutos calcula cuantas veces corrio el Cronjob 1 en
+# la hora actual y PUBLICA ese resumen en RabbitMQ (no lo guarda el mismo:
+# lo guarda pedidos-worker al consumirlo). Es el mismo patron
+# productor/consumidor de pedidos-service, aplicado a un cronjob.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "sa-platform.nombreCronResumen" . }}
+  labels: {{ include "sa-platform.labels" . | nindent 4 }}
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 120
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      activeDeadlineSeconds: 90
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: {{ include "sa-platform.nombreCronResumen" . }}
+            app.kubernetes.io/part-of: aroma
+        spec:
+          restartPolicy: Never
+          serviceAccountName: {{ include "sa-platform.nombreCronResumen" . }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile: { type: RuntimeDefault }
+          containers:
+            - name: resumen-ejecuciones
+              image: {{ .Values.cronjobResumen.image.repository }}:{{ .Values.cronjobResumen.image.tag | default .Chart.AppVersion }}
+              imagePullPolicy: {{ .Values.cronjobResumen.image.pullPolicy | default "IfNotPresent" }}
+              securityContext:
+                runAsNonRoot: true
+                readOnlyRootFilesystem: true
+                allowPrivilegeEscalation: false
+                capabilities: { drop: ["ALL"] }
+              env:
+                - name: DATABASE_URL
+                  value: "postgres://{{ .Values.global.db.username }}:{{ .Values.global.db.password }}@{{ .Values.global.db.host }}:{{ .Values.global.db.port }}/pedidos_db"
+                - name: BROKER_URL
+                  value: "amqp://{{ .Values.global.broker.username }}:{{ .Values.global.broker.password }}@{{ .Values.global.broker.host }}:{{ .Values.global.broker.port }}"
+                - name: COLA_RESUMENES
+                  value: "resumenes.ejecucion"
+              resources:
+                requests: { cpu: 30m, memory: 48Mi }
+                limits:   { cpu: 150m, memory: 128Mi }

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aroma · Barra</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header class="cabecera">
+    <span class="marca">Aroma</span>
+    <span class="mono silencio">barra de servicio</span>
+    <div class="cabecera__sesion">
+      <span id="nombre">…</span>
+      <span id="rol" class="insignia">…</span>
+      <button id="salir" class="secundario" type="button">Salir</button>
+    </div>
+  </header>
+
+  <div class="pestanas" style="padding:0 24px;background:var(--porcelana)">
+    <button type="button" data-ir="menu" aria-selected="true">Menu</button>
+    <button type="button" data-ir="pedidos" aria-selected="false">Pedidos</button>
+    <button type="button" data-ir="resenas" aria-selected="false">Resenas</button>
+    <button type="button" data-ir="inventario" aria-selected="false">Inventario</button>
+    <button type="button" data-ir="sistema" aria-selected="false">Sistema</button>
+  </div>
+
+  <div class="disposicion">
+    <main>
+      <!-- ------------------------------------------------------ menu -->
+      <section class="panel" data-vista="menu">
+        <div class="panel__titulo">
+          <h2>Menu</h2>
+          <span class="mono">catalogo-service · GraphQL · Node.js</span>
+        </div>
+        <div id="menu"></div>
+      </section>
+
+      <section class="panel" data-vista="menu">
+        <div class="panel__titulo">
+          <h2>Tu pedido</h2>
+          <span class="mono">pedidos-service · REST · Node.js</span>
+        </div>
+        <div id="carrito"></div>
+        <label for="notas">Indicaciones para la barra</label>
+        <input id="notas" type="text" maxlength="200" placeholder="Sin azucar, para llevar…">
+        <div class="acciones">
+          <button id="enviar-pedido" class="principal" type="button" disabled>Enviar pedido</button>
+        </div>
+      </section>
+
+      <!-- --------------------------------------------------- pedidos -->
+      <section class="panel" data-vista="pedidos" hidden>
+        <div class="panel__titulo">
+          <h2>Pedidos</h2>
+          <span class="mono">pedidos-service · REST</span>
+        </div>
+        <div id="pedidos"></div>
+      </section>
+
+      <!-- --------------------------------------------------- resenas -->
+      <section class="panel" data-vista="resenas" hidden>
+        <div class="panel__titulo">
+          <h2>Escribir una resena</h2>
+          <span class="mono">resenas-service · REST · Python</span>
+        </div>
+        <form id="form-resena">
+          <label for="resena-producto">Producto</label>
+          <select id="resena-producto" name="producto_id"></select>
+
+          <label for="resena-calificacion">Calificacion</label>
+          <select id="resena-calificacion" name="calificacion">
+            <option value="5">5 — excelente</option>
+            <option value="4">4 — muy bueno</option>
+            <option value="3">3 — pasable</option>
+            <option value="2">2 — flojo</option>
+            <option value="1">1 — no vuelvo</option>
+          </select>
+
+          <label for="resena-comentario">Comentario</label>
+          <textarea id="resena-comentario" name="comentario" maxlength="500"></textarea>
+
+          <div class="acciones">
+            <button class="principal" type="submit">Publicar</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" data-vista="resenas" hidden>
+        <div class="panel__titulo"><h2>Lo que opinan</h2></div>
+        <div id="lista-resenas"></div>
+      </section>
+
+      <!-- ------------------------------------------------ inventario -->
+      <section class="panel" data-vista="inventario" hidden>
+        <div class="panel__titulo">
+          <h2>Bodega</h2>
+          <span class="mono">inventario-service · GraphQL · Python</span>
+        </div>
+        <p class="silencio" style="font-size:.85rem">
+          Solo el rol Admin tiene el permiso <code class="mono">inventario:gestionar</code>.
+          Con una cuenta Cliente esta pantalla responde 403.
+        </p>
+        <div id="inventario"></div>
+      </section>
+
+      <section class="panel" data-vista="inventario" hidden>
+        <div class="panel__titulo"><h2>Registrar movimiento</h2></div>
+        <form id="form-movimiento">
+          <label for="movimiento-insumo">Insumo</label>
+          <select id="movimiento-insumo" name="insumo_id"></select>
+
+          <label for="movimiento-tipo">Tipo</label>
+          <select id="movimiento-tipo" name="tipo">
+            <option value="entrada">Entrada — llego mercaderia</option>
+            <option value="salida">Salida — se consumio</option>
+            <option value="ajuste">Ajuste — conteo fisico</option>
+          </select>
+
+          <label for="movimiento-cantidad">Cantidad</label>
+          <input id="movimiento-cantidad" name="cantidad" type="number" step="0.01" min="0.01" value="1" required>
+
+          <label for="movimiento-motivo">Motivo</label>
+          <input id="movimiento-motivo" name="motivo" type="text" maxlength="200" placeholder="Compra semanal">
+
+          <div class="acciones">
+            <button class="principal" type="submit">Registrar</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- --------------------------------------------------- sistema -->
+      <section class="panel" data-vista="sistema" hidden>
+        <div class="panel__titulo">
+          <h2>Estado del sistema</h2>
+          <span class="mono">gateway</span>
+        </div>
+        <div id="sistema"></div>
+      </section>
+    </main>
+
+    <!-- Elemento firma: cada respuesta del gateway sale impresa aqui -->
+    <aside class="comanda">
+      <p class="comanda__titulo">Comanda del gateway</p>
+      <div class="comanda__tira" id="tira"></div>
+      <p class="comanda__corte">· · · · · ·</p>
+    </aside>
+  </div>
+
+  <script type="module" src="panel.js"></script>
+</body>
+</html>

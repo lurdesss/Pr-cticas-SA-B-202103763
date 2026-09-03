@@ -1,0 +1,298 @@
+/* Aroma - identidad visual
+   Porcelana y tinta, con un unico acento jade (cafe verde / cardamomo).
+   La tira de comanda monoespaciada de la derecha es el elemento firma:
+   imprime cada respuesta del gateway como un ticket de caja. */
+
+:root {
+  --porcelana: #f2f1ec;
+  --papel: #ffffff;
+  --tinta: #1b2430;
+  --tinta-suave: #5d6672;
+  --jade: #0e6f5c;
+  --jade-claro: #e3efeb;
+  --ambar: #b4741c;
+  --carmin: #9b2c2c;
+  --linea: #d8d6cd;
+
+  --display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --texto: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --radio: 3px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--porcelana);
+  color: var(--tinta);
+  font-family: var(--texto);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.05rem; }
+
+a { color: var(--jade); }
+
+.mono { font-family: var(--mono); font-size: 0.85em; }
+.silencio { color: var(--tinta-suave); }
+.error { color: var(--carmin); }
+
+/* ------------------------------------------------------------ acceso */
+
+.acceso {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.acceso__tarjeta {
+  width: min(420px, 100%);
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  padding: 32px;
+}
+
+.marca {
+  font-family: var(--display);
+  font-size: 2.4rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.marca__linea {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-bottom: 28px;
+}
+
+.pestanas {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--linea);
+  margin-bottom: 20px;
+}
+
+.pestanas button {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--tinta-suave);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.pestanas button[aria-selected="true"] {
+  color: var(--tinta);
+  border-bottom-color: var(--jade);
+}
+
+.pestanas button:focus-visible { outline: 2px solid var(--jade); outline-offset: -2px; }
+
+label { display: block; font-size: 0.82rem; color: var(--tinta-suave); margin: 14px 0 4px; }
+
+input, select, textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  background: var(--papel);
+  font: inherit;
+  color: var(--tinta);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--jade);
+  outline-offset: -1px;
+  border-color: var(--jade);
+}
+
+textarea { resize: vertical; min-height: 70px; }
+
+button.principal, button.secundario {
+  appearance: none;
+  border-radius: var(--radio);
+  padding: 10px 16px;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+button.principal { background: var(--jade); color: #fff; border: 1px solid var(--jade); }
+button.principal:hover { background: #0b5b4b; }
+button.secundario { background: transparent; color: var(--tinta); border: 1px solid var(--linea); }
+button.secundario:hover { border-color: var(--tinta-suave); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+
+.acciones { display: flex; gap: 8px; align-items: center; margin-top: 20px; }
+
+.aviso {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--carmin);
+  background: #fbf1f1;
+  font-size: 0.86rem;
+}
+
+.aviso--ok { border-left-color: var(--jade); background: var(--jade-claro); }
+
+/* ------------------------------------------------------------- panel */
+
+.cabecera {
+  background: var(--tinta);
+  color: var(--porcelana);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cabecera .marca { font-size: 1.5rem; margin: 0; }
+.cabecera__sesion { margin-left: auto; display: flex; align-items: center; gap: 14px; font-size: 0.85rem; }
+
+.insignia {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.insignia--admin { color: #7ee0c4; }
+.insignia--cliente { color: #e8c98a; }
+
+.disposicion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  padding: 24px;
+  align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.panel {
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.panel__titulo {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--linea);
+}
+
+.panel__titulo .mono { color: var(--jade); }
+
+.rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+
+.producto { border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.producto--agotado { opacity: 0.55; }
+.producto__precio { font-family: var(--mono); color: var(--jade); font-size: 1.05rem; }
+.producto__pie { margin-top: auto; display: flex; gap: 6px; align-items: center; padding-top: 10px; }
+.producto__pie input { width: 62px; }
+
+.estrellas { color: var(--ambar); font-size: 0.82rem; letter-spacing: 0.08em; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--linea); }
+th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--tinta-suave); font-weight: 600; }
+td.numero { font-family: var(--mono); text-align: right; }
+
+.estado {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--jade-claro);
+  color: var(--jade);
+}
+
+.estado--preparando { background: #fdf0dd; color: var(--ambar); }
+.estado--cancelado { background: #fbf1f1; color: var(--carmin); }
+.estado--entregado { background: #eceff3; color: var(--tinta-suave); }
+
+.linea-total { display: flex; justify-content: space-between; font-family: var(--mono); border-top: 1px solid var(--linea); padding-top: 10px; margin-top: 10px; }
+
+/* ------------------------------------------- tira de comanda (firma) */
+
+.comanda {
+  position: sticky;
+  top: 24px;
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio) var(--radio) 0 0;
+  padding: 16px 16px 0;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+}
+
+.comanda__titulo {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+  border-bottom: 1px dashed var(--linea);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.comanda__tira { overflow-y: auto; flex: 1; padding-bottom: 12px; }
+
+.comanda__linea { padding: 4px 0; border-bottom: 1px dotted var(--linea); word-break: break-all; }
+.comanda__linea b { font-weight: 600; }
+.comanda__codigo { display: inline-block; min-width: 30px; }
+.c-200 { color: var(--jade); }
+.c-400 { color: var(--ambar); }
+.c-500 { color: var(--carmin); }
+
+.comanda__corte {
+  border-top: 1px dashed var(--linea);
+  text-align: center;
+  color: var(--tinta-suave);
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  padding: 8px 0 12px;
+}
+
+@media (max-width: 900px) {
+  .disposicion { grid-template-columns: minmax(0, 1fr); }
+  .comanda { position: static; max-height: 320px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .comanda__linea { animation: entra 220ms ease-out; }
+  @keyframes entra { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+}

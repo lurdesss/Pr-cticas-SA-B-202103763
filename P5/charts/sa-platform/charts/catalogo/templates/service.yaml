@@ -1,0 +1,14 @@
+# ClusterIP: alcanzable solo dentro del cluster. La NetworkPolicy del
+# chart padre es la que decide quien puede llamarlo (solo el gateway).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sa-common.fullname" . }}
+  labels: {{ include "sa-common.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector: {{ include "sa-common.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.servicio.puerto }}
+      targetPort: http

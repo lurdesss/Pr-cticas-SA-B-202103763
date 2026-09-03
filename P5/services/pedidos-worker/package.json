@@ -1,0 +1,17 @@
+{
+  "name": "aroma-pedidos-worker",
+  "version": "1.0.0",
+  "description": "Consumidor asincrono de eventos de pedidos y resumenes de cron (Practica 5).",
+  "type": "module",
+  "main": "src/worker.js",
+  "scripts": {
+    "start": "node src/worker.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,274 @@
+<mxfile host="app.diagrams.net" agent="P3-SoftwareAvanzado">
+  <diagram id="Componentes_UML" name="Componentes UML">
+    <mxGraphModel dx="4320" dy="1260" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=26;fontStyle=1;fontColor=#1F3864;" value="Diagrama de Componentes UML" vertex="1">
+          <mxGeometry height="34" width="900" x="60" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="s" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontColor=#555555;" value="Relación entre microservicios, API Gateway, bus de eventos y sistemas externos  ·  notación UML: componentes con interfaces provistas y requeridas" vertex="1">
+          <mxGeometry height="22" width="1300" x="60" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="portal" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;PortalWebCorporativo&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="280" x="60" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="gw" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;ApiGateway&lt;/b&gt;" vertex="1">
+          <mxGeometry height="70" width="320" x="440" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="i_gw" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;align=center;" value="«interface»&#xa;IApiPublica" vertex="1">
+          <mxGeometry height="20" width="20" x="590" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="li_gw" edge="1" parent="1" source="i_gw" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" target="gw" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="u_portal" edge="1" parent="1" source="portal" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_gw" value="«use»">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="200" y="100" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lotes" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;ms-lotes&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="220" x="60" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="i_lotes" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;align=center;" value="«interface»&#xa;ILotes" vertex="1">
+          <mxGeometry height="20" width="20" x="190" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="li_lotes" edge="1" parent="1" source="i_lotes" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" target="lotes" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="200" y="320" />
+              <mxPoint x="200" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aprob" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;ms-aprobaciones&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="230" x="400" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="i_aprob" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;align=center;" value="«interface»&#xa;IAprobaciones" vertex="1">
+          <mxGeometry height="20" width="20" x="530" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="li_aprob" edge="1" parent="1" source="i_aprob" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" target="aprob" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="320" />
+              <mxPoint x="540" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="trans" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;ms-transacciones&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="220" x="740" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="i_trans" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;align=center;" value="«interface»&#xa;ITransacciones" vertex="1">
+          <mxGeometry height="20" width="20" x="850" y="275" as="geometry" />
+        </mxCell>
+        <mxCell id="li_trans" edge="1" parent="1" source="i_trans" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" target="trans" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="860" y="300" />
+              <mxPoint x="860" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="notif" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;ms-notificaciones&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="280" x="60" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="i_notif" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;align=center;" value="«interface»&#xa;INotificaciones" vertex="1">
+          <mxGeometry height="20" width="20" x="190" y="518" as="geometry" />
+        </mxCell>
+        <mxCell id="li_notif" edge="1" parent="1" source="i_notif" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" target="notif" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bit" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;ms-bitacora&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="230" x="400" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="i_bit" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;align=center;" value="«interface»&#xa;IBitacora" vertex="1">
+          <mxGeometry height="20" width="20" x="530" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="li_bit" edge="1" parent="1" source="i_bit" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" target="bit" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="550" />
+              <mxPoint x="540" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="auth" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;ms-autenticacion (P2)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="280" x="1100" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="i_auth" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;align=center;" value="«interface»&#xa;IAutenticacion" vertex="1">
+          <mxGeometry height="20" width="20" x="1230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="li_auth" edge="1" parent="1" source="i_auth" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" target="auth" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="autz" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;ms-autorizacion (P2)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="280" x="1100" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="i_autz" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;align=center;" value="«interface»&#xa;IAutorizacion" vertex="1">
+          <mxGeometry height="20" width="20" x="1230" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="li_autz" edge="1" parent="1" source="i_autz" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" target="autz" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bus" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«component»&amp;#10;&lt;b&gt;BusDeEventos&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="240" x="730" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="oauth" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«external system»&amp;#10;&lt;b&gt;OAuthCorporativo&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="280" x="1100" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="core" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«external system»&amp;#10;&lt;b&gt;CoreBancario&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="280" x="1100" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="mail" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«external system»&amp;#10;&lt;b&gt;ServicioDeCorreo&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="280" x="1100" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="alm" parent="1" style="html=1;dropTarget=0;shape=component;align=left;spacingLeft=36;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=middle;" value="«external system»&amp;#10;&lt;b&gt;AlmacenamientoArchivos&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="280" x="1100" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="u0" edge="1" parent="1" source="gw" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_auth" value="«use» validar sesión">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="u1" edge="1" parent="1" source="gw" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_lotes" value="«use»">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="560.03" y="240.03" />
+              <mxPoint x="200.03" y="240.03" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="u2" edge="1" parent="1" source="gw" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_aprob" value="«use»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="u3" edge="1" parent="1" source="gw" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_trans" value="«use»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="u4" edge="1" parent="1" source="gw" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_bit" value="«use»">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="440" />
+              <mxPoint x="540" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="u5" edge="1" parent="1" source="auth" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="oauth" value="«use» OAuth 2.0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="u6" edge="1" parent="1" source="lotes" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_autz" value="«use» permiso">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="u7" edge="1" parent="1" source="aprob" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_autz" value="«use» permiso">
+          <mxGeometry relative="1" x="0.2615" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="610" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="u8" edge="1" parent="1" source="bit" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_autz" value="«use» permiso">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540.03" y="630" />
+              <mxPoint x="1030.03" y="630" />
+              <mxPoint x="1030.03" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="u9" edge="1" parent="1" source="lotes" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="alm" value="«use» guardar/recuperar">
+          <mxGeometry relative="1" x="-0.1327" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="240" y="490" />
+              <mxPoint x="1070" y="490" />
+              <mxPoint x="1070" y="660" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="u10" edge="1" parent="1" source="lotes" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="core" value="«use» consultar cuenta">
+          <mxGeometry relative="1" x="-0.1892" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="169.98" y="410.02" />
+              <mxPoint x="1240.02" y="410.02" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="u11" edge="1" parent="1" source="trans" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="core" value="«use» enviar lote">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="920.03" y="460.03" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="u12" edge="1" parent="1" source="notif" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" target="mail" value="«use» enviar correo">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="270" y="650" />
+              <mxPoint x="1040" y="650" />
+              <mxPoint x="1040" y="560" />
+            </Array>
+            <mxPoint x="270" y="530" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="u13" edge="1" parent="1" source="notif" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" target="i_lotes" value="«use» beneficiarios">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="40.03" y="590" />
+              <mxPoint x="40.03" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e0" edge="1" parent="1" source="lotes" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" target="bus" value="publica">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="870.03" y="360.03" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="aprob" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" target="bus" value="publica">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="900.03" y="360.03" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="trans" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" target="bus" value="publica">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="830" y="470" />
+              <mxPoint x="830" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="bus" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" target="trans" value="consume">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="780" y="470" />
+              <mxPoint x="780" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="bus" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="i_notif" value="consume">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="880" y="520" />
+              <mxPoint x="200" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="bus" style="endArrow=open;endFill=0;endSize=8;dashed=1;html=1;rounded=0;fontSize=10;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" target="bit" value="consume">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="710" y="590" />
+              <mxPoint x="710" y="590" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ley" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontSize=11;dashed=0;" value="LEYENDA&#xa;&#xa;«component»  unidad desplegable de forma independiente&#xa;○  interfaz provista (lo que el componente ofrece a los demás)&#xa;- -&gt;  interfaz requerida / dependencia «use»&#xa;- -&gt;  (gris) publicación o consumo de eventos&#xa;Borde punteado: sistema externo&#xa;&#xa;Ningún componente accede a la base de datos de otro: toda colaboración&#xa;pasa por una interfaz publicada o por el bus de eventos." vertex="1">
+          <mxGeometry height="150" width="940" x="60" y="700" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

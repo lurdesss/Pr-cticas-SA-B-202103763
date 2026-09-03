@@ -1,0 +1,10 @@
+apiVersion: v2
+name: sa-common
+description: >
+  Plantillas compartidas por los cinco subcharts de Aroma (gateway,
+  catalogo, inventario, pedidos, resenas). No despliega nada por si solo:
+  es un "library chart" (type: library), asi que Helm no genera manifiestos
+  a partir de el, solo pone sus named templates a disposicion de quien lo
+  declare como dependencia.
+type: library
+version: 0.1.0

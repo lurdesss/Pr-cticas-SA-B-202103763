@@ -1,0 +1,16 @@
+# Solo la API tiene Service: el worker no recibe trafico entrante, solo
+# consume del broker.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sa-common.fullname" . }}
+  labels: {{ include "sa-common.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{ include "sa-common.selectorLabels" . | nindent 4 }}
+    sa-platform/rol: api
+  ports:
+    - name: http
+      port: {{ .Values.api.servicio.puerto }}
+      targetPort: http

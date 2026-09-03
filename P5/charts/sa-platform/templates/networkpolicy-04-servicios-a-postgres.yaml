@@ -1,0 +1,30 @@
+# Solo quien realmente tiene una base de datos puede hablarle a Postgres:
+# los cuatro microservicios de negocio, mas los dos cronjobs (que
+# escriben/leen ejecuciones_cron y resumenes_cron). El gateway NO esta en
+# esta lista porque no tiene base de datos propia.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: permitir-servicios-a-postgres
+  labels: {{ include "sa-platform.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgresql
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["catalogo", "inventario", "pedidos", "resenas"]
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ include "sa-platform.nombreCronInsertar" . }}
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ include "sa-platform.nombreCronResumen" . }}
+      ports:
+        - protocol: TCP
+          port: 5432

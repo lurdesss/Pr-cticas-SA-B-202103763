@@ -1,0 +1,108 @@
+# ============================================================================
+# values-prod.yaml — ambiente de "produccion" (mismo minikube, para efectos
+# de esta practica, pero con la configuracion que se usaria en un cluster
+# real): mas replicas, limites mas generosos, log en nivel warn.
+#
+# Uso: helm upgrade sa-platform charts/sa-platform -f charts/sa-platform/values-prod.yaml ...
+# Es el archivo que se usa para demostrar el "helm upgrade" del requisito A.
+# ============================================================================
+
+global:
+  db:
+    password: "prod-clave-postgres-CAMBIAR"
+  broker:
+    password: "prod-clave-rabbitmq-CAMBIAR"
+
+gateway:
+  image:
+    tag: "1.0.0"
+  replicaCount: 3
+  recursos:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits:   { cpu: 500m, memory: 256Mi }
+  registro:
+    nivel: warn
+  hpa:
+    minReplicas: 2
+    maxReplicas: 5
+
+catalogo:
+  image:
+    tag: "1.0.0"
+  replicaCount: 3
+  recursos:
+    requests: { cpu: 150m, memory: 192Mi }
+    limits:   { cpu: 600m, memory: 384Mi }
+  registro:
+    nivel: warn
+  hpa:
+    minReplicas: 2
+    maxReplicas: 5
+
+inventario:
+  image:
+    tag: "1.0.0"
+  replicaCount: 3
+  recursos:
+    requests: { cpu: 150m, memory: 224Mi }
+    limits:   { cpu: 600m, memory: 448Mi }
+  registro:
+    nivel: warn
+  hpa:
+    minReplicas: 2
+    maxReplicas: 5
+
+cronjobResumen:
+  image:
+    tag: "1.0.0"
+
+pedidos:
+  image:
+    tag: "1.0.0"
+  api:
+    replicaCount: 3
+    recursos:
+      requests: { cpu: 150m, memory: 192Mi }
+      limits:   { cpu: 600m, memory: 384Mi }
+    hpa:
+      minReplicas: 2
+      maxReplicas: 5
+  worker:
+    replicaCount: 2
+    recursos:
+      requests: { cpu: 80m, memory: 96Mi }
+      limits:   { cpu: 300m, memory: 224Mi }
+  registro:
+    nivel: warn
+
+resenas:
+  image:
+    tag: "1.0.0"
+  replicaCount: 3
+  recursos:
+    requests: { cpu: 150m, memory: 224Mi }
+    limits:   { cpu: 600m, memory: 448Mi }
+  registro:
+    nivel: warn
+  hpa:
+    minReplicas: 2
+    maxReplicas: 5
+
+postgresql:
+  auth:
+    password: "prod-clave-postgres-CAMBIAR"
+  primary:
+    persistence:
+      size: 4Gi
+    resources:
+      requests: { cpu: 250m, memory: 512Mi }
+      limits:   { cpu: 1000m, memory: 1Gi }
+
+rabbitmq:
+  auth:
+    password: "prod-clave-rabbitmq-CAMBIAR"
+  persistence:
+    size: 2Gi
+  resources:
+    requests: { cpu: 250m, memory: 512Mi }
+    limits:   { cpu: 1000m, memory: 1Gi }

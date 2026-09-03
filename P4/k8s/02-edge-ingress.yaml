@@ -1,0 +1,27 @@
+# Alternativa al LoadBalancer: un Ingress delante del mismo Service.
+# Conviene cuando varios sistemas comparten cluster o hace falta TLS.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aroma
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+    # La sesion viaja en cookie; no hace falta afinidad porque el JWT es
+    # autocontenido y cualquier replica del gateway puede validarlo.
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: aroma.ejemplo.gt
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aroma-edge
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - aroma.ejemplo.gt
+      secretName: aroma-tls

@@ -1,0 +1,109 @@
+# ============================================================================
+# values-dev.yaml — ambiente de desarrollo (minikube local).
+# Uso: helm install sa-platform charts/sa-platform -f charts/sa-platform/values-dev.yaml ...
+#
+# Prioriza arrancar rapido en una maquina con pocos recursos sobre
+# tolerar carga: una sola replica por servicio, limites bajos, log
+# detallado para depurar. Es el archivo que se usa en TODA la guia de
+# instalacion.
+# ============================================================================
+
+global:
+  db:
+    password: "dev-clave-postgres-2026"
+  broker:
+    password: "dev-clave-rabbitmq-2026"
+
+gateway:
+  image:
+    tag: "1.0.0-dev"
+  replicaCount: 1
+  recursos:
+    requests: { cpu: 30m, memory: 48Mi }
+    limits:   { cpu: 150m, memory: 128Mi }
+  registro:
+    nivel: debug
+  hpa:
+    minReplicas: 1
+    maxReplicas: 3
+
+catalogo:
+  image:
+    tag: "1.0.0-dev"
+  replicaCount: 1
+  recursos:
+    requests: { cpu: 40m, memory: 64Mi }
+    limits:   { cpu: 200m, memory: 192Mi }
+  registro:
+    nivel: debug
+  hpa:
+    minReplicas: 1
+    maxReplicas: 3
+
+inventario:
+  image:
+    tag: "1.0.0-dev"
+  replicaCount: 1
+  recursos:
+    requests: { cpu: 40m, memory: 96Mi }
+    limits:   { cpu: 200m, memory: 224Mi }
+  registro:
+    nivel: debug
+  hpa:
+    minReplicas: 1
+    maxReplicas: 3
+
+cronjobResumen:
+  image:
+    tag: "1.0.0-dev"
+
+pedidos:
+  image:
+    tag: "1.0.0-dev"
+  api:
+    replicaCount: 1
+    recursos:
+      requests: { cpu: 40m, memory: 64Mi }
+      limits:   { cpu: 200m, memory: 192Mi }
+    hpa:
+      minReplicas: 1
+      maxReplicas: 3
+  worker:
+    replicaCount: 1
+    recursos:
+      requests: { cpu: 30m, memory: 48Mi }
+      limits:   { cpu: 150m, memory: 128Mi }
+  registro:
+    nivel: debug
+
+resenas:
+  image:
+    tag: "1.0.0-dev"
+  replicaCount: 1
+  recursos:
+    requests: { cpu: 40m, memory: 96Mi }
+    limits:   { cpu: 200m, memory: 224Mi }
+  registro:
+    nivel: debug
+  hpa:
+    minReplicas: 1
+    maxReplicas: 3
+
+postgresql:
+  auth:
+    password: "dev-clave-postgres-2026"
+  primary:
+    persistence:
+      size: 512Mi
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }
+      limits:   { cpu: 300m, memory: 256Mi }
+
+rabbitmq:
+  auth:
+    password: "dev-clave-rabbitmq-2026"
+  persistence:
+    size: 512Mi
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits:   { cpu: 300m, memory: 256Mi }

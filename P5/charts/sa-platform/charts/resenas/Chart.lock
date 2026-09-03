@@ -1,0 +1,6 @@
+dependencies:
+- name: sa-common
+  repository: file://../sa-common
+  version: 0.1.0
+digest: sha256:d527c1e906b6b2890a6a81b5349fb9cee8d14263f1339dd784375a3a90391ce9
+generated: "2026-08-29T10:36:58.7303412-06:00"

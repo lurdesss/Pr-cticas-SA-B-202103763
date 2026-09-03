@@ -1,0 +1,23 @@
+# dependencias
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# secretos: NUNCA se sube un values con claves reales
+charts/sa-platform/values-secretos.yaml
+*.env
+.env
+
+# paquetes de dependencias de Helm (se regeneran con
+# "helm dependency build", que usa el Chart.lock ya versionado)
+charts/**/charts/*.tgz
+
+# sistema
+.DS_Store
+Thumbs.db
+
+# artefactos de comparacion de imagenes (docs/tamano-imagenes.md)
+services/*/Dockerfile.antes
+
+values.yaml

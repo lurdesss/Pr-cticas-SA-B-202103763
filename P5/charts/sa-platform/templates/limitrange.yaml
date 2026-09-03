@@ -1,0 +1,18 @@
+# Defecto por contenedor cuando alguien (o algun subchart de terceros,
+# como bitnami) no declara sus propios requests/limits. Ademas de relleno,
+# actua como red de seguridad: ningun Pod puede quedar sin limite de
+# memoria dentro de este namespace.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: sa-platform-limites
+  labels: {{ include "sa-platform.labels" . | nindent 4 }}
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: {{ .Values.recursosDelNamespace.limitRange.cpuRequestDefecto }}
+        memory: {{ .Values.recursosDelNamespace.limitRange.memoryRequestDefecto }}
+      default:
+        cpu: {{ .Values.recursosDelNamespace.limitRange.cpuLimitDefecto }}
+        memory: {{ .Values.recursosDelNamespace.limitRange.memoryLimitDefecto }}

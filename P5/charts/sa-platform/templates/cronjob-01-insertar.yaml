@@ -1,0 +1,70 @@
+# Cronjob 1: cada 2 minutos inserta una marca de ejecucion (carne +
+# momento en que corrio). Usa la propia imagen de postgres (que ya trae
+# psql) en vez de construir una imagen nueva: no hay logica que justifique
+# un Dockerfile propio para una sola sentencia INSERT.
+#
+# Nota sobre la zona horaria: la columna ejecutado_en es TIMESTAMPTZ, que
+# Postgres guarda como un instante absoluto (UTC internamente) sin
+# importar en que huso se inserte. El requisito de "GMT-6" se cumple al
+# LEER el dato, no al guardarlo: por eso el comando de lectura en
+# docs/comandos-reproducibles.md usa "AT TIME ZONE America/Guatemala".
+# Convertir a mano antes de insertar duplicaria el desplazamiento y
+# guardaria la hora incorrecta.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "sa-platform.nombreCronInsertar" . }}
+  labels: {{ include "sa-platform.labels" . | nindent 4 }}
+spec:
+  schedule: "*/2 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 90
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 60
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: {{ include "sa-platform.nombreCronInsertar" . }}
+            app.kubernetes.io/part-of: aroma
+        spec:
+          restartPolicy: Never
+          serviceAccountName: {{ include "sa-platform.nombreCronInsertar" . }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            seccompProfile: { type: RuntimeDefault }
+          containers:
+            - name: insertar-ejecucion
+              image: postgres:16-alpine
+              securityContext:
+                runAsNonRoot: true
+                readOnlyRootFilesystem: true
+                allowPrivilegeEscalation: false
+                capabilities: { drop: ["ALL"] }
+              env:
+                - name: PGPASSWORD
+                  value: {{ .Values.global.db.password | quote }}
+                - name: CARNE
+                  value: {{ .Values.global.carne | quote }}
+              command:
+                - psql
+                - "-h"
+                - {{ .Values.global.db.host | quote }}
+                - "-p"
+                - {{ .Values.global.db.port | quote }}
+                - "-U"
+                - {{ .Values.global.db.username | quote }}
+                - "-d"
+                - "pedidos_db"
+                - "-v"
+                - "ON_ERROR_STOP=1"
+                - "-c"
+                - "INSERT INTO ejecuciones_cron (carne, ejecutado_en) VALUES ('$(CARNE)', NOW());"
+              resources:
+                requests: { cpu: 20m, memory: 32Mi }
+                limits:   { cpu: 100m, memory: 64Mi }

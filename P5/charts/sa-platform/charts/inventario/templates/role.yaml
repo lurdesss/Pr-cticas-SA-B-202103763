@@ -1,0 +1,14 @@
+# RBAC de minimo privilegio: el proceso no llama a la API de Kubernetes,
+# pero la practica exige un ServiceAccount dedicado con Role y RoleBinding
+# propios (nunca el ServiceAccount default). Se concede solo lectura de
+# SU propio ConfigMap y Secret, acotada por nombre.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "sa-common.fullname" . }}
+  labels: {{ include "sa-common.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    resourceNames: ["{{ include \"sa-common.fullname\" . }}"]
+    verbs: ["get", "list", "watch"]
