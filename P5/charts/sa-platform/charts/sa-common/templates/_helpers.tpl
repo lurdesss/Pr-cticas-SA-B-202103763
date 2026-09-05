@@ -85,5 +85,5 @@ sea la misma: es como "helm upgrade" logra que un cambio de configuracion
 se propague sin que el pod se entere de que existe un ConfigMap.
 */}}
 {{- define "sa-common.checksumConfigAnnotation" -}}
-checksum/config: {{ include (printf "%s/templates/configmap.yaml" .Chart.Name) . | sha256sum }}
+checksum/config: {{ include (print .Template.BasePath "/configmap.yaml") . | sha256sum }}
 {{- end -}}

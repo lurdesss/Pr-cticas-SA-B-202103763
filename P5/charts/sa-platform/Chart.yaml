@@ -29,24 +29,19 @@ dependencies:
     repository: "https://charts.bitnami.com/bitnami"
     condition: rabbitmq.enabled
 
-  # Los cinco microservicios son subcharts locales del chart padre.
-  # Declararlos aqui evita que helm lint marque que faltan dependencias
-  # cuando el chart se evalua como un paquete completo.
+  # Los cinco microservicios son subcharts LOCALES (viven en ./charts/) y
+  # Helm los descubre solo por estar ahi: no necesitan entrada aqui. Cada
+  # uno depende a su vez de sa-common (ver charts/<servicio>/Chart.yaml).
+
   - name: gateway
     version: "0.1.0"
-    repository: "file://charts/gateway"
   - name: catalogo
     version: "0.1.0"
-    repository: "file://charts/catalogo"
   - name: inventario
     version: "0.1.0"
-    repository: "file://charts/inventario"
   - name: pedidos
     version: "0.1.0"
-    repository: "file://charts/pedidos"
   - name: resenas
     version: "0.1.0"
-    repository: "file://charts/resenas"
   - name: sa-common
     version: "0.1.0"
-    repository: "file://charts/sa-common"

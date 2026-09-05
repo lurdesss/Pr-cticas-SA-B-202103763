@@ -6,22 +6,22 @@ dependencies:
   repository: https://charts.bitnami.com/bitnami
   version: 15.5.3
 - name: gateway
-  repository: file://charts/gateway
+  repository: ""
   version: 0.1.0
 - name: catalogo
-  repository: file://charts/catalogo
+  repository: ""
   version: 0.1.0
 - name: inventario
-  repository: file://charts/inventario
+  repository: ""
   version: 0.1.0
 - name: pedidos
-  repository: file://charts/pedidos
+  repository: ""
   version: 0.1.0
 - name: resenas
-  repository: file://charts/resenas
+  repository: ""
   version: 0.1.0
 - name: sa-common
-  repository: file://charts/sa-common
+  repository: ""
   version: 0.1.0
-digest: sha256:6a46d895c55c31657e6d86a52e05d75a0fdb8a66af8a2d9fe3d7ae44457c4c6f
-generated: "2026-08-29T10:43:06.560374-06:00"
+digest: sha256:62917dc81853de63ed2e04a25ce5a2b889079b48cc5991cc694679e0e3512f77
+generated: "2026-09-04T14:14:20.9049693-06:00"

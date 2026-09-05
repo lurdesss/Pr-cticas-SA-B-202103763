@@ -4,7 +4,7 @@ metadata:
   name: {{ include "sa-common.fullname" . }}
   labels: {{ include "sa-common.labels" . | nindent 4 }}
 data:
-  PUERTO: {{ .Values.api.servicio.puerto | quote }}
+  PUERTO: {{ (.Values.api.servicio | default dict).puerto | default 4003 | quote }}
   NIVEL_LOG: {{ .Values.registro.nivel | default "info" | quote }}
   CATALOGO_URL: {{ .Values.catalogo.urlServicio | default (printf "http://%s-catalogo:4001" .Release.Name) | quote }}
   BROKER_URL: "amqp://{{ .Values.global.broker.username }}:{{ .Values.global.broker.password }}@{{ .Values.global.broker.host }}:{{ .Values.global.broker.port }}"

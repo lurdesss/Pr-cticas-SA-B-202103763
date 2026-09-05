@@ -20,4 +20,4 @@ Thumbs.db
 # artefactos de comparacion de imagenes (docs/tamano-imagenes.md)
 services/*/Dockerfile.antes
 
-values.yaml
+GUIA-WINDOWS.md

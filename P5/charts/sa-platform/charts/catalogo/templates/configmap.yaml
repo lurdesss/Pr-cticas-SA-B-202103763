@@ -4,5 +4,5 @@ metadata:
   name: {{ include "sa-common.fullname" . }}
   labels: {{ include "sa-common.labels" . | nindent 4 }}
 data:
-  PUERTO: {{ .Values.servicio.puerto | quote }}
+  PUERTO: {{ (.Values.servicio | default dict).puerto | default 4001 | quote }}
   NIVEL_LOG: {{ .Values.registro.nivel | default "info" | quote }}

@@ -1,0 +1,186 @@
+# ============================================================================
+# values.yaml — valores BASE. Todo ambiente hereda de aqui y solo pisa lo
+# que necesita cambiar (values-dev.yaml / values-prod.yaml). Nunca se
+# ejecuta "helm install" solo con este archivo en un ambiente real: sirve
+# de plantilla y de valor por defecto para "helm lint".
+# ============================================================================
+
+# ---------------------------------------------------------------- global
+# Todo lo que vive bajo "global" es visible para el chart padre Y para
+# cada subchart (gateway, catalogo, inventario, pedidos, resenas), sin
+# necesidad de repetirlo: es el mecanismo que usa Helm para compartir
+# valores entre charts que de otro modo estarian aislados entre si.
+global:
+  carne: "202103763"
+
+  db:
+    host: postgresql        # ver postgresql.fullnameOverride mas abajo
+    port: 5432
+    username: aroma
+    password: "cambia-esta-clave"   # SOBRESCRIBIR SIEMPRE fuera de este archivo
+
+  broker:
+    host: rabbitmq           # ver rabbitmq.fullnameOverride mas abajo
+    port: 5672
+    username: aroma
+    password: "cambia-esta-clave"   # SOBRESCRIBIR SIEMPRE fuera de este archivo
+
+# ----------------------------------------------------- namespace y cuotas
+# El namespace NO se crea aqui: se crea con
+#   helm install sa-platform charts/sa-platform --namespace sa-p5 --create-namespace
+# de modo que sigue siendo "el propio comando de instalacion" el que lo
+# crea, sin un "kubectl create namespace" manual aparte.
+recursosDelNamespace:
+  quota:
+    cpuRequests: "4"
+    memoryRequests: 4Gi
+    cpuLimits: "8"
+    memoryLimits: 8Gi
+    pods: "40"
+  limitRange:
+    cpuRequestDefecto: 100m
+    memoryRequestDefecto: 128Mi
+    cpuLimitDefecto: 500m
+    memoryLimitDefecto: 256Mi
+
+# ------------------------------------------------------------- ingress
+# Host unico para todo el sistema; el enrutamiento por servicio ocurre
+# DENTRO del gateway (ver charts/gateway/values.yaml), no en el Ingress.
+ingressHost: &ingressHost aroma.local
+
+# --------------------------------------------------------- microservicios
+# Cada bloque corresponde 1:1 con el subchart del mismo nombre en ./charts.
+# Los valores puestos aqui son la base de desarrollo; produccion los
+# sobrescribe en values-prod.yaml.
+
+gateway:
+  image:
+    repository: aroma/gateway
+    tag: "1.0.0"
+  replicaCount: 2
+  ingress:
+    habilitado: true
+    claseDeIngress: nginx
+    host: *ingressHost
+  registro:
+    nivel: info
+
+catalogo:
+  image:
+    repository: aroma/catalogo-service
+    tag: "1.0.0"
+  replicaCount: 2
+  registro:
+    nivel: info
+
+inventario:
+  image:
+    repository: aroma/inventario-service
+    tag: "1.0.0"
+  replicaCount: 2
+  registro:
+    nivel: info
+
+pedidos:
+  image:
+    repository: aroma/pedidos-service
+    tag: "1.0.0"
+  api:
+    replicaCount: 2
+  worker:
+    replicaCount: 1
+  registro:
+    nivel: info
+
+resenas:
+  image:
+    repository: aroma/resenas-service
+    tag: "1.0.0"
+  replicaCount: 2
+  registro:
+    nivel: info
+
+# Imagen del Cronjob 2 (calcula el resumen y lo publica en RabbitMQ). No es
+# un subchart porque es un solo CronJob sin Deployment/Service/HPA propios;
+# vive como plantilla directa del chart padre (templates/cronjob-02-resumen.yaml).
+cronjobResumen:
+  image:
+    repository: aroma/cronjob-resumen
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+
+# ------------------------------------------------------- dependencias
+# PostgreSQL (Bitnami). fullnameOverride fijo para que el hostname interno
+# no dependa del nombre del release: gateway/catalogo/inventario/pedidos/
+# resenas siempre lo alcanzan en "postgresql:5432" sin importar como se
+# haya llamado "helm install".
+postgresql:
+  enabled: true
+  fullnameOverride: postgresql
+
+  # OJO: estas credenciales deben coincidir EXACTAMENTE con global.db.*
+  # de arriba. Bitnami no lee global.db.*; usa su propio esquema
+  # (postgresql.auth.*), asi que la unica forma segura de mantenerlas
+  # sincronizadas es repetirlas aqui. Documentado tambien en
+  # values.example.yaml.
+
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+    tag: 16.6.0-debian-12-r2
+  
+  auth:
+    username: aroma
+    password: "cambia-esta-clave"
+    database: catalogo_db    # base de datos "por defecto"; las demas las
+                              # crea el script de inicializacion de abajo
+
+  primary:
+    initdb:
+      # ConfigMap con los scripts que crean el resto de bases de datos y
+      # las tablas que usan los dos cronjobs. Lo genera este mismo chart
+      # (templates/db-init-configmap.yaml) con un nombre fijo, para no
+      # depender del nombre del release.
+      scriptsConfigMap: aroma-db-init
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests: { cpu: 100m, memory: 256Mi }
+      limits:   { cpu: 500m, memory: 512Mi }
+
+  # Sin replicas de lectura: para esta practica un solo Pod primario con
+  # PVC ya demuestra persistencia. Mantenerlo minimo importa en un cluster
+  # local con 4 GB de RAM.
+  architecture: standalone
+
+  volumePermissions:
+    enabled: false
+
+rabbitmq:
+  enabled: true
+  fullnameOverride: rabbitmq
+
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/rabbitmq
+    tag: 4.1.3-debian-12-r1
+
+  # Igual que con postgresql.auth: debe coincidir con global.broker.*
+  auth:
+    username: aroma
+    password: "cambia-esta-clave"
+
+  persistence:
+    enabled: true
+    size: 1Gi
+
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits:   { cpu: 500m, memory: 512Mi }
+
+  # El panel de administracion web de RabbitMQ (puerto 15672) queda
+  # disponible solo dentro del cluster (sin Service publico): se llega a
+  # el con "kubectl port-forward", nunca con NodePort/LoadBalancer.
+  service:
+    type: ClusterIP

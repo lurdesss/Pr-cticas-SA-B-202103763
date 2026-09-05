@@ -1,0 +1,47 @@
+# Mismo codigo fuente (services/pedidos-service), misma imagen Docker.
+# Lo unico que cambia entre "api" y "worker" es el comando de arranque
+# (ver templates/deployment-api.yaml y deployment-worker.yaml).
+
+image:
+  repository: aroma/pedidos-service
+  tag: ""
+  pullPolicy: IfNotPresent
+
+api:
+  replicaCount: 2
+  servicio:
+    puerto: 4003
+  recursos:
+    requests: { cpu: 80m, memory: 96Mi }
+    limits:   { cpu: 400m, memory: 256Mi }
+  hpa:
+    habilitado: true
+    minReplicas: 2
+    maxReplicas: 5
+    cpuObjetivoPorcentaje: 70
+  pdb:
+    minDisponibles: 1
+  sondas:
+    arranque:   { rutaHttp: /salud, delayInicialSeg: 0, periodoSeg: 3, fallosPermitidos: 20 }
+    vida:       { rutaHttp: /salud, delayInicialSeg: 0, periodoSeg: 10, timeoutSeg: 3, fallosPermitidos: 3 }
+    disponible: { rutaHttp: /salud, delayInicialSeg: 0, periodoSeg: 5,  timeoutSeg: 2, fallosPermitidos: 2 }
+
+worker:
+  # Sin HPA: no atiende trafico HTTP, atiende una cola. Escalarlo por CPU
+  # no tendria el mismo sentido que escalar la API; se deja en 1 replica
+  # fija a proposito, precisamente para poder demostrar con claridad el
+  # escenario "consumidor caido" (basta con bajarlo a 0 manualmente).
+  replicaCount: 1
+  recursos:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits:   { cpu: 200m, memory: 192Mi }
+
+catalogo:
+  urlServicio: ""   # si se deja vacio, se arma como http://<release>-catalogo:4001
+
+db:
+  nombre: pedidos_db
+  esquemaUrl: postgres
+
+registro:
+  nivel: info

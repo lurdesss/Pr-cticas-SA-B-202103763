@@ -18,5 +18,5 @@ spec:
               service:
                 name: {{ include "sa-common.fullname" . }}
                 port:
-                  number: {{ .Values.servicio.puerto }}
+                  number: {{ (.Values.servicio | default dict).puerto | default 8000 }}
 {{- end }}

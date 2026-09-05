@@ -33,7 +33,7 @@ spec:
           securityContext: {{ include "sa-common.containerSecurityContext" . | nindent 12 }}
           ports:
             - name: http
-              containerPort: {{ .Values.api.servicio.puerto }}
+              containerPort: {{ (.Values.api.servicio | default dict).puerto | default 4003 }}
           envFrom:
             - configMapRef: { name: {{ include "sa-common.fullname" . }} }
             - secretRef: { name: {{ include "sa-common.fullname" . }} }

@@ -10,5 +10,5 @@ spec:
   selector: {{ include "sa-common.selectorLabels" . | nindent 4 }}
   ports:
     - name: http
-      port: {{ .Values.servicio.puerto }}
+      port: {{ (.Values.servicio | default dict).puerto | default 4001 }}
       targetPort: http

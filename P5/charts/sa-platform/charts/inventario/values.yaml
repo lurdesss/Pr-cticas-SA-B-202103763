@@ -1,0 +1,34 @@
+image:
+  repository: aroma/inventario-service
+  tag: ""
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+servicio:
+  puerto: 4002
+
+db:
+  nombre: inventario_db
+  esquemaUrl: postgresql+psycopg
+
+recursos:
+  requests: { cpu: 80m, memory: 128Mi }
+  limits:   { cpu: 400m, memory: 320Mi }
+
+registro:
+  nivel: info
+
+hpa:
+  habilitado: true
+  minReplicas: 2
+  maxReplicas: 5
+  cpuObjetivoPorcentaje: 70
+
+pdb:
+  minDisponibles: 1
+
+sondas:
+  arranque:   { rutaHttp: /salud, delayInicialSeg: 0, periodoSeg: 3, fallosPermitidos: 20 }
+  vida:       { rutaHttp: /salud, delayInicialSeg: 0, periodoSeg: 10, timeoutSeg: 3, fallosPermitidos: 3 }
+  disponible: { rutaHttp: /salud, delayInicialSeg: 0, periodoSeg: 5,  timeoutSeg: 2, fallosPermitidos: 2 }

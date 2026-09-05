@@ -12,5 +12,5 @@ spec:
     sa-platform/rol: api
   ports:
     - name: http
-      port: {{ .Values.api.servicio.puerto }}
+      port: {{ (.Values.api.servicio | default dict).puerto | default 4003 }}
       targetPort: http

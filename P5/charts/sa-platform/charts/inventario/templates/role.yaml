@@ -10,5 +10,5 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["configmaps", "secrets"]
-    resourceNames: ["{{ include \"sa-common.fullname\" . }}"]
+    resourceNames: [{{ include "sa-common.fullname" . }}]
     verbs: ["get", "list", "watch"]

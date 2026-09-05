@@ -4,7 +4,7 @@ metadata:
   name: {{ include "sa-common.fullname" . }}
   labels: {{ include "sa-common.labels" . | nindent 4 }}
 data:
-  PUERTO: {{ .Values.servicio.puerto | quote }}
+  PUERTO: {{ (.Values.servicio | default dict).puerto | default 8000 | quote }}
   NIVEL_LOG: {{ .Values.registro.nivel | default "info" | quote }}
   CATALOGO_SERVICE_URL: "http://{{ .Release.Name }}-catalogo:4001"
   INVENTARIO_SERVICE_URL: "http://{{ .Release.Name }}-inventario:4002"

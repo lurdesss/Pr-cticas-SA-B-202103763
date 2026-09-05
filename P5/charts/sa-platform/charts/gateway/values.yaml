@@ -1,0 +1,35 @@
+image:
+  repository: aroma/gateway
+  tag: ""
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+servicio:
+  puerto: 8000
+
+recursos:
+  requests: { cpu: 50m, memory: 64Mi }
+  limits:   { cpu: 300m, memory: 192Mi }
+
+registro:
+  nivel: info
+
+hpa:
+  habilitado: true
+  minReplicas: 2
+  maxReplicas: 5
+  cpuObjetivoPorcentaje: 70
+
+pdb:
+  minDisponibles: 1
+
+sondas:
+  arranque:   { rutaHttp: /salud, delayInicialSeg: 0, periodoSeg: 2, fallosPermitidos: 15 }
+  vida:       { rutaHttp: /salud, delayInicialSeg: 0, periodoSeg: 10, timeoutSeg: 3, fallosPermitidos: 3 }
+  disponible: { rutaHttp: /salud, delayInicialSeg: 0, periodoSeg: 5,  timeoutSeg: 2, fallosPermitidos: 2 }
+
+ingress:
+  habilitado: true
+  claseDeIngress: nginx
+  host: aroma.local
