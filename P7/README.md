@@ -20,9 +20,10 @@
 3. [Diagrama del pipeline](#3-diagrama-del-pipeline)
 4. [Explicación del flujo, etapa por etapa](#4-explicación-del-flujo-etapa-por-etapa)
 5. [Pruebas automáticas agregadas](#5-pruebas-automáticas-agregadas)
-6. [Cómo verificar una corrida](#6-cómo-verificar-una-corrida)
-7. [Preguntas teóricas](#7-preguntas-teóricas)
-8. [Conclusiones](#8-conclusiones)
+6. [Versionamiento: tags como disparador](#6-versionamiento-tags-como-disparador)
+7. [Cómo verificar una corrida](#7-cómo-verificar-una-corrida)
+8. [Preguntas teóricas](#8-preguntas-teóricas)
+9. [Conclusiones](#9-conclusiones)
 
 ---
 
@@ -82,7 +83,8 @@ esta documentación, el diagrama y `values-ci.yaml`.
 | Documentación técnica | Este documento |
 | Diagrama del pipeline | Sección 3 |
 | Organización del repositorio | `/P7` (documentación) + `.github/workflows/` (el workflow), según lo confirmado con el auxiliar |
-| Preguntas teóricas | Sección 7 |
+| Preguntas teóricas | Sección 8 |
+| Versionamiento (tags que disparan el pipeline correctamente) | Sección 6 |
 
 ---
 
@@ -245,7 +247,37 @@ del alcance razonable de esta práctica.
 
 ---
 
-## 6. Cómo verificar una corrida
+## 6. Versionamiento: tags como disparador
+
+El pipeline reacciona de dos formas distintas según qué lo dispare, y
+en ambos casos la etiqueta de las imágenes publicadas queda controlada
+por ese disparador, no escrita a mano:
+
+| Disparador | Etiqueta de las 6 imágenes en GHCR |
+|---|---|
+| `push` normal a `main` | Los primeros 12 caracteres del SHA del commit (ej. `43bd54b8f437`) |
+| `push` de un **tag** con forma `v*.*.*` (ej. `v1.0.0`) | El nombre exacto del tag (ej. `v1.0.0`) |
+| `pull_request` contra `main` | Corre pruebas únicamente — no construye ni publica imágenes, evitando publicar versiones de código todavía no aprobado |
+
+Esto es lo que exige el criterio de "Versionamiento" de la rúbrica: un
+tag de Git real controla el comportamiento del pipeline, no solo
+documenta una versión de forma manual en otro lugar. Para generar esta
+evidencia:
+
+```powershell
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Ese `push` del tag dispara una corrida nueva. Al terminar, en la
+pestaña **Packages** del repositorio, cada uno de los 6 paquetes debe
+mostrar la etiqueta `v1.0.0` disponible junto a las etiquetas por SHA
+de corridas anteriores — la evidencia de que el versionado semántico
+llegó hasta las imágenes publicadas, no solo hasta el mensaje del
+commit.
+
+
+## 7. Cómo verificar una corrida
 
 En GitHub, pestaña **Actions** del repositorio → el workflow
 **CI/CD** → la corrida más reciente. Ahí se ve:
@@ -266,7 +298,7 @@ En GitHub, pestaña **Actions** del repositorio → el workflow
 
 ---
 
-## 7. Preguntas teóricas
+## 8. Preguntas teóricas
 
 *(El enunciado de esta práctica no incluye una lista explícita de
 preguntas, a diferencia de las Prácticas 5 y 6. Las siguientes se
@@ -364,7 +396,7 @@ diagnosticar y de revertir.
 
 ---
 
-## 8. Conclusiones
+## 9. Conclusiones
 
 El pipeline demuestra, con evidencia real en cada corrida (no solo en
 la teoría), que el mismo artefacto construido en las Prácticas 5 y 6
