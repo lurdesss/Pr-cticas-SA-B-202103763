@@ -1,0 +1,19 @@
+{
+  "name": "aroma-gateway",
+  "version": "1.0.0",
+  "description": "API Gateway de Aroma: unico punto de entrada a los microservicios",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^2.0.6",
+    "amqplib": "^0.10.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

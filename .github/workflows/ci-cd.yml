@@ -1,0 +1,232 @@
+# Pipeline de CI/CD de Aroma — Practica 7.
+#
+# El codigo de los microservicios vive en P5/services/ (reutilizado sin
+# cambios de las Practicas 5 y 6); el chart de Helm en P5/charts/;
+# este workflow y P7/values-ci.yaml son lo unico nuevo de esta practica.
+# El archivo tiene que vivir en .github/workflows/ porque asi lo exige
+# GitHub Actions para descubrirlo; el resto de la documentacion de esta
+# practica esta en la carpeta P7/.
+#
+# Cuatro etapas, en el orden que pide el enunciado:
+#   1. build + test   -> jobs "pruebas-node" y "pruebas-python"
+#   2. dockerizacion + push -> job "build-publicar-desplegar" (build+push)
+#   3. despliegue           -> mismo job (kind + Helm)
+#
+# Alcance deliberado (confirmado con el auxiliar del curso): el pipeline
+# despliega en un cluster de Kubernetes EFIMERO creado con kind dentro
+# del propio runner de GitHub Actions, no en un cluster de nube real.
+# Es la forma honesta de demostrar "build -> test -> imagen -> despliegue
+# -> verificacion" en cada commit sin depender de una cuenta de nube ni
+# de credenciales de larga duracion en el repositorio.
+
+name: CI/CD
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+env:
+  REGISTRO: ghcr.io
+
+jobs:
+  # ------------------------------------------------------------- pruebas
+  pruebas-node:
+    name: Pruebas (Node.js) - ${{ matrix.servicio }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        servicio: [gateway, pedidos-service]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: P5/services/${{ matrix.servicio }}/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: P5/services/${{ matrix.servicio }}
+        run: npm install
+
+      - name: Ejecutar pruebas
+        working-directory: P5/services/${{ matrix.servicio }}
+        run: npm test
+
+  pruebas-python:
+    name: Pruebas (Python) - ${{ matrix.servicio }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        servicio: [inventario-service, resenas-service]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar dependencias (produccion + pruebas)
+        working-directory: P5/services/${{ matrix.servicio }}
+        run: |
+          pip install --no-cache-dir -r requirements.txt
+          pip install --no-cache-dir -r requirements-test.txt
+
+      - name: Ejecutar pruebas
+        working-directory: P5/services/${{ matrix.servicio }}
+        run: python -m pytest tests/ -v
+
+  # ------------------------------- construir, publicar y desplegar
+  build-publicar-desplegar:
+    name: Build + Docker + Despliegue en kind
+    needs: [pruebas-node, pruebas-python]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Calcular nombre del registro y etiqueta de imagen
+        id: vars
+        run: |
+          echo "propietario=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - name: Iniciar sesion en GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRO }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --------------------------------------------------- construir y publicar
+      - name: Construir y publicar las 6 imagenes
+        run: |
+          set -e
+          REGISTRO_COMPLETO="${{ env.REGISTRO }}/${{ steps.vars.outputs.propietario }}"
+          TAG="${{ steps.vars.outputs.tag }}"
+
+          declare -A servicios=(
+            [gateway]="P5/services/gateway"
+            [catalogo-service]="P5/services/catalogo-service"
+            [inventario-service]="P5/services/inventario-service"
+            [pedidos-service]="P5/services/pedidos-service"
+            [resenas-service]="P5/services/resenas-service"
+            [cronjob-resumen]="P5/scripts/cronjob-resumen"
+          )
+
+          for nombre in "${!servicios[@]}"; do
+            ruta="${servicios[$nombre]}"
+            imagen="$REGISTRO_COMPLETO/$nombre:$TAG"
+            echo "== Construyendo $imagen =="
+            docker build -t "$imagen" "$ruta"
+            docker push "$imagen"
+          done
+
+      # ---------------------------------------------- crear el cluster efimero
+      - name: Crear cluster de kind
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: aroma-ci
+          wait: 90s
+
+      - name: Cargar las 6 imagenes dentro de kind
+        run: |
+          set -e
+          REGISTRO_COMPLETO="${{ env.REGISTRO }}/${{ steps.vars.outputs.propietario }}"
+          TAG="${{ steps.vars.outputs.tag }}"
+          for nombre in gateway catalogo-service inventario-service pedidos-service resenas-service cronjob-resumen; do
+            kind load docker-image "$REGISTRO_COMPLETO/$nombre:$TAG" --name aroma-ci
+          done
+
+      - name: Instalar Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.15.4
+
+      - name: Resolver dependencias del chart
+        run: |
+          set -e
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+          for sub in gateway catalogo inventario pedidos resenas; do
+            helm dependency update "P5/charts/sa-platform/charts/$sub"
+          done
+          helm dependency update "P5/charts/sa-platform"
+          # Limpia los .tgz que Helm empaqueta de mas al resolver el
+          # padre (mismo comportamiento documentado en la Practica 5).
+          rm -f P5/charts/sa-platform/charts/{gateway,catalogo,inventario,pedidos,resenas}-*.tgz
+
+      - name: helm lint
+        run: |
+          helm lint P5/charts/sa-platform \
+            -f P5/charts/sa-platform/values-dev.yaml \
+            -f P7/values-ci.yaml
+
+      - name: Desplegar con Helm en el cluster de kind
+        run: |
+          set -e
+          REGISTRO_COMPLETO="${{ env.REGISTRO }}/${{ steps.vars.outputs.propietario }}"
+          TAG="${{ steps.vars.outputs.tag }}"
+
+          helm install sa-platform P5/charts/sa-platform \
+            -f P5/charts/sa-platform/values-dev.yaml \
+            -f P7/values-ci.yaml \
+            --set global.db.password="ci-clave-temporal-solo-para-este-pipeline" \
+            --set postgresql.auth.password="ci-clave-temporal-solo-para-este-pipeline" \
+            --set global.broker.password="ci-clave-temporal-solo-para-este-pipeline" \
+            --set rabbitmq.auth.password="ci-clave-temporal-solo-para-este-pipeline" \
+            --set gateway.image.repository="$REGISTRO_COMPLETO/gateway" \
+            --set gateway.image.tag="$TAG" \
+            --set catalogo.image.repository="$REGISTRO_COMPLETO/catalogo-service" \
+            --set catalogo.image.tag="$TAG" \
+            --set inventario.image.repository="$REGISTRO_COMPLETO/inventario-service" \
+            --set inventario.image.tag="$TAG" \
+            --set pedidos.image.repository="$REGISTRO_COMPLETO/pedidos-service" \
+            --set pedidos.image.tag="$TAG" \
+            --set resenas.image.repository="$REGISTRO_COMPLETO/resenas-service" \
+            --set resenas.image.tag="$TAG" \
+            --set cronjobResumen.image.repository="$REGISTRO_COMPLETO/cronjob-resumen" \
+            --set cronjobResumen.image.tag="$TAG" \
+            --namespace sa-p7 --create-namespace \
+            --wait --timeout 5m
+
+      # ------------------------------------------------------ evidencia
+      - name: Estado del cluster (evidencia de ejecucion)
+        if: always()
+        run: |
+          echo "::group::Nodos"
+          kubectl get nodes -o wide
+          echo "::endgroup::"
+          echo "::group::Pods"
+          kubectl get pods -n sa-p7 -o wide
+          echo "::endgroup::"
+          echo "::group::Historial de Helm"
+          helm history sa-platform -n sa-p7
+          echo "::endgroup::"
+
+      - name: Verificar que el sistema responda (despliegue exitoso)
+        run: |
+          set -e
+          kubectl -n sa-p7 port-forward svc/sa-platform-gateway 8000:8000 &
+          PID_PORT_FORWARD=$!
+          sleep 5
+
+          echo "== Probando /api/salud =="
+          RESPUESTA=$(curl -sf --max-time 15 http://localhost:8000/api/salud)
+          echo "$RESPUESTA"
+
+          kill $PID_PORT_FORWARD 2>/dev/null || true
+
+          echo "$RESPUESTA" | grep -q '"estado":"arriba"' && \
+            echo "OK: el gateway respondio arriba dentro del cluster efimero de kind." || \
+            (echo "FALLO: el gateway no respondio como se esperaba." && exit 1)
+
+      - name: Destruir el cluster efimero
+        if: always()
+        run: kind delete cluster --name aroma-ci

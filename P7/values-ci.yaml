@@ -1,0 +1,71 @@
+# ============================================================================
+# values-ci.yaml — overlay para el clúster efímero de kind que crea el
+# propio pipeline de GitHub Actions.
+#
+# Se aplica JUNTO con values-dev.yaml (sobre la base), igual que
+# values-do.yaml en la Practica 6. Lo unico que cambia aqui es lo que
+# tiene sentido distinto en un runner compartido de 2 vCPU / 7 GB de RAM
+# que vive unos pocos minutos:
+#
+#   - Una sola replica por servicio (no hace falta demostrar HPA aqui;
+#     eso ya se demostro con evidencia real en la Practica 5).
+#   - HPA deshabilitado: kind no trae metrics-server instalado por
+#     defecto, y sin metricas el HPA no puede escalar de todos modos.
+#   - Sin Ingress: el pipeline verifica el gateway con
+#     "kubectl port-forward", no necesita una IP publica ni un
+#     controlador de Ingress para un clúster que se destruye al
+#     terminar el job.
+#   - Recursos mas pequeños, para que Postgres + RabbitMQ + los 6
+#     servicios quepan comodos en un runner compartido.
+#
+# Las imagenes NO se referencian aqui: el workflow las inyecta en tiempo
+# de ejecucion con "--set <servicio>.image.repository=..." y
+# "--set <servicio>.image.tag=..." (ver .github/workflows/ci-cd.yml),
+# porque el nombre del registro depende de en que repositorio de GitHub
+# corra el pipeline (no se puede fijar de antemano en un archivo).
+# ============================================================================
+
+gateway:
+  replicaCount: 1
+  hpa:
+    habilitado: false
+  ingress:
+    habilitado: false
+
+catalogo:
+  replicaCount: 1
+  hpa:
+    habilitado: false
+
+inventario:
+  replicaCount: 1
+  hpa:
+    habilitado: false
+
+pedidos:
+  api:
+    replicaCount: 1
+    hpa:
+      habilitado: false
+  worker:
+    replicaCount: 1
+
+resenas:
+  replicaCount: 1
+  hpa:
+    habilitado: false
+
+postgresql:
+  primary:
+    persistence:
+      size: 512Mi
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }
+      limits:   { cpu: 300m, memory: 256Mi }
+
+rabbitmq:
+  persistence:
+    size: 512Mi
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits:   { cpu: 300m, memory: 256Mi }
