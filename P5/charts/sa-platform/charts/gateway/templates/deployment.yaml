@@ -31,6 +31,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "sa-common.fullname" . }}
+            - secretRef:
+                name: {{ include "sa-common.fullname" . }}
           volumeMounts:
             - name: tmp
               mountPath: /tmp

@@ -5,12 +5,13 @@ metadata:
   name: {{ include "sa-common.fullname" . }}
   labels: {{ include "sa-common.labels" . | nindent 4 }}
   annotations:
+    # Anotacion propia de nginx-ingress: el controlador de GKE simplemente
+    # la ignora, asi que dejarla no rompe nada en la nube.
     nginx.ingress.kubernetes.io/proxy-body-size: "1m"
 spec:
   ingressClassName: {{ .Values.ingress.claseDeIngress }}
   rules:
-    - host: {{ .Values.ingress.host | quote }}
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
@@ -19,4 +20,7 @@ spec:
                 name: {{ include "sa-common.fullname" . }}
                 port:
                   number: {{ (.Values.servicio | default dict).puerto | default 8000 }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host | quote }}
+      {{- end }}
 {{- end }}

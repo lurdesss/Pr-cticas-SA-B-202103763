@@ -8,6 +8,13 @@
 // resiliencia, no autenticacion. Añadir de vuelta auth-service y
 // authz-service es posible (el codigo de P4 sigue existiendo) pero se
 // dejo fuera para no duplicar alcance que esta practica no califica.
+//
+// Nota de alcance (Practica 6): el gateway ahora TAMBIEN publica un
+// evento de auditoria en RabbitMQ por cada peticion que reenvia (ver
+// broker.js y la sonda EN el mismo middleware que hace el proxy). Es la
+// comunicacion asincrona entre el gateway y un microservicio
+// (pedidos-worker, que consume esta cola) que exige el requisito de
+// "Comunicacion Asincrona" de la Practica 6.
 
 const numero = (valor, porDefecto) =>
   valor === undefined || valor === '' ? porDefecto : Number(valor);
@@ -23,4 +30,9 @@ export const config = {
   },
 
   proxyTimeoutMs: numero(process.env.PROXY_TIMEOUT_MS, 15000),
+
+  broker: {
+    url: process.env.BROKER_URL ?? 'amqp://guest:guest@rabbitmq:5672',
+    colaAuditoria: process.env.COLA_AUDITORIA ?? 'gateway.auditoria',
+  },
 };

@@ -1,7 +1,8 @@
-# Solo pedidos (productor y worker consumidor, ambos con
-# app.kubernetes.io/name=pedidos) y el Cronjob 2 (que publica el resumen)
-# pueden hablarle al broker. catalogo, inventario y resenas no lo
-# necesitan y por eso no aparecen aqui.
+# Practica 6: pedidos (productor y worker consumidor), el Cronjob 2 (que
+# publica el resumen), y ahora TAMBIEN el gateway (que publica auditoria
+# de cada peticion, ver services/gateway/src/broker.js) pueden hablarle
+# al broker. catalogo, inventario y resenas no lo necesitan y por eso no
+# aparecen aqui.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -20,6 +21,9 @@ spec:
         - podSelector:
             matchLabels:
               app.kubernetes.io/name: {{ include "sa-platform.nombreCronResumen" . }}
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway
       ports:
         - protocol: TCP
           port: 5672

@@ -1,0 +1,6 @@
+values-secretos-cloud.yaml
+*.json
+!package.json
+capturas-sin-organizar/
+
+GUIA-NUBE.md

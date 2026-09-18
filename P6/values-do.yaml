@@ -1,0 +1,118 @@
+# ============================================================================
+# values-do.yaml — overlay de nube para DigitalOcean Kubernetes (DOKS).
+#
+# Se aplica JUNTO con values-dev.yaml, encima de el, para heredar todo lo
+# que ya funcionaba en local (replicas, recursos, probes, HPA,
+# NetworkPolicies) y pisar unicamente lo que cambia por estar en DOKS:
+#
+#   1. Las imagenes de los 6 servicios propios vienen de DOCR (DigitalOcean
+#      Container Registry), no de un tag local sin registro.
+#   2. Sin Ingress: DOKS no trae un Ingress Controller nativo tan simple
+#      como el "gce" de GKE (instalar nginx-ingress a mano es una opcion,
+#      pero agrega una pieza mas que puede fallar). Se usa en su lugar la
+#      alternativa que la propia rubrica ofrece explicitamente: el
+#      Service del gateway pasa a tipo LoadBalancer, y DigitalOcean
+#      aprovisiona su propio Load Balancer administrado al verlo, con una
+#      IP publica, sin instalar nada.
+#   3. El StorageClass es el que ofrece DOKS ("do-block-storage": DigitalOcean
+#      Volumes), en vez de heredar el que trae minikube por defecto.
+#   4. Los ServiceAccounts de los servicios con imagen privada necesitan
+#      imagePullSecretName, porque la integracion automatica de DOCR
+#      ("doctl kubernetes cluster registry add") solo actualiza el
+#      ServiceAccount "default" de cada namespace, y este chart usa
+#      ServiceAccounts propios por RBAC de minimo privilegio.
+#
+# IMPORTANTE: cada clave de nivel superior (gateway, catalogo, etc.)
+# aparece UNA SOLA VEZ en este archivo. YAML no combina bloques con el
+# mismo nombre repetido: el segundo bloque borraria silenciosamente al
+# primero.
+#
+# Uso (ver GUIA-NUBE.md para el procedimiento completo):
+#   helm install sa-platform ../P5/charts/sa-platform \
+#     -f ../P5/charts/sa-platform/values-dev.yaml \
+#     -f values-do.yaml \
+#     -f values-secretos-cloud.yaml \
+#     --namespace sa-p6 --create-namespace
+#
+# El orden de los -f importa: cada archivo pisa al anterior. Los secretos
+# van SIEMPRE al final, en un archivo que nunca se sube al repositorio
+# (ver values.example-cloud.yaml).
+# ============================================================================
+
+# Reemplaza aroma por el nombre de tu registro de DOCR antes de
+# instalar (ver paso 4 de la guia). Un registro DOCR es unico por cuenta;
+# el nombre de imagen completo queda como:
+#   registry.digitalocean.com/aroma/gateway:1.0.0
+gateway:
+  image:
+    repository: registry.digitalocean.com/aroma/gateway
+    tag: "1.0.0"
+  # Sin Ingress: DOKS no tiene un Ingress Controller nativo. El Service
+  # de tipo LoadBalancer es la via mas simple y es una de las dos
+  # alternativas que la rubrica ofrece explicitamente.
+  ingress:
+    habilitado: false
+  servicio:
+    tipo: LoadBalancer
+  hpa:
+    minReplicas: 2
+    maxReplicas: 4
+
+catalogo:
+  image:
+    repository: registry.digitalocean.com/aroma/catalogo-service
+    tag: "1.0.0"
+  hpa:
+    minReplicas: 2
+    maxReplicas: 4
+
+inventario:
+  image:
+    repository: registry.digitalocean.com/aroma/inventario-service
+    tag: "1.0.0"
+
+pedidos:
+  image:
+    repository: registry.digitalocean.com/aroma/pedidos-service
+    tag: "1.0.0"
+  api:
+    hpa:
+      minReplicas: 2
+      maxReplicas: 4
+
+resenas:
+  image:
+    repository: registry.digitalocean.com/aroma/resenas-service
+    tag: "1.0.0"
+
+cronjobResumen:
+  # El plan "basic" de DOCR incluye 5 repositorios, no 6: esta imagen
+  # comparte el repositorio "pedidos-service" (con quien comparte base de
+  # datos y logica de negocio) y se distingue solo por la etiqueta. Ver
+  # scripts/construir-y-publicar.ps1 para el detalle de como se publica.
+  image:
+    repository: registry.digitalocean.com/aroma/pedidos-service
+    tag: "cronjob-resumen-1.0.0"
+
+# ------------------------------------------------------- almacenamiento
+# "do-block-storage" es el StorageClass que DOKS trae por defecto:
+# aprovisiona un DigitalOcean Volume (bloque de red) por cada PVC.
+postgresql:
+  primary:
+    persistence:
+      storageClass: do-block-storage
+      size: 2Gi
+
+rabbitmq:
+  persistence:
+    storageClass: do-block-storage
+    size: 2Gi
+
+# ---------------------------------------------- registro de imagenes privado
+# "registry-aroma" es el nombre EXACTO que doctl le da al Secret
+# cuando se corre:
+#   doctl registry kubernetes-manifest | kubectl apply -f -
+# (ver paso 4 de la guia). Debe coincidir con ese nombre generado, no con
+# uno inventado.
+global:
+  imagePullSecretName: "registry-aroma"

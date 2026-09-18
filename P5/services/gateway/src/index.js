@@ -3,6 +3,7 @@ import { config } from './config.js';
 import { crearProxy } from './proxy.js';
 import { rutas } from './rutas.js';
 import { estadoDelSistema } from './salud.js';
+import { publicarAuditoria } from './broker.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -12,6 +13,22 @@ app.use((peticion, respuesta, siguiente) => {
   respuesta.on('finish', () => {
     console.log(`[gateway] ${peticion.method} ${peticion.originalUrl} -> ${respuesta.statusCode} (${Date.now() - inicio} ms)`);
   });
+  siguiente();
+});
+
+// Comunicacion asincrona gateway <-> microservicio (Practica 6): se
+// publica el evento y se llama a "siguiente()" de inmediato, SIN esperar
+// a que la publicacion termine. El proxy hacia el microservicio de
+// destino sigue su camino sincrono normal; la auditoria viaja aparte, la
+// consume pedidos-worker cuando puede, y nunca retrasa ni puede tumbar
+// la peticion original.
+app.use('/api', (peticion, _respuesta, siguiente) => {
+  publicarAuditoria({
+    metodo: peticion.method,
+    ruta: peticion.originalUrl,
+    ip: peticion.ip,
+    marcaDeTiempo: new Date().toISOString(),
+  }); // sin "await" a proposito: fire-and-forget
   siguiente();
 });
 

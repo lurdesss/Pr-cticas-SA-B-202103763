@@ -10,7 +10,16 @@ type: application
 # menos dos versiones durante el desarrollo para poder demostrar
 # "helm upgrade" y "helm rollback" con "helm history" como evidencia.
 # Ver docs/comandos-reproducibles.md para la secuencia exacta.
-version: 0.2.0
+#
+# 0.3.0 (Practica 6 / GKE): el gateway ahora publica auditoria en
+# RabbitMQ (comunicacion asincrona gateway <-> microservicio, requisito
+# explicito de la Practica 6). Ver services/gateway/src/broker.js.
+#
+# 0.4.0 (Practica 6 / DigitalOcean): el Service del gateway admite
+# type: LoadBalancer (antes fijo en ClusterIP) y los ServiceAccounts
+# admiten imagePullSecrets, para poder desplegar en un proveedor sin
+# Ingress Controller nativo y con un registro de imagenes privado.
+version: 0.4.0
 appVersion: "1.0.0"
 
 dependencies:

@@ -70,6 +70,20 @@ CREATE TABLE IF NOT EXISTS notificaciones_pedidos (
   mensaje     TEXT NOT NULL,
   procesado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Practica 6: el gateway publica un evento por cada peticion que reenvia
+-- (fire-and-forget, sin esperar respuesta); pedidos-worker lo consume de
+-- forma independiente y lo guarda aqui. Es la comunicacion asincrona
+-- gateway <-> microservicio que exige esta practica, separada del
+-- proxy sincrono normal que atiende la peticion HTTP original.
+CREATE TABLE IF NOT EXISTS auditoria_gateway (
+  id            SERIAL PRIMARY KEY,
+  metodo        TEXT NOT NULL,
+  ruta          TEXT NOT NULL,
+  ip_origen     TEXT NOT NULL DEFAULT '',
+  publicado_en  TIMESTAMPTZ NOT NULL,
+  procesado_en  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 `;
 
 export async function inicializarEsquema() {

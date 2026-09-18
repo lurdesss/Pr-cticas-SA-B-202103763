@@ -10,3 +10,4 @@ data:
   INVENTARIO_SERVICE_URL: "http://{{ .Release.Name }}-inventario:4002"
   PEDIDOS_SERVICE_URL: "http://{{ .Release.Name }}-pedidos:4003"
   RESENAS_SERVICE_URL: "http://{{ .Release.Name }}-resenas:4004"
+  COLA_AUDITORIA: "gateway.auditoria"

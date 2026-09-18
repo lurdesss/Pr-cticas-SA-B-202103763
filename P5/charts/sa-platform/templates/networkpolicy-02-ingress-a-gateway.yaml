@@ -1,7 +1,23 @@
-# Unica puerta de entrada externa: solo el Ingress Controller (namespace
-# ingress-nginx, que minikube etiqueta automaticamente con
-# kubernetes.io/metadata.name) puede alcanzar al gateway. Nadie mas desde
-# fuera del namespace llega a nada.
+# Unica puerta de entrada externa. La forma de esta regla depende de
+# COMO se expone el gateway (ver .Values.gateway.servicio.tipo):
+#
+#   - Con Ingress (minikube+nginx, o GKE con clase "gce"): el trafico
+#     externo entra a traves de un pod controlador que vive en el
+#     namespace "ingress-nginx", asi que restringir el origen a ese
+#     namespace tiene sentido y sigue bloqueando el trafico lateral
+#     interno.
+#
+#   - Con Service tipo LoadBalancer (DigitalOcean, ver values-do.yaml de
+#     la Practica 6): NO hay ingress-nginx. El trafico del Load Balancer
+#     de DigitalOcean llega directo al NodePort del Service, sin pasar
+#     por ningun pod identificable con podSelector/namespaceSelector
+#     dentro del cluster. Restringir por namespace aqui bloquearia TODO
+#     el trafico externo (incluido el del propio Load Balancer), que es
+#     precisamente el bug que este archivo corrige. Se permite desde
+#     cualquier origen, pero SOLO al puerto del gateway: es el
+#     comportamiento correcto para un servicio deliberadamente publico
+#     (el control de acceso real de un endpoint publico vive en la
+#     aplicacion, no en la NetworkPolicy).
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -13,6 +29,11 @@ spec:
       app.kubernetes.io/name: gateway
   policyTypes: ["Ingress"]
   ingress:
+    {{- if eq (.Values.gateway.servicio.tipo | default "ClusterIP") "LoadBalancer" }}
+    - ports:
+        - protocol: TCP
+          port: 8000
+    {{- else }}
     - from:
         - namespaceSelector:
             matchLabels:
@@ -20,3 +41,4 @@ spec:
       ports:
         - protocol: TCP
           port: 8000
+    {{- end }}

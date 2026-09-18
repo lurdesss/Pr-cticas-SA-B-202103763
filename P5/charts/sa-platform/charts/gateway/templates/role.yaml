@@ -5,6 +5,6 @@ metadata:
   labels: {{ include "sa-common.labels" . | nindent 4 }}
 rules:
   - apiGroups: [""]
-    resources: ["configmaps"]
+    resources: ["configmaps", "secrets"]
     resourceNames: [{{ include "sa-common.fullname" . }}]
     verbs: ["get", "list", "watch"]

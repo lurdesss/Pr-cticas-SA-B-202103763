@@ -25,6 +25,12 @@ global:
     username: aroma
     password: "cambia-esta-clave"   # SOBRESCRIBIR SIEMPRE fuera de este archivo
 
+  # Nombre del Secret con las credenciales del registro de contenedores
+  # privado (por ejemplo "registry-aroma" que crea DOCR en DigitalOcean).
+  # Vacio por defecto: en local (minikube) y en GKE con Artifact Registry
+  # del mismo proyecto no hace falta ningun imagePullSecrets explicito.
+  imagePullSecretName: ""
+
 # ----------------------------------------------------- namespace y cuotas
 # El namespace NO se crea aqui: se crea con
 #   helm install sa-platform charts/sa-platform --namespace sa-p5 --create-namespace

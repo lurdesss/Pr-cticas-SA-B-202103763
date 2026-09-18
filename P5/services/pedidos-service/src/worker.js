@@ -2,9 +2,11 @@
 // publica y responde de inmediato; este proceso, en un Deployment aparte,
 // consume cuando puede.
 //
-// Dos colas, un solo worker:
+// Tres colas, un solo worker:
 //   pedidos.eventos    -> lo publica pedidos-service en cada pedido nuevo
 //   resumenes.ejecucion -> lo publica el Cronjob 2 cada 10 minutos
+//   gateway.auditoria  -> lo publica el gateway en cada peticion que reenvia
+//                          (Practica 6: comunicacion asincrona gateway <-> microservicio)
 //
 // Regla de entrega: prefetch(1) + ack manual solo tras escribir en
 // PostgreSQL. Si el proceso muere a mitad de un mensaje, RabbitMQ lo
@@ -18,6 +20,7 @@ import { pool, esperarBaseDeDatos, inicializarEsquema } from './db.js';
 const URL_BROKER = process.env.BROKER_URL ?? 'amqp://guest:guest@rabbitmq:5672';
 const COLA_PEDIDOS = process.env.COLA_PEDIDOS ?? 'pedidos.eventos';
 const COLA_RESUMENES = process.env.COLA_RESUMENES ?? 'resumenes.ejecucion';
+const COLA_AUDITORIA = process.env.COLA_AUDITORIA ?? 'gateway.auditoria';
 
 const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -35,6 +38,14 @@ async function procesarResumen(resumen) {
     [resumen.hora, resumen.totalEjecuciones],
   );
   console.log(`[worker] resumen de ${resumen.hora} guardado: ${resumen.totalEjecuciones} ejecuciones (cola: ${COLA_RESUMENES}).`);
+}
+
+async function procesarAuditoria(evento) {
+  await pool.query(
+    `INSERT INTO auditoria_gateway (metodo, ruta, ip_origen, publicado_en) VALUES ($1, $2, $3, $4)`,
+    [evento.metodo, evento.ruta, evento.ip ?? '', evento.marcaDeTiempo],
+  );
+  console.log(`[worker] auditoria registrada: ${evento.metodo} ${evento.ruta} (cola: ${COLA_AUDITORIA}).`);
 }
 
 async function conectarConReintentos(intentos = 20, esperaMs = 3000) {
@@ -82,6 +93,7 @@ async function iniciar() {
   const canal = await conexion.createChannel();
   await consumir(canal, COLA_PEDIDOS, procesarEventoPedido);
   await consumir(canal, COLA_RESUMENES, procesarResumen);
+  await consumir(canal, COLA_AUDITORIA, procesarAuditoria);
 }
 
 iniciar().catch((error) => {

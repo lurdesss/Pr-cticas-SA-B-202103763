@@ -4,7 +4,13 @@ metadata:
   name: {{ include "sa-common.fullname" . }}
   labels: {{ include "sa-common.labels" . | nindent 4 }}
 spec:
-  type: ClusterIP
+  # ClusterIP por defecto (local con minikube + Ingress, o GKE con Ingress
+  # clase "gce"). Se sobrescribe a LoadBalancer en proveedores sin un
+  # Ingress Controller nativo tan simple (ver values-do.yaml de la
+  # Practica 6): un Service LoadBalancer es la alternativa que la propia
+  # rubrica ofrece explicitamente, y DigitalOcean provisiona su propio
+  # Load Balancer administrado al verlo, sin instalar nada mas.
+  type: {{ .Values.servicio.tipo | default "ClusterIP" }}
   selector: {{ include "sa-common.selectorLabels" . | nindent 4 }}
   ports:
     - name: http

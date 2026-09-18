@@ -1,0 +1,29 @@
+# ============================================================================
+# values.example-cloud.yaml — plantilla de valores SENSIBLES para la nube,
+# con datos ficticios. Nunca se sube al repositorio con claves reales.
+#
+# Uso:
+#   cp values.example-cloud.yaml values-secretos-cloud.yaml
+#   # editar values-secretos-cloud.yaml con claves reales
+#   helm install ... -f values-secretos-cloud.yaml   (siempre AL FINAL)
+#
+# "values-secretos-cloud.yaml" esta en .gitignore. No se versiona.
+# ============================================================================
+
+global:
+  db:
+    username: aroma
+    password: "REEMPLAZAR-clave-de-postgres-de-al-menos-20-caracteres"
+  broker:
+    username: aroma
+    password: "REEMPLAZAR-clave-de-rabbitmq-de-al-menos-20-caracteres"
+
+postgresql:
+  auth:
+    username: aroma
+    password: "REEMPLAZAR-debe-ser-IGUAL-a-global.db.password"
+
+rabbitmq:
+  auth:
+    username: aroma
+    password: "REEMPLAZAR-debe-ser-IGUAL-a-global.broker.password"
