@@ -1,0 +1,42 @@
+﻿=== Evidencia Bloque 5a: PostgreSQL con CloudNativePG (2026-10-16 09:38:07 -06:00)
+Commit GitOps: 62b8299
+
+--- kubectl get cluster -n aroma-prod
+NAME       AGE   INSTANCES   READY   STATUS                     PRIMARY
+aroma-pg   11m   2           2       Cluster in healthy state   aroma-pg-1
+
+--- pods (instancias) y nodo
+NAME         READY   STATUS    RESTARTS   AGE   IP            NODE               NOMINATED NODE   READINESS GATES   INSTANCEROLE
+aroma-pg-1   1/1     Running   0          10m   10.244.2.13   aroma-p9-worker2   <none>           <none>            primary
+aroma-pg-2   1/1     Running   0          10m   10.244.1.14   aroma-p9-worker    <none>           <none>            replica
+
+--- PVC
+NAME         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+aroma-pg-1   Bound    pvc-61c1ad1e-42d2-451a-960c-ff9ae6f3f163   1Gi        RWO            standard       <unset>                 11m
+aroma-pg-2   Bound    pvc-ea3aabd4-74c8-4d5f-995c-bd9dc6ec7548   1Gi        RWO            standard       <unset>                 10m
+
+--- PodDisruptionBudget creados por el operador
+NAME               MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+aroma-pg-primary   1               N/A               0                     11m
+
+--- servicios
+NAME          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+aroma-pg-r    ClusterIP   10.96.96.1     <none>        5432/TCP   11m
+aroma-pg-ro   ClusterIP   10.96.140.79   <none>        5432/TCP   11m
+aroma-pg-rw   ClusterIP   10.96.49.208   <none>        5432/TCP   11m
+
+--- replicacion en streaming (pg_stat_replication en la primaria)
+aroma-pg-2|streaming|async
+
+--- bases de datos
+catalogo_db|aroma
+inventario_db|aroma
+pedidos_db|aroma
+resenas_db|aroma
+
+--- la replica esta en recuperacion (solo lectura)
+t
+
+--- anti-afinidad (required, por hostname)
+kubernetes.io/hostname
+
