@@ -1,0 +1,103 @@
+﻿null_resource.cluster_kind: Refreshing state... [id=3336533147920577151]
+helm_release.argocd: Refreshing state... [id=argocd]
+kubernetes_namespace.ambiente["aroma-staging"]: Refreshing state... [id=aroma-staging]
+kubernetes_namespace.ambiente["aroma-prod"]: Refreshing state... [id=aroma-prod]
+kubernetes_limit_range.limites["aroma-prod"]: Refreshing state... [id=aroma-prod/limites-aroma-prod]
+kubernetes_service_account.desplegador["aroma-staging"]: Refreshing state... [id=aroma-staging/aroma-desplegador]
+kubernetes_service_account.desplegador["aroma-prod"]: Refreshing state... [id=aroma-prod/aroma-desplegador]
+kubernetes_resource_quota.cuota["aroma-staging"]: Refreshing state... [id=aroma-staging/cuota-aroma-staging]
+kubernetes_limit_range.limites["aroma-staging"]: Refreshing state... [id=aroma-staging/limites-aroma-staging]
+kubernetes_resource_quota.cuota["aroma-prod"]: Refreshing state... [id=aroma-prod/cuota-aroma-prod]
+kubernetes_role.desplegador["aroma-staging"]: Refreshing state... [id=aroma-staging/aroma-desplegador]
+kubernetes_role.desplegador["aroma-prod"]: Refreshing state... [id=aroma-prod/aroma-desplegador]
+kubernetes_role_binding.desplegador["aroma-prod"]: Refreshing state... [id=aroma-prod/aroma-desplegador]
+kubernetes_role_binding.desplegador["aroma-staging"]: Refreshing state... [id=aroma-staging/aroma-desplegador]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+
+Terraform will perform the following actions:
+
+  # helm_release.argocd will be updated in-place
+  ~ resource "helm_release" "argocd" {
+        id                         = "argocd"
+      ~ metadata                   = [
+          - {
+              - app_version    = "v2.13.2"
+              - chart          = "argo-cd"
+              - first_deployed = 1790244581
+              - last_deployed  = 1790244581
+              - name           = "argocd"
+              - namespace      = "argocd"
+              - notes          = <<-EOT
+                    In order to access the server UI you have the following options:
+                    
+                    1. kubectl port-forward service/argocd-server -n argocd 8080:443
+                    
+                        and then open the browser on http://localhost:8080 and accept the certificate
+                    
+                    2. enable ingress in the values file `server.ingress.enabled` and either
+                          - Add the annotation for ssl passthrough: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
+                          - Set the `configs.params."server.insecure"` in the values file and terminate SSL at your ingress: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-2-multiple-ingress-objects-and-hosts
+                    
+                    
+                    After reaching the UI the first time you can login with username: admin and the random password generated during the installation. You can find the password by running:
+                    
+                    kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+                    
+                    (You should delete the initial secret afterwards as suggested by the Getting Started Guide: https://argo-cd.readthedocs.io/en/stable/getting_started/#4-login-using-the-cli)
+                EOT
+              - revision       = 1
+              - values         = jsonencode(
+                    {
+                      - configs = {
+                          - params = {
+                              - "server.insecure" = true
+                            }
+                        }
+                    }
+                )
+              - version        = "7.7.11"
+            },
+        ] -> (known after apply)
+        name                       = "argocd"
+      + values                     = [
+          + <<-EOT
+                "configs":
+                  "cm":
+                    "application.resourceTrackingMethod": "annotation"
+                    "resource.customizations.health.argoproj.io_Application": |
+                      hs = {}
+                      hs.status = "Progressing"
+                      hs.message = ""
+                      if obj.status ~= nil then
+                        if obj.status.health ~= nil then
+                          hs.status = obj.status.health.status
+                          if obj.status.health.message ~= nil then
+                            hs.message = obj.status.health.message
+                          end
+                        end
+                      end
+                      return hs
+            EOT,
+        ]
+        # (26 unchanged attributes hidden)
+
+        # (1 unchanged block hidden)
+    }
+
+Plan: 0 to add, 1 to change, 0 to destroy.
+helm_release.argocd: Modifying... [id=argocd]
+helm_release.argocd: Still modifying... [id=argocd, 00m10s elapsed]
+helm_release.argocd: Still modifying... [id=argocd, 00m20s elapsed]
+helm_release.argocd: Modifications complete after 26s [id=argocd]
+
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+
+Outputs:
+
+namespaces_creados = [
+  "aroma-prod",
+  "aroma-staging",
+]

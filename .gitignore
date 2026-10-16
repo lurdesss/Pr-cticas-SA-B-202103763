@@ -17,3 +17,6 @@ LEEME-PRIMERO.md
 *.p12
 *.pfx
 *sealed-secrets*key*.yaml
+
+# Notas personales de defensa de P9 (no forman parte de la entrega)
+P9/NOTAS-DEFENSA.md
