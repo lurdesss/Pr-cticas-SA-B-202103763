@@ -1,0 +1,81 @@
+﻿=== Evidencia Bloque 5b: microservicios en aroma-prod (2026-10-16 10:28:22 -06:00)
+Commit GitOps: 518e8b2  |  Imagenes: ghcr.io/lurdesss/pr-cticas-sa-b-202103763/<servicio>:v1.0.0 (publicas)
+
+--- kubectl get applications -n argocd
+NAME               SYNC STATUS   HEALTH STATUS
+argo-rollouts      Synced        Healthy
+aroma-bd           Synced        Healthy
+aroma-root         Synced        Healthy
+catalogo           Synced        Healthy
+cnpg-operator      Synced        Healthy
+gateway            Synced        Healthy
+inventario         Synced        Healthy
+kyverno            Synced        Healthy
+pedidos            Synced        Healthy
+resenas            Synced        Healthy
+sealed-secrets     Synced        Healthy
+velero             Synced        Healthy
+velero-schedules   Synced        Healthy
+velero-secrets     Synced        Healthy
+
+--- pods y nodo
+NAME                          READY   STATUS    RESTARTS   AGE     IP            NODE               NOMINATED NODE   READINESS GATES
+aroma-pg-1                    1/1     Running   0          61m     10.244.2.13   aroma-p9-worker2   <none>           <none>
+aroma-pg-2                    1/1     Running   0          60m     10.244.1.14   aroma-p9-worker    <none>           <none>
+catalogo-99c785c8b-v72st      1/1     Running   0          2m13s   10.244.2.15   aroma-p9-worker2   <none>           <none>
+catalogo-99c785c8b-xx6vc      1/1     Running   0          2m13s   10.244.1.15   aroma-p9-worker    <none>           <none>
+gateway-7d6c77bb6b-msnsz      1/1     Running   0          113s    10.244.2.19   aroma-p9-worker2   <none>           <none>
+gateway-7d6c77bb6b-shjfd      1/1     Running   0          113s    10.244.2.18   aroma-p9-worker2   <none>           <none>
+gateway-7d6c77bb6b-w5cwc      1/1     Running   0          113s    10.244.1.19   aroma-p9-worker    <none>           <none>
+inventario-5787d949f6-b9m9s   1/1     Running   0          2m13s   10.244.2.16   aroma-p9-worker2   <none>           <none>
+inventario-5787d949f6-hcrk6   1/1     Running   0          2m13s   10.244.1.18   aroma-p9-worker    <none>           <none>
+pedidos-5ff95669d8-65p4l      1/1     Running   0          2m13s   10.244.2.17   aroma-p9-worker2   <none>           <none>
+pedidos-5ff95669d8-kjsck      1/1     Running   0          2m13s   10.244.1.16   aroma-p9-worker    <none>           <none>
+resenas-7896c7d488-fzw5n      1/1     Running   0          2m13s   10.244.1.17   aroma-p9-worker    <none>           <none>
+resenas-7896c7d488-gd7vs      1/1     Running   0          2m13s   10.244.2.14   aroma-p9-worker2   <none>           <none>
+
+--- cargas de trabajo y replicas
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/catalogo     2/2     2            2           2m13s
+deployment.apps/inventario   2/2     2            2           2m13s
+deployment.apps/pedidos      2/2     2            2           2m13s
+deployment.apps/resenas      2/2     2            2           2m13s
+
+NAME                          DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+rollout.argoproj.io/gateway   3         3         3            3           2m13s
+
+--- PodDisruptionBudget
+NAME               MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+aroma-pg-primary   1               N/A               0                     62m
+catalogo           1               N/A               1                     2m13s
+gateway            2               N/A               1                     2m13s
+inventario         1               N/A               1                     2m13s
+pedidos            1               N/A               1                     2m13s
+resenas            1               N/A               1                     2m13s
+
+--- Services
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+aroma-pg-r       ClusterIP   10.96.96.1      <none>        5432/TCP   62m
+aroma-pg-ro      ClusterIP   10.96.140.79    <none>        5432/TCP   62m
+aroma-pg-rw      ClusterIP   10.96.49.208    <none>        5432/TCP   62m
+catalogo         ClusterIP   10.96.44.109    <none>        4001/TCP   2m13s
+gateway          ClusterIP   10.96.71.224    <none>        8000/TCP   2m13s
+gateway-canary   ClusterIP   10.96.181.169   <none>        8000/TCP   2m13s
+inventario       ClusterIP   10.96.221.42    <none>        4002/TCP   2m13s
+pedidos          ClusterIP   10.96.187.200   <none>        4003/TCP   2m13s
+resenas          ClusterIP   10.96.242.225   <none>        4004/TCP   2m13s
+
+--- GET /api/salud via gateway (HTTP 200)
+{"servicio":"gateway","estado":"arriba","dependencias":[{"servicio":"catalogo","estado":"arriba","codigo":200,"ms":6},{"servicio":"inventario","estado":"arriba","codigo":200,"ms":5},{"servicio":"pedidos","estado":"arriba","codigo":200,"ms":4},{"servicio":"resenas","estado":"arriba","codigo":200,"ms":5}]}
+
+--- GraphQL catalogo via gateway (POST /api/catalogo/graphql)
+{"data":{"productos":[{"nombre":"Cortado","precio":16},{"nombre":"Espresso","precio":12},{"nombre":"Filtrado V60","precio":22},{"nombre":"Latte de cardamomo","precio":24},{"nombre":"Cold brew","precio":20},{"nombre":"Tonica de cafe","precio":26},{"nombre":"Banana bread","precio":18},{"nombre":"Concha de vainilla","precio":10},{"nombre":"Galleta de chocolate","precio":12}]}}
+
+
+--- datos en PostgreSQL
+catalogo_db.productos (primaria): 9
+catalogo_db.productos (replica):  9
+pedidos_db.pedidos: 1
+  (pedido #1 creado via POST /api/pedidos/pedidos -> HTTP 201; sin RabbitMQ el servicio registro el fallo de publicacion y respondio igual)
+
+--- Chequeos verificar_p9.sh 2.5: PDB=6, replicas minimas=2, antiafinidad declarada en GitOps (charts/aroma-comun/templates/_helpers.tpl)
