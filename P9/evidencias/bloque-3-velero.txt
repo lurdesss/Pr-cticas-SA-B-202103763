@@ -1,0 +1,66 @@
+﻿=== Evidencia Bloque 3: Velero operativo (2026-10-16 05:51:59 -06:00)
+Commit GitOps sincronizado: bad765a230fe6cac4dcd96d8ca881fbc195a3430
+
+=== kubectl get applications -n argocd
+NAME               SYNC STATUS   HEALTH STATUS
+argo-rollouts      Synced        Healthy
+aroma-root         Synced        Healthy
+kyverno            Synced        Healthy
+sealed-secrets     Synced        Healthy
+velero             Synced        Healthy
+velero-schedules   Synced        Healthy
+velero-secrets     Synced        Healthy
+
+=== SealedSecret descifrado (condicion)
+    status: "True"
+    type: Synced
+=== Secret resultante: solo nombre, tipo y claves (valores omitidos)
+name=velero-minio-credentials type=Opaque keys=cloud
+
+=== kubectl get pods -n velero
+NAME                      READY   STATUS    RESTARTS   AGE
+node-agent-dls2x          1/1     Running   0          5m42s
+velero-74b9667b94-6k7jk   1/1     Running   0          5m41s
+
+=== velero version
+Client:
+	Version: v1.18.4
+	Git commit: 4ee1e79a7aed367fd9b767b8219ec65bd0c96892
+Server:
+	Version: v1.15.0
+# WARNING: the client version does not match the server version. Please update server
+
+=== velero backup-location get
+NAME      PROVIDER   BUCKET/PREFIX    PHASE       LAST VALIDATED                  ACCESS MODE   DEFAULT
+default   aws        velero-backups   Available   2026-10-16 05:51:27 -0600 CST   ReadWrite     true
+
+=== velero schedule get
+NAME                    STATUS    CREATED                         SCHEDULE    BACKUP TTL   LAST BACKUP   SELECTOR                                       PAUSED
+respaldo-diario-aroma   Enabled   2026-10-16 05:46:58 -0600 CST   0 3 * * *   360h0m0s     n/a           <none>                                         false
+respaldo-llaves         Enabled   2026-10-16 05:46:58 -0600 CST   0 4 * * 0   8760h0m0s    n/a           sealedsecrets.bitnami.com/sealed-secrets-key   false
+
+=== velero backup get
+NAME                            STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   QUEUE POSITION   SELECTOR
+manual-aroma-20261016-055103    Completed   0        0          2026-10-16 05:51:03 -0600 CST   14d       default                             <none>
+manual-llaves-20261016-055103   Completed   0        0          2026-10-16 05:51:03 -0600 CST   364d      default                             sealedsecrets.bitnami.com/sealed-secrets-key
+
+=== describe manual-llaves (resumen)
+Phase:  Completed
+  Included:  kube-system
+Label selector:  sealedsecrets.bitnami.com/sealed-secrets-key
+Or label selector:  <none>
+TTL:  8760h0m0s
+Started:    2026-10-16 05:51:03 -0600 CST
+Completed:  2026-10-16 05:51:03 -0600 CST
+Items backed up:              2
+
+=== describe manual-aroma (resumen)
+Phase:  Completed
+  Included:  aroma-prod, aroma-staging
+TTL:  360h0m0s
+Started:    2026-10-16 05:51:03 -0600 CST
+Completed:  2026-10-16 05:51:04 -0600 CST
+Items backed up:              16
+
+=== Chequeos equivalentes a verificar_p9.sh 2.3/2.4 (Git Bash + jq)
+Completed: 2 | Con volumenes: 2 | Incluye kube-system: 1 | Schedules con ttl: 2 | BSL provider+bucket: 1
