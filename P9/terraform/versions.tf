@@ -1,7 +1,8 @@
 terraform {
   required_version = ">= 1.15.0"
 
-  cloud {
+  backend "remote" {
+    hostname     = "app.terraform.io"
     organization = "VerdictCorp"
 
     workspaces {
@@ -9,6 +10,7 @@ terraform {
     }
   }
 
+  # HCP Terraform provides state locking for this remote workspace.
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"

@@ -1,3 +1,19 @@
 P5.zip
 P6-practica6.zip
 LEEME-PRIMERO.md
+
+# Terraform state, local data, and secret-bearing variable files
+*.tfstate*
+.terraform/
+*.tfvars
+*.tfvars.json
+*.tfplan
+
+# Local plan exports and private keys
+*-plano.yaml
+*-plan.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+*sealed-secrets*key*.yaml
