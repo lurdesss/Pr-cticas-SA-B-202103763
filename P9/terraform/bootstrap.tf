@@ -64,5 +64,39 @@ resource "helm_release" "argocd" {
     value = "true"
   }
 
+  values = [yamlencode({
+    configs = {
+      cm = {
+        # Rastreo por anotacion en vez de etiqueta. Con la etiqueta por
+        # defecto (argocd.argoproj.io/instance), Velero copia las
+        # etiquetas del Schedule a cada Backup que genera; ArgoCD veria
+        # esos Backups como recursos sobrantes de "velero-schedules" y,
+        # con prune activo, los borraria. Las anotaciones no se copian.
+        "application.resourceTrackingMethod" = "annotation"
+
+        # Desde ArgoCD 1.8 una Application hija no reporta salud a su
+        # padre, asi que los sync-wave de apps/ solo ordenan el "apply"
+        # sin esperar. Este chequeo (receta oficial de la documentacion
+        # de ArgoCD para app-of-apps) hace que aroma-root espere a que
+        # cada ola este Healthy: sealed-secrets -> secretos sellados ->
+        # velero -> schedules.
+        "resource.customizations.health.argoproj.io_Application" = <<-EOT
+          hs = {}
+          hs.status = "Progressing"
+          hs.message = ""
+          if obj.status ~= nil then
+            if obj.status.health ~= nil then
+              hs.status = obj.status.health.status
+              if obj.status.health.message ~= nil then
+                hs.message = obj.status.health.message
+              end
+            end
+          end
+          return hs
+        EOT
+      }
+    }
+  })]
+
   depends_on = [null_resource.cluster_kind]
 }
