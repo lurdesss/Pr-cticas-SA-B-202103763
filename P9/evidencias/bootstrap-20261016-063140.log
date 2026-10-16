@@ -1,0 +1,137 @@
+﻿[2026-10-16 06:31:40.338 -06:00] INICIO bootstrap P9 (cluster aroma-p9)
+[2026-10-16 06:31:40.357 -06:00] PASO 1 verificar herramientas, Docker y MinIO
+v4.2.4+g3900f43
+[2026-10-16 06:31:40.998 -06:00] FIN PASO 1
+[2026-10-16 06:31:41.000 -06:00] PASO 2 terraform init (backend remoto HCP Terraform)
+Initializing the backend...
+
+Initializing provider plugins...
+- Reusing previous version of hashicorp/helm from the dependency lock file
+- Reusing previous version of hashicorp/null from the dependency lock file
+- Reusing previous version of hashicorp/kubernetes from the dependency lock file
+- Using previously-installed hashicorp/helm v2.17.0
+- Using previously-installed hashicorp/null v3.3.2
+- Using previously-installed hashicorp/kubernetes v2.38.0
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+[2026-10-16 06:31:44.242 -06:00] FIN PASO 2
+[2026-10-16 06:31:44.243 -06:00] PASO 3 comparar estado remoto con el cluster real
+[2026-10-16 06:31:45.879 -06:00] El cluster no existe y el estado tiene 14 recursos: se limpian del estado
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[31m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mIndex value required[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on  line 1:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mIndex brackets must contain either a literal number or a literal string.
+[31m╵[0m[0m
+[0m[0m
+[2026-10-16 06:31:48.293 -06:00] FALLA: terraform state rm
+[2026-10-16 06:31:48.293 -06:00] Bootstrap detenido. Registro: C:\Users\hp victus\Desktop\LOURDES\Pr-cticas-SA-B-202103763\P9\evidencias\bootstrap-20261016-063140.log

@@ -1,0 +1,89 @@
+﻿=== Ensayo de reconstruccion desde cero (BORRADOR, previo a declarar RTO/RPO)
+Fecha: 2026-10-16
+
+Escenario: perdida total del cluster kind aroma-p9 (1 nodo).
+  06:31:31.951  kind delete cluster --name aroma-p9  (MinIO, copia DPAPI de la llave y estado HCP intactos)
+
+Intento 1 (fallido, sin efectos): bootstrap-20261016-063140.log
+  06:31:48 FALLA en PASO 3: 'terraform state rm' rechazo direcciones con indice
+  (PowerShell 5.1 quita las comillas de ["aroma-prod"]). Estado intacto (14 recursos).
+  Correccion: limpiar por direccion base sin indice.
+
+Intento 2 (exitoso): bootstrap-20261016-063221.log
+  [2026-10-16 06:32:21.327 -06:00] INICIO bootstrap P9 (cluster aroma-p9)
+  [2026-10-16 06:32:21.335 -06:00] PASO 1 verificar herramientas, Docker y MinIO
+  [2026-10-16 06:32:21.697 -06:00] FIN PASO 1
+  [2026-10-16 06:32:21.697 -06:00] PASO 2 terraform init (backend remoto HCP Terraform)
+  [2026-10-16 06:32:23.981 -06:00] FIN PASO 2
+  [2026-10-16 06:32:23.981 -06:00] PASO 3 comparar estado remoto con el cluster real
+  [2026-10-16 06:32:25.849 -06:00] El cluster no existe y el estado tiene 14 recursos: se limpian del estado
+  [2026-10-16 06:32:29.093 -06:00] FIN PASO 3
+  [2026-10-16 06:32:29.093 -06:00] PASO 4 terraform apply del cluster kind (1 control-plane + 2 workers)
+  [2026-10-16 06:33:27.903 -06:00] FIN PASO 4
+  [2026-10-16 06:33:27.905 -06:00] PASO 5 conectar MinIO a la red kind
+  [2026-10-16 06:33:27.955 -06:00] FIN PASO 5
+  [2026-10-16 06:33:27.957 -06:00] PASO 6 terraform apply completo (llave Sealed Secrets, ArgoCD, aroma-root)
+  [2026-10-16 06:35:56.461 -06:00] FIN PASO 6
+  [2026-10-16 06:35:56.461 -06:00] PASO 7 esperar aroma-root y sus Applications hijas Synced/Healthy (max 25 min)
+  [2026-10-16 06:35:56.828 -06:00] estado: aroma-root=/
+  [2026-10-16 06:36:12.321 -06:00] estado: argo-rollouts=OutOfSync/Missing aroma-root=OutOfSync/Progressing kyverno=/ sealed-secrets=Synced/Healthy velero=OutOfSync/Missing velero-secrets=Synced/Healthy
+  [2026-10-16 06:36:27.650 -06:00] estado: argo-rollouts=Synced/Progressing aroma-root=OutOfSync/Progressing kyverno=OutOfSync/Missing sealed-secrets=Synced/Healthy velero=Synced/Progressing velero-secrets=Synced/Healthy
+  [2026-10-16 06:36:42.794 -06:00] estado: argo-rollouts=Synced/Progressing aroma-root=OutOfSync/Progressing kyverno=Synced/Progressing sealed-secrets=Synced/Healthy velero=Synced/Progressing velero-secrets=Synced/Healthy
+  [2026-10-16 06:36:58.019 -06:00] estado: argo-rollouts=Synced/Healthy aroma-root=OutOfSync/Progressing kyverno=Synced/Progressing sealed-secrets=Synced/Healthy velero=Synced/Progressing velero-secrets=Synced/Healthy
+  [2026-10-16 06:37:13.154 -06:00] estado: argo-rollouts=Synced/Healthy aroma-root=OutOfSync/Progressing kyverno=Synced/Progressing sealed-secrets=Synced/Healthy velero=Synced/Healthy velero-secrets=Synced/Healthy
+  [2026-10-16 06:37:28.319 -06:00] estado: argo-rollouts=Synced/Healthy aroma-root=Synced/Healthy kyverno=Synced/Healthy sealed-secrets=Synced/Healthy velero=Synced/Healthy velero-schedules=Synced/Healthy velero-secrets=Synced/Healthy
+  [2026-10-16 06:37:28.319 -06:00] FIN PASO 7
+  [2026-10-16 06:37:28.618 -06:00] FIN bootstrap P9: duracion 00:05:07 (307 s)
+  [2026-10-16 06:37:28.620 -06:00] Registro: C:\Users\hp victus\Desktop\LOURDES\Pr-cticas-SA-B-202103763\P9\evidencias\bootstrap-20261016-063221.log
+
+Tiempo de reconstruccion (intento 2, inicio a fin del bootstrap): 307 s
+Tiempo desde la perdida hasta servicio restablecido (06:31:31 -> 06:37:28, incluye intento fallido y correccion): ~5 min 57 s
+
+=== Verificacion posterior
+--- kubectl get nodes
+NAME                     STATUS   ROLES           AGE     VERSION
+aroma-p9-control-plane   Ready    control-plane   6m2s    v1.37.0
+aroma-p9-worker          Ready    <none>          5m50s   v1.37.0
+aroma-p9-worker2         Ready    <none>          5m50s   v1.37.0
+
+--- kubectl get applications -n argocd
+NAME               SYNC STATUS   HEALTH STATUS
+argo-rollouts      Synced        Healthy
+aroma-root         Synced        Healthy
+kyverno            Synced        Healthy
+sealed-secrets     Synced        Healthy
+velero             Synced        Healthy
+velero-schedules   Synced        Healthy
+velero-secrets     Synced        Healthy
+
+--- helm list -n argocd
+NAME      	NAMESPACE	REVISION	UPDATED                              	STATUS  	CHART            	APP VERSION
+argocd    	argocd   	1       	2026-10-16 06:33:44.676621 -0600 CST 	deployed	argo-cd-7.7.11   	v2.13.2    
+aroma-root	argocd   	1       	2026-10-16 06:35:55.5862681 -0600 CST	deployed	argocd-apps-2.0.6	           
+
+--- llave de Sealed Secrets (solo nombre) y log del controlador
+secret/sealed-secrets-key2g8wj
+time=2026-10-16T12:36:05.019Z level=INFO msg="Searching for existing private keys"
+time=2026-10-16T12:36:05.030Z level=INFO msg="registered private key" secretname=sealed-secrets-key2g8wj
+time=2026-10-16T12:36:08.153Z level=INFO msg=Updating key=velero/velero-minio-credentials
+
+--- SealedSecret velero-minio-credentials
+    status: "True"
+    type: Synced
+
+--- velero backup-location get
+NAME      PROVIDER   BUCKET/PREFIX    PHASE       LAST VALIDATED                  ACCESS MODE   DEFAULT
+default   aws        velero-backups   Available   2026-10-16 06:38:37 -0600 CST   ReadWrite     true
+
+--- velero backup get (sincronizados desde MinIO)
+NAME                            STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   QUEUE POSITION   SELECTOR
+manual-aroma-20261016-055103    Completed   0        0          2026-10-16 05:51:03 -0600 CST   14d       default                             <none>
+manual-llaves-20261016-055103   Completed   0        0          2026-10-16 05:51:03 -0600 CST   364d      default                             sealedsecrets.bitnami.com/sealed-secrets-key
+
+--- velero schedule get
+NAME                    STATUS    CREATED                         SCHEDULE    BACKUP TTL   LAST BACKUP   SELECTOR                                       PAUSED
+respaldo-diario-aroma   Enabled   2026-10-16 06:37:22 -0600 CST   0 3 * * *   360h0m0s     n/a           <none>                                         false
+respaldo-llaves         Enabled   2026-10-16 06:37:22 -0600 CST   0 4 * * 0   8760h0m0s    n/a           sealedsecrets.bitnami.com/sealed-secrets-key   false
+
+--- Chequeos verificar_p9.sh 2.1: hijas en status.resources de aroma-root = 6, sync = Synced
+--- terraform plan posterior: No changes (idempotente)

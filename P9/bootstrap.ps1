@@ -90,7 +90,11 @@ if (-not $existe -and $enEstado.Count -gt 0) {
   # El estado describe recursos de un cluster que ya no existe. Sin esta
   # limpieza, el plan intentaria leerlos de una API que no responde.
   Marca "El cluster no existe y el estado tiene $($enEstado.Count) recursos: se limpian del estado"
-  terraform "-chdir=$tf" state rm -lock-timeout=120s @enEstado 2>&1 | Registrar
+  # Se quita el indice (["aroma-prod"]): PowerShell 5.1 elimina las
+  # comillas dobles al pasar argumentos a un ejecutable y Terraform
+  # rechaza la direccion. Sin indice se limpian las instancias del recurso.
+  $direcciones = @($enEstado | ForEach-Object { $_ -replace '\[.*\]$', '' } | Sort-Object -Unique)
+  terraform "-chdir=$tf" state rm -lock-timeout=120s @direcciones 2>&1 | Registrar
   if ($LASTEXITCODE -ne 0) { Detener "terraform state rm" }
 } else {
   Marca "Estado coherente (cluster existe: $([bool]$existe); recursos en estado: $($enEstado.Count))"
