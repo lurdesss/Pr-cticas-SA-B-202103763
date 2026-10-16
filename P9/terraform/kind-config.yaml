@@ -1,0 +1,18 @@
+# Topologia del cluster kind "aroma-p9": 1 control-plane + 2 workers.
+#
+# Con un solo nodo, drenarlo deja al sistema sin donde reprogramar pods,
+# asi que la prueba de perdida de nodo no tendria sentido. Con dos
+# workers, la anti-afinidad reparte las replicas y el PodDisruptionBudget
+# impide que un "kubectl drain" las saque todas a la vez.
+#
+# La imagen del nodo se fija (misma version que ya corria en el cluster
+# de un nodo) para que cada reconstruccion levante el mismo Kubernetes.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.37.0
+  - role: worker
+    image: kindest/node:v1.37.0
+  - role: worker
+    image: kindest/node:v1.37.0
