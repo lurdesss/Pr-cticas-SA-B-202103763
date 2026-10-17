@@ -1,0 +1,101 @@
+=== Evidencia Bloque 8b: ENSAYO de restauracion de datos (no es la medicion oficial del RPO)
+Fecha: 2026-10-17 | Backup: ensayo-20261017-005732 | Restore exitoso: ensayo-restore-20261017-011514
+
+Procedimiento ensayado:
+  1. Pedidos ENSAYO-ANTES-1..3 por la API (deben recuperarse).
+  2. Backup desde el Schedule respaldo-horario-aroma (hooks pg_dumpall + pgdata por Kopia).
+  3. Pedidos ENSAYO-DESPUES-1..2 por la API, despues del backup (deben perderse).
+  4. Pausa de ArgoCD en aroma-bd (skip-reconcile) y borrado del postgresql (StatefulSet, pods, PVC).
+  5. velero restore --from-backup ... --include-namespaces aroma-prod --selector cluster-name=aroma-pg
+  6. Reanudar aroma-bd, reiniciar el operador de Zalando (ver hallazgo 4) y verificar contenido.
+
+--- Registro con marcas de tiempo
+[2026-10-17 00:57:26 -0600] primaria=aroma-pg-0
+[2026-10-17 00:57:26 -0600] POST pedido ENSAYO-ANTES-1 -> HTTP 201
+[2026-10-17 00:57:32 -0600] POST pedido ENSAYO-ANTES-2 -> HTTP 201
+[2026-10-17 00:57:32 -0600] POST pedido ENSAYO-ANTES-3 -> HTTP 201
+[2026-10-17 00:57:32 -0600] antes del backup: productos=9 pedidos=3 marcados=ENSAYO-ANTES-1,ENSAYO-ANTES-2,ENSAYO-ANTES-3
+[2026-10-17 00:57:32 -0600] INICIO backup ensayo-20261017-005732 (desde respaldo-horario-aroma)
+[2026-10-17 00:58:08 -0600] FIN backup ensayo-20261017-005732: fase=Completed completado=2026-10-17T06:58:08Z hooks=2/
+[2026-10-17 00:58:08 -0600]   pvb aroma-pg-1                   pgdata   Completed   107566459
+[2026-10-17 00:58:08 -0600]   pvb aroma-pg-0                   pgdata   Completed   124585201
+[2026-10-17 00:58:08 -0600] POST pedido ENSAYO-DESPUES-1 -> HTTP 201
+[2026-10-17 00:58:08 -0600] POST pedido ENSAYO-DESPUES-2 -> HTTP 201
+[2026-10-17 00:58:08 -0600] despues del backup (estos 2 se deben perder): marcados=ENSAYO-ANTES-1,ENSAYO-ANTES-2,ENSAYO-ANTES-3,ENSAYO-DESPUES-1,ENSAYO-DESPUES-2
+[2026-10-17 00:58:18 -0600] revision aroma-bd: 8f1e423
+[2026-10-17 00:58:18 -0600] PERDIDA: kubectl delete postgresql aroma-pg (borra StatefulSet, pods y PVC con los datos)
+[2026-10-17 00:58:41 -0600] datos perdidos: sin StatefulSet, pods ni PVC de aroma-pg
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME                        DATA   AGE
+configmap/aroma-pg-config   0      37m
+configmap/aroma-pg-leader   0      37m
+
+NAME                      ENDPOINTS   AGE
+endpoints/aroma-pg        <none>      37m
+endpoints/aroma-pg-repl   <none>      37m
+[2026-10-17 00:59:03 -0600] INICIO restore ensayo-restore-20261017-005903 desde ensayo-20261017-005732 (aroma-prod, selector cluster-name=aroma-pg)
+[2026-10-17 00:59:03 -0600] restore=InProgress | pods: | pvr: 
+[2026-10-17 00:59:09 -0600] restore=InProgress | pods: aroma-pg-0:0/1:Init:RunContainerError aroma-pg-1:0/1:Init:RunContainerError | pvr: aroma-pg-1/dshm=<none> aroma-pg-0/pgdata=<none> aroma-pg-1/pgdata=<none> aroma-pg-0/dshm=<none> 
+[2026-10-17 01:02:40 -0600] FIN restore: fase=InProgress advertencias= errores= items=23/23
+[2026-10-17 01:08:50 -0600] ConfigMap restore-wait: image=velero/velero-restore-helper:v1.15.0
+[2026-10-17 01:09:04 -0600] limpieza del intento fallido ensayo-restore-20261017-005903 (restore-wait con imagen equivocada)
+[2026-10-17 01:14:35 -0600] limpio: sin StatefulSet, pods, PVC ni Restore del intento 1
+[2026-10-17 01:15:02 -0600] Velero reiniciado; restore viejo: eliminado
+[2026-10-17 01:15:14 -0600] INICIO restore (intento 2) ensayo-restore-20261017-011514 desde ensayo-20261017-005732
+[2026-10-17 01:15:15 -0600] restore=InProgress | pods: | pvr: 
+[2026-10-17 01:15:20 -0600] restore=InProgress | pods: aroma-pg-0:0/1:Init:0/1 aroma-pg-1:0/1:Init:0/1 | pvr: aroma-pg-0/pgdata=<none>(<none>) aroma-pg-1/pgdata=<none>(<none>) aroma-pg-1/dshm=<none>(<none>) aroma-pg-0/dshm=<none>(<none>) 
+[2026-10-17 01:15:27 -0600] restore=InProgress | pods: aroma-pg-0:0/1:Init:0/1 aroma-pg-1:0/1:Init:0/1 | pvr: aroma-pg-0/pgdata=Completed(124585201) aroma-pg-1/pgdata=Completed(107566459) aroma-pg-1/dshm=<none>(<none>) aroma-pg-0/dshm=<none>(<none>) 
+[2026-10-17 01:15:32 -0600] restore=Completed | pods: aroma-pg-0:0/1:Running aroma-pg-1:0/1:Running | pvr: aroma-pg-0/pgdata=Completed(124585201) aroma-pg-1/pgdata=Completed(107566459) aroma-pg-1/dshm=Completed(1076152) aroma-pg-0/dshm=Completed(1076152) 
+[2026-10-17 01:15:32 -0600] FIN restore: fase=Completed advertencias=5 errores= items=23/23
+[2026-10-17 01:15:47 -0600] revision aroma-bd antes de reanudar: 8f1e423
+[2026-10-17 01:21:01 -0600] aroma-bd reanudada: postgresql=CreateFailed listas=2
++ Cluster: aroma-pg (7697517907768029252) -------+----+-------------+-----+------------+-----+
+| Member     | Host        | Role    | State     | TL | Receive LSN | Lag | Replay LSN | Lag |
++------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+| aroma-pg-0 | 10.244.2.40 | Leader  | running   |  2 |             |     |            |     |
+| aroma-pg-1 | 10.244.1.43 | Replica | streaming |  2 |   0/5300858 |   0 |  0/5300858 |   0 |
++------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+[2026-10-17 01:21:02 -0600] VERIFICACION (primaria aroma-pg-0): productos=9 | pedidos marcados=ENSAYO-ANTES-1,ENSAYO-ANTES-2,ENSAYO-ANTES-3
+[2026-10-17 01:21:02 -0600] VERIFICACION (replica aroma-pg-1): productos=9 | pedidos marcados=ENSAYO-ANTES-1,ENSAYO-ANTES-2,ENSAYO-ANTES-3
+[2026-10-17 01:21:02 -0600] pedidos ENSAYO-DESPUES recuperados (deben ser 0): 0
+[2026-10-17 01:23:33 -0600] tras forzar sync del operador: postgresql=UpdateFailed
+[2026-10-17 01:24:40 -0600] tras reiniciar el operador: postgresql=Running
+[2026-10-17 01:25:01 -0600] /api/salud: 200 | POST pedido ENSAYO-POST-RESTAURACION: 201
+
+--- Restore ensayo-restore-20261017-011514
+fase=Completed inicio=2026-10-17T07:15:14Z fin=2026-10-17T07:15:29Z items=23/23 advertencias=5
+--- PodVolumeRestores (bytes restaurados = bytes respaldados)
+POD          VOLUMEN   FASE        BYTES
+aroma-pg-0   pgdata    Completed   124585201
+aroma-pg-1   pgdata    Completed   107566459
+aroma-pg-1   dshm      Completed   1076152
+aroma-pg-0   dshm      Completed   1076152
+--- PodVolumeBackups del backup
+POD                          VOLUMEN   FASE        BYTES
+aroma-pg-1                   pgdata    Completed   107566459
+aroma-pg-0                   pgdata    Completed   124585201
+
+--- Estado final
+NAME             READY   STATUS    RESTARTS   AGE
+pod/aroma-pg-0   1/1     Running   0          10m
+pod/aroma-pg-1   1/1     Running   0          10m
+
+NAME                                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/pgdata-aroma-pg-0   Bound    pvc-b4cad8d9-b782-4297-af6d-ed33d11bbca2   1Gi        RWO            aroma-local    <unset>                 10m
+persistentvolumeclaim/pgdata-aroma-pg-1   Bound    pvc-eba1df54-96f5-4f18-8f02-299d82c64510   1Gi        RWO            aroma-local    <unset>                 10m
+NAME       TEAM    VERSION   PODS   VOLUME   CPU-REQUEST   MEMORY-REQUEST   AGE   STATUS
+aroma-pg   aroma   17        2      1Gi      100m          256Mi            10m   Running
+
+=== Hallazgos del ensayo (resueltos o documentados antes de medir)
+1. Los /salud de los servicios no consultan la BD: tras recrear PostgreSQL siguieron Ready y /api/salud dio 200
+   con la BD sin tablas (pedidos 503). Se reiniciaron los pods. Limite: la salud no refleja la dependencia de datos.
+2. Cuota de aroma-prod: limits.cpu llego a 5800m de 6 al reiniciar servicios y bloqueo pods (FailedCreate) por un momento.
+3. restore-wait con imagen velero/velero:v1.15.0 -> 'stat /velero-restore-helper: no such file'. Imagen correcta:
+   velero/velero-restore-helper:v1.15.0 (commit GitOps 94552a9). El restore atascado (InProgress, espera de 4 h) se
+   libero reiniciando Velero (marca Failed las restauraciones en curso al arrancar).
+4. Zalando: al recrear el postgresql con objetos ya restaurados, el evento de creacion falla ('services aroma-pg
+   already exists' -> CreateFailed) y el operador queda sin credenciales en memoria ('no PostgreSQL user name
+   specified'). Reiniciar el operador hace una sincronizacion completa que adopta lo restaurado -> Running.
+5. Kyverno no bloqueo el restore-wait (limites + uid numerico) y el GC no borro los pods restaurados.
+6. Al limpiar con 'kubectl delete pod -l app.kubernetes.io/name=velero,name=velero' tambien se borraron 2 pods de
+   jobs de mantenimiento de Kopia (sin datos, se reprograman). En el procedimiento se usa un selector exacto.
