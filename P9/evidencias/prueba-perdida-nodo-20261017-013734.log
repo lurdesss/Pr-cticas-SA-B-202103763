@@ -1,0 +1,187 @@
+﻿[2026-10-17 01:37:34 -06:00] INICIO prueba de perdida de nodo: se drena aroma-p9-worker (aloja la primaria aroma-pg-1); gateway ClusterIP 10.96.71.224
+[2026-10-17 01:37:34 -06:00] estado inicial - pods de aroma-prod por nodo:
+    aroma-pg-0 Running aroma-p9-worker2
+    aroma-pg-1 Running aroma-p9-worker
+    catalogo-7ffcff8784-84qks Running aroma-p9-worker
+    catalogo-7ffcff8784-mjxv6 Running aroma-p9-worker
+    gateway-7fb5f888f4-466mv Running aroma-p9-worker
+    gateway-7fb5f888f4-55k5d Running aroma-p9-worker
+    gateway-7fb5f888f4-rnlpg Running aroma-p9-worker
+    inventario-d556875b6-4j68r Running aroma-p9-worker
+    inventario-d556875b6-z2bk5 Running aroma-p9-worker
+    pedidos-695c45477d-lth4t Running aroma-p9-worker
+    pedidos-695c45477d-vhhs9 Running aroma-p9-worker
+    resenas-84d68785c4-f2kqn Running aroma-p9-worker
+    resenas-84d68785c4-lkgf5 Running aroma-p9-worker
+[2026-10-17 01:37:34 -06:00] estado inicial - Patroni:
+    error: exec [POD] [COMMAND] is not supported anymore. Use exec [POD] -- [COMMAND] instead
+    See 'kubectl exec -h' for help and examples
+[2026-10-17 01:37:35 -06:00] estado inicial - PDB:
+    NAME                                MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+    catalogo                            1               N/A               1                     15h
+    gateway                             2               N/A               1                     15h
+    inventario                          1               N/A               1                     15h
+    pedidos                             1               N/A               1                     15h
+    postgres-aroma-pg-critical-op-pdb   N/A             0                 0                     38m
+    postgres-aroma-pg-pdb               1               N/A               1                     38m
+    resenas                             1               N/A               1                     15h
+[2026-10-17 01:37:38 -06:00] sondas iniciadas (cada ~1 s, desde aroma-p9-control-plane)
+[2026-10-17 01:37:58 -06:00] DRAIN inicio: kubectl drain aroma-p9-worker --ignore-daemonsets --delete-emptydir-data
+[2026-10-17 01:38:44 -06:00] DRAIN fin (exito=True):
+    evicting pod argocd/argocd-application-controller-0
+    evicting pod argocd/argocd-repo-server-7cc856d5d-6bgqm
+    evicting pod aroma-prod/aroma-pg-1
+    evicting pod argo-rollouts/argo-rollouts-784557f8dd-n5hsc
+    evicting pod aroma-prod/resenas-84d68785c4-lkgf5
+    evicting pod argocd/argocd-notifications-controller-6595bc45ff-js6js
+    evicting pod argocd/argocd-dex-server-84dcbc755-cdhjf
+    evicting pod kyverno/kyverno-reports-controller-7d968f8899-h4k2c
+    evicting pod aroma-prod/resenas-84d68785c4-f2kqn
+    evicting pod argocd/argocd-applicationset-controller-79b6979b47-flzcf
+    evicting pod aroma-prod/pedidos-695c45477d-lth4t
+    evicting pod aroma-prod/inventario-d556875b6-z2bk5
+    evicting pod velero/velero-74b9667b94-vgdcs
+    evicting pod aroma-prod/gateway-7fb5f888f4-55k5d
+    evicting pod aroma-prod/gateway-7fb5f888f4-rnlpg
+    evicting pod kube-system/sealed-secrets-controller-84f4f54584-t8kh6
+    evicting pod aroma-prod/gateway-7fb5f888f4-466mv
+    evicting pod aroma-prod/inventario-d556875b6-4j68r
+    evicting pod kyverno/kyverno-cleanup-controller-6d7f764ccd-5jfsc
+    evicting pod kyverno/kyverno-admission-controller-7cff9dd9fd-l29qj
+    evicting pod aroma-prod/catalogo-7ffcff8784-84qks
+    evicting pod kyverno/kyverno-background-controller-55bb88dd68-2xxtt
+    evicting pod kyverno/kyverno-admission-controller-7cff9dd9fd-9rwsm
+    evicting pod aroma-prod/catalogo-7ffcff8784-mjxv6
+    evicting pod postgres-operator/postgres-operator-548b896db9-2gkcx
+    evicting pod argocd/argocd-server-68c746476-h5rjg
+    evicting pod velero/aroma-prod-default-kopia-pcqwq-maintain-job-1792222172647-w2bss
+    evicting pod argocd/argocd-redis-54dcbfbb76-h8kmr
+    evicting pod aroma-prod/pedidos-695c45477d-vhhs9
+    evicting pod argo-rollouts/argo-rollouts-784557f8dd-tf8ll
+    error when evicting pods/"gateway-7fb5f888f4-466mv" -n "aroma-prod" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    error when evicting pods/"inventario-d556875b6-4j68r" -n "aroma-prod" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    error when evicting pods/"gateway-7fb5f888f4-rnlpg" -n "aroma-prod" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    pod/argocd-application-controller-0 evicted
+    pod/sealed-secrets-controller-84f4f54584-t8kh6 evicted
+    error when evicting pods/"kyverno-admission-controller-7cff9dd9fd-9rwsm" -n "kyverno" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    error when evicting pods/"resenas-84d68785c4-f2kqn" -n "aroma-prod" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    error when evicting pods/"catalogo-7ffcff8784-mjxv6" -n "aroma-prod" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    pod/argocd-notifications-controller-6595bc45ff-js6js evicted
+    error when evicting pods/"pedidos-695c45477d-vhhs9" -n "aroma-prod" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    pod/argo-rollouts-784557f8dd-n5hsc evicted
+    pod/velero-74b9667b94-vgdcs evicted
+    pod/kyverno-admission-controller-7cff9dd9fd-l29qj evicted
+    pod/resenas-84d68785c4-lkgf5 evicted
+    pod/argocd-repo-server-7cc856d5d-6bgqm evicted
+    pod/argocd-dex-server-84dcbc755-cdhjf evicted
+    pod/kyverno-cleanup-controller-6d7f764ccd-5jfsc evicted
+    pod/postgres-operator-548b896db9-2gkcx evicted
+    pod/aroma-prod-default-kopia-pcqwq-maintain-job-1792222172647-w2bss evicted
+    pod/kyverno-reports-controller-7d968f8899-h4k2c evicted
+    pod/argocd-redis-54dcbfbb76-h8kmr evicted
+    pod/argocd-server-68c746476-h5rjg evicted
+    pod/inventario-d556875b6-z2bk5 evicted
+    pod/argo-rollouts-784557f8dd-tf8ll evicted
+    pod/argocd-applicationset-controller-79b6979b47-flzcf evicted
+    evicting pod aroma-prod/gateway-7fb5f888f4-466mv
+    evicting pod aroma-prod/inventario-d556875b6-4j68r
+    error when evicting pods/"inventario-d556875b6-4j68r" -n "aroma-prod" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    evicting pod aroma-prod/gateway-7fb5f888f4-rnlpg
+    error when evicting pods/"gateway-7fb5f888f4-rnlpg" -n "aroma-prod" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    pod/kyverno-background-controller-55bb88dd68-2xxtt evicted
+    evicting pod kyverno/kyverno-admission-controller-7cff9dd9fd-9rwsm
+    error when evicting pods/"kyverno-admission-controller-7cff9dd9fd-9rwsm" -n "kyverno" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    evicting pod aroma-prod/catalogo-7ffcff8784-mjxv6
+    evicting pod aroma-prod/resenas-84d68785c4-f2kqn
+    evicting pod aroma-prod/pedidos-695c45477d-vhhs9
+    pod/aroma-pg-1 evicted
+    pod/resenas-84d68785c4-f2kqn evicted
+    evicting pod aroma-prod/inventario-d556875b6-4j68r
+    evicting pod aroma-prod/gateway-7fb5f888f4-rnlpg
+    evicting pod kyverno/kyverno-admission-controller-7cff9dd9fd-9rwsm
+    error when evicting pods/"kyverno-admission-controller-7cff9dd9fd-9rwsm" -n "kyverno" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    pod/inventario-d556875b6-4j68r evicted
+    evicting pod kyverno/kyverno-admission-controller-7cff9dd9fd-9rwsm
+    error when evicting pods/"kyverno-admission-controller-7cff9dd9fd-9rwsm" -n "kyverno" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    evicting pod kyverno/kyverno-admission-controller-7cff9dd9fd-9rwsm
+    error when evicting pods/"kyverno-admission-controller-7cff9dd9fd-9rwsm" -n "kyverno" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    pod/gateway-7fb5f888f4-55k5d evicted
+    pod/catalogo-7ffcff8784-84qks evicted
+    pod/pedidos-695c45477d-lth4t evicted
+    evicting pod kyverno/kyverno-admission-controller-7cff9dd9fd-9rwsm
+    error when evicting pods/"kyverno-admission-controller-7cff9dd9fd-9rwsm" -n "kyverno" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+    pod/gateway-7fb5f888f4-466mv evicted
+    evicting pod kyverno/kyverno-admission-controller-7cff9dd9fd-9rwsm
+    pod/pedidos-695c45477d-vhhs9 evicted
+    pod/kyverno-admission-controller-7cff9dd9fd-9rwsm evicted
+    pod/catalogo-7ffcff8784-mjxv6 evicted
+    pod/gateway-7fb5f888f4-rnlpg evicted
+    node/aroma-p9-worker drained
+[2026-10-17 01:38:45 -06:00] tras el drenaje - Patroni (primaria ahora: aroma-pg-0):
+    error: exec [POD] [COMMAND] is not supported anymore. Use exec [POD] -- [COMMAND] instead
+    See 'kubectl exec -h' for help and examples
+[2026-10-17 01:38:45 -06:00] tras el drenaje - pods de aroma-prod por nodo:
+    aroma-pg-0 1/1 Running aroma-p9-worker2
+    aroma-pg-1 0/1 Pending <none>
+    catalogo-7ffcff8784-fjhtl 1/1 Running aroma-p9-worker2
+    catalogo-7ffcff8784-ngk5d 1/1 Running aroma-p9-worker2
+    gateway-7fb5f888f4-9zhxc 1/1 Running aroma-p9-worker2
+    gateway-7fb5f888f4-dq5nw 1/1 Running aroma-p9-worker2
+    gateway-7fb5f888f4-wmwjl 1/1 Running aroma-p9-worker2
+    inventario-d556875b6-t76dr 1/1 Running aroma-p9-worker2
+    inventario-d556875b6-zckhk 1/1 Running aroma-p9-worker2
+    pedidos-695c45477d-pkxsf 1/1 Running aroma-p9-worker2
+    pedidos-695c45477d-rcs97 1/1 Running aroma-p9-worker2
+    resenas-84d68785c4-522ct 1/1 Running aroma-p9-worker2
+    resenas-84d68785c4-fz4w2 1/1 Running aroma-p9-worker2
+[2026-10-17 01:39:45 -06:00] UNCORDON: kubectl uncordon aroma-p9-worker
+[2026-10-17 01:40:00 -06:00] PostgreSQL con 2 instancias listas tras el uncordon
+[2026-10-17 01:41:01 -06:00] estado final - Patroni:
+    error: exec [POD] [COMMAND] is not supported anymore. Use exec [POD] -- [COMMAND] instead
+    See 'kubectl exec -h' for help and examples
+[2026-10-17 01:41:01 -06:00] estado final - pods de aroma-prod por nodo:
+    aroma-pg-0 1/1 Running aroma-p9-worker2
+    aroma-pg-1 1/1 Running aroma-p9-worker
+    catalogo-7ffcff8784-fjhtl 1/1 Running aroma-p9-worker2
+    catalogo-7ffcff8784-ngk5d 1/1 Running aroma-p9-worker2
+    gateway-7fb5f888f4-9zhxc 1/1 Running aroma-p9-worker2
+    gateway-7fb5f888f4-dq5nw 1/1 Running aroma-p9-worker2
+    gateway-7fb5f888f4-wmwjl 1/1 Running aroma-p9-worker2
+    inventario-d556875b6-t76dr 1/1 Running aroma-p9-worker2
+    inventario-d556875b6-zckhk 1/1 Running aroma-p9-worker2
+    pedidos-695c45477d-pkxsf 1/1 Running aroma-p9-worker2
+    pedidos-695c45477d-rcs97 1/1 Running aroma-p9-worker2
+    resenas-84d68785c4-522ct 1/1 Running aroma-p9-worker2
+    resenas-84d68785c4-fz4w2 1/1 Running aroma-p9-worker2
+[2026-10-17 01:41:01 -06:00] RESULTADO sonda salud: 192/199 respuestas 200 (96.48 %) | codigos: 200=192 503=7 | mayor ventana de fallo: 7.501 s (desde 01:37:58)
+[2026-10-17 01:41:01 -06:00] RESULTADO sonda datos: 192/199 respuestas 200 (96.48 %) | codigos: 200=192 503=7 | mayor ventana de fallo: 7.74 s (desde 01:37:58)
+[2026-10-17 01:41:01 -06:00] FIN prueba de perdida de nodo (detalle por peticion en prueba-perdida-nodo-20261017-013734.sondas.txt)
+
+=== Complemento posterior (2026-10-17 02:31:58 -0600)
+Nota: los bloques 'Patroni' de arriba fallaron por un error del script (PowerShell consume el '--' de
+kubectl exec); el failover queda demostrado por los roles de los pods. Estado actual de Patroni:
+    + Cluster: aroma-pg (7697517907768029252) -------+----+-------------+-----+------------+-----+
+    | Member     | Host        | Role    | State     | TL | Receive LSN | Lag | Replay LSN | Lag |
+    +------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+    | aroma-pg-0 | 10.244.2.42 | Leader  | running   |  4 |             |     |            |     |
+    | aroma-pg-1 | 10.244.1.58 | Replica | streaming |  4 |   0/8000000 |   0 |  0/8000000 |   0 |
+    +------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+Historial de lideres de Patroni (timeline = cada failover/switchover):
+    | TL |       LSN | Reason                       | Timestamp                        | New Leader |
+    +----+-----------+------------------------------+----------------------------------+------------+
+    |  1 |  83886240 | no recovery target specified | 2026-10-17T07:15:47.868681+00:00 | aroma-pg-0 |
+    |  2 | 100663456 | no recovery target specified | 2026-10-17T07:33:30.612727+00:00 | aroma-pg-1 |
+    |  3 | 117440672 | no recovery target specified | 2026-10-17T07:38:00.240603+00:00 | aroma-pg-0 |
+    +----+-----------+------------------------------+----------------------------------+------------+
+
+Analisis:
+- Disponibilidad medida: 96.48 % en ambas sondas (192/199); unica ventana de fallo: 7.5 s de HTTP 503
+  desde 01:37:58 (inicio del drenaje). El servicio respondio durante el resto del drenaje (46 s) y
+  durante el failover de PostgreSQL (aroma-pg-1 primaria -> aroma-pg-0 promovida).
+- Antes del drenaje TODAS las replicas de la app estaban en aroma-p9-worker: el drenaje del intento
+  anterior las movio alli y Kubernetes no rebalancea tras el uncordon (la anti-afinidad preferida solo
+  actua al programar). Un fallo real (no un drain con PDB) de ese nodo habria tumbado todas las replicas.
+- Causa probable de los 503: los Services siguieron enviando trafico a pods en terminacion mientras sus
+  reemplazos arrancaban en el otro nodo (los servicios no tienen preStop para esperar a los endpoints).
+- Intento previo (01:33, worker2): drenaje de 36 s y failover correctos, pero las sondas no registraron
+  datos ('docker cp' a /tmp del nodo kind cae bajo un tmpfs); no se uso como evidencia.

@@ -53,10 +53,16 @@ function Esperar([scriptblock]$cond, [string]$desc) {
 Linea "INICIO restauracion de datos de PostgreSQL (aroma-pg)"
 
 # ---------------------------------------------------- 1. elegir y validar backup
+# Tras una reconstruccion, Velero re-sincroniza desde MinIO los objetos
+# Backup pero no los PodVolumeBackup del cluster anterior. Si existen, se
+# exige que el backup contenga pgdata con bytes; si no existen, se avisa y
+# la comprobacion se hace despues del restore (PodVolumeRestores de pgdata).
+$hayPvbs = @((Kj get podvolumebackups.velero.io -n velero).items).Count -gt 0
 if (-not $Respaldo) {
   $candidatos = @((Kj get backups.velero.io -n velero -l velero.io/schedule-name=respaldo-horario-aroma).items |
     Where-Object { $_.status.phase -eq "Completed" } | Sort-Object { $_.status.completionTimestamp } -Descending)
   foreach ($c in $candidatos) {
+    if (-not $hayPvbs) { $Respaldo = $c.metadata.name; break }
     $pv = @((Kj get podvolumebackups.velero.io -n velero -l "velero.io/backup-name=$($c.metadata.name)").items |
       Where-Object { $_.spec.volume -eq "pgdata" -and $_.status.phase -eq "Completed" -and $_.status.progress.totalBytes -gt 0 })
     if ($pv.Count -ge 1) { $Respaldo = $c.metadata.name; break }
@@ -65,12 +71,16 @@ if (-not $Respaldo) {
 }
 $bk = Kj get backups.velero.io $Respaldo -n velero
 if ($bk.status.phase -ne "Completed") { Detener "el backup $Respaldo no esta Completed ($($bk.status.phase))" }
-$pvbs = @((Kj get podvolumebackups.velero.io -n velero -l "velero.io/backup-name=$Respaldo").items | Where-Object { $_.spec.volume -eq "pgdata" })
-if ($pvbs.Count -lt 1 -or ($pvbs | Where-Object { -not ($_.status.progress.totalBytes -gt 0) })) {
-  Detener "el backup $Respaldo no contiene pgdata con datos (backup sin volumen de PostgreSQL)"
+if ($hayPvbs) {
+  $pvbs = @((Kj get podvolumebackups.velero.io -n velero -l "velero.io/backup-name=$Respaldo").items | Where-Object { $_.spec.volume -eq "pgdata" })
+  if ($pvbs.Count -lt 1 -or ($pvbs | Where-Object { -not ($_.status.progress.totalBytes -gt 0) })) {
+    Detener "el backup $Respaldo no contiene pgdata con datos (backup sin volumen de PostgreSQL)"
+  }
+  Linea ("backup elegido: $Respaldo (completado $($bk.status.completionTimestamp); pgdata: " +
+    (($pvbs | ForEach-Object { "$($_.spec.pod.name)=$($_.status.progress.totalBytes) bytes" }) -join ", ") + ")")
+} else {
+  Linea "backup elegido: $Respaldo (completado $($bk.status.completionTimestamp)); AVISO: sin PodVolumeBackups en el cluster (reconstruido), pgdata se valida despues del restore"
 }
-Linea ("backup elegido: $Respaldo (completado $($bk.status.completionTimestamp); pgdata: " +
-  (($pvbs | ForEach-Object { "$($_.spec.pod.name)=$($_.status.progress.totalBytes) bytes" }) -join ", ") + ")")
 
 # ------------------------------------------------------- 2. pausar ArgoCD
 Linea "PASO 2 pausar la reconciliacion de ArgoCD en aroma-bd"
@@ -91,7 +101,10 @@ $rs = Kj get restores.velero.io $nombreRestore -n velero
 $pvrs = @((Kj get podvolumerestores.velero.io -n velero -l "velero.io/restore-name=$nombreRestore").items | Where-Object { $_.spec.volume -eq "pgdata" })
 Linea ("restore $($rs.status.phase): items $($rs.status.progress.itemsRestored)/$($rs.status.progress.totalItems), advertencias $($rs.status.warnings); pgdata restaurado: " +
   (($pvrs | ForEach-Object { "$($_.spec.pod.name)=$($_.status.phase) $($_.status.progress.bytesDone) bytes" }) -join ", "))
-if ($rs.status.phase -eq "Failed" -or ($pvrs | Where-Object { $_.status.phase -ne "Completed" })) { Detener "el restore no recupero pgdata" }
+if ($rs.status.phase -eq "Failed" -or $pvrs.Count -lt 1 -or
+    ($pvrs | Where-Object { $_.status.phase -ne "Completed" -or -not ($_.status.progress.bytesDone -gt 0) })) {
+  Detener "el restore no recupero pgdata con datos"
+}
 
 # -------------------------------------------------------- 5. reanudar ArgoCD
 Linea "PASO 5 reanudar aroma-bd (revision $((Kj get application aroma-bd -n argocd).status.sync.revision.Substring(0,7)))"
