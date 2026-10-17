@@ -1,0 +1,213 @@
+=== verificar_p9.sh tras las pruebas oficiales (2026-10-17 03:33:55 -0600)
+
+################ ORIGINAL (sin modificar) ################
+================================================================
+ VERIFICACION PRACTICA 9 - v1.0
+ Carnet: 202103763        Fecha: 2026-10-17 03:33
+ Hash del script: 367900de0c69946a
+================================================================
+
+--- 0. Herramientas y contexto (debe verificarlo el auxiliar)
+  [OK]    Todas las herramientas presentes
+  Contexto de kubectl: kind-aroma-p9
+  [OK]    Acceso al cluster confirmado
+
+--- 1. Repositorios
+  [OK]    Repositorio de codigo accesible
+  [OK]    Repositorio GitOps accesible
+  [OK]    Carpeta /P9 presente
+  [FALLA] README de entrega AUSENTE
+
+--- 2.1 Bootstrap automatizado desde cero (14 pts)
+  [OK]    Punto de entrada presente: P9/bootstrap.ps1
+  Pasos automatizados detectados en el bootstrap: 20
+  [OK]    Terraform instala ArgoCD (capa de plataforma)
+  Aplicaciones registradas en ArgoCD: 15
+  Aplicacion raiz 'aroma-root': sync=Synced  aplicaciones hijas=14
+  [OK]    Patron app-of-apps operativo
+  [OK]    Aplicacion raiz sincronizada
+  >> 2.1 = 14 / 14
+
+--- 2.2 Estado remoto y disciplina de IaC (8 pts)
+  [OK]    Backend remoto declarado: backend "remote"
+  [OK]    Se evidencia bloqueo de estado
+  [OK]    Sin archivos de estado en el repositorio
+  [OK]    Sin credenciales evidentes en el codigo
+  >> 2.2 = 8 / 8
+
+--- 2.3 Respaldo y restauracion con Velero (14 pts)
+  [OK]    Velero instalado en el namespace velero
+verificar_p9.sh: line 175: [: 3
+0: integer expected
+  [FALLA] Sin respaldos programados: solo respaldos manuales
+verificar_p9.sh: line 186: [: 9
+0: integer expected
+  [FALLA] Ningun respaldo completado
+  destino: provider=aws bucket=velero-backups estado=Available
+  [FALLA] Destino de respaldo no configurado o interno al cluster
+  [FALLA] Los respaldos NO incluyen volumenes: se respalda solo la definicion
+  >> 2.3 = 2 / 14
+
+--- 2.4 Continuidad de los secretos (8 pts)
+  [OK]    Mecanismo de secretos: SealedSecrets
+  [OK]    El procedimiento de respaldo de la llave esta documentado
+  [FALLA] El respaldo no cubre el namespace donde vive la llave
+  >> 2.4 = 5 / 8
+
+--- 2.5 Resiliencia ante perdida de nodo (8 pts)
+  [OK]    PodDisruptionBudget definido (7)
+  pdb=catalogo minAvailable=1 maxUnavailable=- saludables=2
+  pdb=gateway minAvailable=2 maxUnavailable=- saludables=3
+  pdb=inventario minAvailable=1 maxUnavailable=- saludables=2
+  pdb=pedidos minAvailable=1 maxUnavailable=- saludables=2
+  pdb=postgres-aroma-pg-critical-op-pdb minAvailable=- maxUnavailable=0 saludables=0
+  pdb=postgres-aroma-pg-pdb minAvailable=1 maxUnavailable=- saludables=2
+  pdb=resenas minAvailable=1 maxUnavailable=- saludables=2
+  [OK]    Anti-afinidad o distribucion topologica declarada
+  Replicas minimas entre las cargas de trabajo: 2
+  [OK]    Toda carga de trabajo tiene 2 o mas replicas
+  >> 2.5 = 8 / 8
+
+--- 2.6 Restauracion de datos verificada (8 pts)
+  [OK]    PVC 'pgdata-aroma-pg-0' presente (fase=Bound)
+verificar_p9.sh: line 264: [: 1
+0: integer expected
+  [FALLA] Nunca se ha ejecutado una restauracion: el respaldo no esta probado
+  [OK]    Evidencia de verificacion de datos presente en el repositorio
+  >> 2.6 = 5 / 8
+
+--- Comprobaciones informativas
+  [FALLA] No se encuentra el runbook
+  [OK]    El informe declara RTO y RPO
+33s         Normal    Created                        pod/catalogo-7ffcff8784-lgm5j                           Container created
+30s         Warning   Unhealthy                      pod/resenas-84d68785c4-dp6tl                            Startup probe failed: Get "http://10.244.1.29:4004/salud": dial tcp 10.244.1.29:4004: connect: connection refused
+30s         Warning   Unhealthy                      pod/inventario-d556875b6-7jbmd                          Startup probe failed: Get "http://10.244.1.27:4002/salud": dial tcp 10.244.1.27:4002: connect: connection refused
+30s         Warning   Unhealthy                      pod/inventario-d556875b6-mns5t                          Startup probe failed: Get "http://10.244.2.22:4002/salud": dial tcp 10.244.2.22:4002: connect: connection refused
+30s         Warning   Unhealthy                      pod/resenas-84d68785c4-662md                            Startup probe failed: Get "http://10.244.2.24:4004/salud": dial tcp 10.244.2.24:4004: connect: connection refused
+
+================================================================
+ RESUMEN - carnet 202103763
+================================================================
+  2.1 Bootstrap automatizado ....... 14 / 14
+  2.2 Estado remoto e IaC ..........  8 / 8
+  2.3 Respaldo con Velero ..........  2 / 14
+  2.4 Continuidad de secretos ......  5 / 8
+  2.5 Resiliencia ante fallo .......  8 / 8
+  2.6 Restauracion verificada ......  5 / 8
+  --------------------------------------------
+  CONOCIMIENTO ..................... 42 / 60
+
+  Pendiente de evaluacion presencial: 40 pts
+    1.1 Runbook (12)   1.2 Informe de DR (12)
+    1.3 Diagrama del bootstrap (6)   1.4 Preguntas teoricas (10)
+
+  REQUISITOS ELIMINATORIOS INCUMPLIDOS: readme sin-respaldo
+
+  Duracion: 6s    Reporte: reporte_p9_202103763.txt
+================================================================
+
+################ COPIA CORREGIDA (P9/pruebas/verificar_p9_corregido.sh) ################
+================================================================
+ VERIFICACION PRACTICA 9 - v1.0
+ Carnet: 202103763        Fecha: 2026-10-17 03:33
+ Hash del script: 218e57bf236fddb3
+================================================================
+
+--- 0. Herramientas y contexto (debe verificarlo el auxiliar)
+  [OK]    Todas las herramientas presentes
+  Contexto de kubectl: kind-aroma-p9
+  [OK]    Acceso al cluster confirmado
+
+--- 1. Repositorios
+  [OK]    Repositorio de codigo accesible
+  [OK]    Repositorio GitOps accesible
+  [OK]    Carpeta /P9 presente
+  [FALLA] README de entrega AUSENTE
+
+--- 2.1 Bootstrap automatizado desde cero (14 pts)
+  [OK]    Punto de entrada presente: P9/bootstrap.ps1
+  Pasos automatizados detectados en el bootstrap: 20
+  [OK]    Terraform instala ArgoCD (capa de plataforma)
+  Aplicaciones registradas en ArgoCD: 15
+  Aplicacion raiz 'aroma-root': sync=Synced  aplicaciones hijas=14
+  [OK]    Patron app-of-apps operativo
+  [OK]    Aplicacion raiz sincronizada
+  >> 2.1 = 14 / 14
+
+--- 2.2 Estado remoto y disciplina de IaC (8 pts)
+  [OK]    Backend remoto declarado: backend "remote"
+  [OK]    Se evidencia bloqueo de estado
+  [OK]    Sin archivos de estado en el repositorio
+  [OK]    Sin credenciales evidentes en el codigo
+  >> 2.2 = 8 / 8
+
+--- 2.3 Respaldo y restauracion con Velero (14 pts)
+  [OK]    Velero instalado en el namespace velero
+  [OK]    Respaldo programado (3 schedule)
+  schedule=respaldo-diario-aroma cron=0 3 * * * ttl=360h0m0s
+  schedule=respaldo-horario-aroma cron=0 * * * * ttl=48h0m0s
+  schedule=respaldo-llaves cron=0 4 * * 0 ttl=8760h0m0s
+  [OK]    Politica de retencion declarada (ttl)
+  [OK]    9 respaldo(s) completado(s)
+  ultimo=respaldo-horario-aroma-20261017090032 completado=2026-10-17T09:01:02Z items=362
+  destino: provider=aws bucket=velero-backups estado=Available
+  [OK]    Destino de respaldo externo configurado
+  [OK]    Los respaldos incluyen volumenes persistentes
+  >> 2.3 = 14 / 14
+
+--- 2.4 Continuidad de los secretos (8 pts)
+  [OK]    Mecanismo de secretos: SealedSecrets
+  [OK]    El procedimiento de respaldo de la llave esta documentado
+  [OK]    El respaldo de Velero incluye el namespace de la llave
+  >> 2.4 = 8 / 8
+
+--- 2.5 Resiliencia ante perdida de nodo (8 pts)
+  [OK]    PodDisruptionBudget definido (7)
+  pdb=catalogo minAvailable=1 maxUnavailable=- saludables=2
+  pdb=gateway minAvailable=2 maxUnavailable=- saludables=3
+  pdb=inventario minAvailable=1 maxUnavailable=- saludables=2
+  pdb=pedidos minAvailable=1 maxUnavailable=- saludables=2
+  pdb=postgres-aroma-pg-critical-op-pdb minAvailable=- maxUnavailable=0 saludables=0
+  pdb=postgres-aroma-pg-pdb minAvailable=1 maxUnavailable=- saludables=2
+  pdb=resenas minAvailable=1 maxUnavailable=- saludables=2
+  [OK]    Anti-afinidad o distribucion topologica declarada
+  Replicas minimas entre las cargas de trabajo: 2
+  [OK]    Toda carga de trabajo tiene 2 o mas replicas
+  >> 2.5 = 8 / 8
+
+--- 2.6 Restauracion de datos verificada (8 pts)
+  [OK]    PVC 'pgdata-aroma-pg-0' presente (fase=Bound)
+  [OK]    1 restauracion(es) ejecutada(s)
+  restore=restaurar-aroma-pg-20261017-031317 fase=Completed desde=respaldo-horario-aroma-20261017090032
+  [OK]    Evidencia de verificacion de datos presente en el repositorio
+  >> 2.6 = 8 / 8
+
+--- Comprobaciones informativas
+  [FALLA] No se encuentra el runbook
+  [OK]    El informe declara RTO y RPO
+39s         Normal    Created                        pod/catalogo-7ffcff8784-lgm5j                           Container created
+36s         Warning   Unhealthy                      pod/resenas-84d68785c4-dp6tl                            Startup probe failed: Get "http://10.244.1.29:4004/salud": dial tcp 10.244.1.29:4004: connect: connection refused
+36s         Warning   Unhealthy                      pod/inventario-d556875b6-7jbmd                          Startup probe failed: Get "http://10.244.1.27:4002/salud": dial tcp 10.244.1.27:4002: connect: connection refused
+36s         Warning   Unhealthy                      pod/inventario-d556875b6-mns5t                          Startup probe failed: Get "http://10.244.2.22:4002/salud": dial tcp 10.244.2.22:4002: connect: connection refused
+36s         Warning   Unhealthy                      pod/resenas-84d68785c4-662md                            Startup probe failed: Get "http://10.244.2.24:4004/salud": dial tcp 10.244.2.24:4004: connect: connection refused
+
+================================================================
+ RESUMEN - carnet 202103763
+================================================================
+  2.1 Bootstrap automatizado ....... 14 / 14
+  2.2 Estado remoto e IaC ..........  8 / 8
+  2.3 Respaldo con Velero .......... 14 / 14
+  2.4 Continuidad de secretos ......  8 / 8
+  2.5 Resiliencia ante fallo .......  8 / 8
+  2.6 Restauracion verificada ......  8 / 8
+  --------------------------------------------
+  CONOCIMIENTO ..................... 60 / 60
+
+  Pendiente de evaluacion presencial: 40 pts
+    1.1 Runbook (12)   1.2 Informe de DR (12)
+    1.3 Diagrama del bootstrap (6)   1.4 Preguntas teoricas (10)
+
+  REQUISITOS ELIMINATORIOS INCUMPLIDOS: readme
+
+  Duracion: 6s    Reporte: reporte_p9_202103763.txt
+================================================================

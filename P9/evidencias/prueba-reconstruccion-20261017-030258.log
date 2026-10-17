@@ -1,0 +1,57 @@
+﻿[2026-10-17 03:02:58.760 -06:00] PRUEBA DE RECONSTRUCCION COMPLETA (objetivo RTO: 15 min)
+[2026-10-17 03:02:58.996 -06:00] pedidos antes del desastre: 4
+    1 2026-10-17 06:57:26.945727+00 ENSAYO-ANTES-1
+    2 2026-10-17 06:57:32.149731+00 ENSAYO-ANTES-2
+    3 2026-10-17 06:57:32.235908+00 ENSAYO-ANTES-3
+    4 2026-10-17 07:25:02.227137+00 ENSAYO-POST-RESTAURACION
+[2026-10-17 03:02:59.165 -06:00] ultimo backup horario Completed: respaldo-horario-aroma-20261017090032 (completado 2026-10-17T09:01:02Z)
+[2026-10-17 03:02:59.167 -06:00] DESASTRE: kind delete cluster --name aroma-p9
+    Deleting cluster "aroma-p9" ...
+    Deleted nodes: ["aroma-p9-worker" "aroma-p9-control-plane" "aroma-p9-worker2"]
+[2026-10-17 03:03:04.740 -06:00] cluster eliminado (MinIO, estado HCP y copia de la llave quedan fuera del cluster)
+[2026-10-17 03:03:04.748 -06:00] RECUPERACION inicio (t=0): P9/bootstrap.ps1
+[2026-10-17 03:13:00.299 -06:00] bootstrap terminado (exito=True) a t=09:55; registro: bootstrap-20261017-030304.log
+[2026-10-17 03:13:00.299 -06:00] restauracion de datos: P9/dr/restaurar-datos.ps1
+[2026-10-17 03:13:00 -06:00] INICIO restauracion de datos de PostgreSQL (aroma-pg)
+[2026-10-17 03:13:01 -06:00] backup elegido: respaldo-horario-aroma-20261017090032 (completado 2026-10-17T09:01:02Z; pgdata: aroma-pg-0=261700491 bytes, aroma-pg-1=243900917 bytes)
+[2026-10-17 03:13:01 -06:00] PASO 2 pausar la reconciliacion de ArgoCD en aroma-bd
+[2026-10-17 03:13:01 -06:00] PASO 3 retirar el PostgreSQL actual (StatefulSet, pods y PVC)
+[2026-10-17 03:13:01 -06:00] estado del operador antes de retirar: Running
+[2026-10-17 03:13:17 -06:00] BD retirada (estable 20 s)
+[2026-10-17 03:13:17 -06:00] PASO 4 velero restore restaurar-aroma-pg-20261017-031317 desde respaldo-horario-aroma-20261017090032
+[2026-10-17 03:13:33 -06:00] restore Completed: items 24/24, advertencias 15; pgdata restaurado: aroma-pg-0=Completed 261700491 bytes
+[2026-10-17 03:13:33 -06:00] PASO 5 reanudar aroma-bd (revision bbe87c6)
+[2026-10-17 03:13:38 -06:00] PASO 6 reiniciar el operador de Zalando (sincronizacion completa sobre lo restaurado)
+[2026-10-17 03:23:43 -06:00] FALLA: tiempo agotado esperando: postgresql Running con 2 instancias listas
+[2026-10-17 03:23:43.469 -06:00] restauracion de datos terminada (exito=False) a t=20:38
+[2026-10-17 03:23:43.475 -06:00] RECUPERACION fin: RTO medido = 00:20:38 (1,239 s) | objetivo 15 min -> NO CUMPLE
+[2026-10-17 03:23:43.477 -06:00] continuidad de secretos tras la reconstruccion: P9/dr/verificar-secretos.ps1
+[2026-10-17 03:23:43 -06:00] Verificacion de continuidad de secretos (contexto kind-aroma-p9)
+[2026-10-17 03:23:43 -06:00] OK     llave del cluster = copia de respaldo (huella cert 32c82412bb648652...; llaves en cluster: 1, en copia: 1)
+[2026-10-17 03:23:44 -06:00] OK     controlador registro la llave existente: sealed-secrets-key2g8wj
+[2026-10-17 03:23:44 -06:00] OK     SealedSecret velero/velero-minio-credentials descifrado (Synced=True)
+[2026-10-17 03:23:44 -06:00] OK     Secret velero/velero-minio-credentials existe (claves: cloud)
+[2026-10-17 03:23:44 -06:00] OK     Velero autentica en MinIO con la credencial descifrada (BSL default: Available)
+[2026-10-17 03:23:44 -06:00] Resultado: continuidad de secretos VERIFICADA
+[2026-10-17 03:23:44.534 -06:00] pedidos despues de la recuperacion: 4 | recuperados: 4 de 4 | perdidos: 0
+[2026-10-17 03:23:44.536 -06:00] FIN prueba de reconstruccion
+
+=== Diagnostico y reparacion posterior al intento 2 (2026-10-17 03:33:54 -0600)
+- Velero restauro pgdata solo en aroma-pg-0. Eventos: 'Create Pod aroma-pg-1 in StatefulSet aroma-pg': el pod
+  restaurado conserva ownerReferences al StatefulSet anterior, el recolector de basura lo borro antes de existir
+  el StatefulSet restaurado, y este creo un pod nuevo con PVC vacio y sin restore-wait.
+- Los Secrets de Zalando se crearon a las 09:13:36 UTC, DESPUES del restore (09:13:33): el operador genero
+  contrasenas nuevas que no coinciden con las de los datos restaurados -> la replica no pudo clonar a la
+  primaria ('password authentication failed for user standby') y el operador no pudo sincronizar.
+- Reparacion (sin repetir la prueba): ALTER ROLE de postgres, standby y aroma con la contrasena de su Secret
+  (sin mostrarla), reinicio del operador y de los servicios. Resultado:
+    + Cluster: aroma-pg (7697517907768029252) -------+----+-------------+-----+------------+-----+
+    | Member     | Host        | Role    | State     | TL | Receive LSN | Lag | Replay LSN | Lag |
+    +------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+    | aroma-pg-0 | 10.244.2.19 | Leader  | running   |  6 |             |     |            |     |
+    | aroma-pg-1 | 10.244.1.25 | Replica | streaming |  6 |   0/B002328 |   0 |  0/B002328 |   0 |
+    +------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+    postgresql: Running | pedidos: 5 | productos: 9
+- Plan para cerrar la brecha (no ejecutado): credenciales de BD como SealedSecrets en GitOps (contrasenas fijas
+  entre reconstrucciones) y restaurar solo PVC + pods sin ownerReferences (resource modifier de Velero), dejando
+  que el operador cree StatefulSet y Services y adopte los pods. Elimina las dependencias de orden.
