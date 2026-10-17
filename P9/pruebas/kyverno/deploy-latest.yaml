@@ -1,0 +1,17 @@
+# Manifiesto de prueba que Kyverno DEBE rechazar (politicas de aroma-gitops/politicas/).
+# Uso (no crea nada, pasa por el webhook real):
+#   kubectl apply --dry-run=server -f P9/pruebas/kyverno/deploy-latest.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: prueba-latest, namespace: aroma-prod }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: prueba-latest } }
+  template:
+    metadata: { labels: { app: prueba-latest } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 1000 }
+      containers:
+        - name: app
+          image: nginx:latest
+          resources: { limits: { cpu: 100m, memory: 64Mi } }

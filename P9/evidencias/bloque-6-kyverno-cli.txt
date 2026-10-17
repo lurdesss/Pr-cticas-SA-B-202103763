@@ -1,0 +1,36 @@
+=== Evidencia Bloque 6: politicas de Kyverno probadas con la CLI oficial (2026-10-16 22:26:19 -0600)
+Herramienta: ghcr.io/kyverno/kyverno-cli:v1.13.4 (misma version que el cluster)
+Politicas: aroma-gitops/politicas/ (Enforce, namespaces aroma-prod y aroma-staging)
+
+--- PERMITIDOS: 5 charts de prod renderizados + pods reales de aroma-prod (incluye Spilo) + Job del analisis canary
+    chart-catalogo.yaml
+    chart-gateway.yaml
+    chart-inventario.yaml
+    chart-pedidos.yaml
+    chart-resenas.yaml
+    job-analisis-canary.json
+    vivo-aroma-pg-0.yaml
+    vivo-aroma-pg-1.yaml
+    vivo-catalogo-7ffcff8784-5kcmh.yaml
+    vivo-catalogo-7ffcff8784-vlmvc.yaml
+    vivo-gateway-7d6c77bb6b-msnsz.yaml
+    vivo-gateway-7d6c77bb6b-shjfd.yaml
+    vivo-gateway-7d6c77bb6b-w5cwc.yaml
+    vivo-inventario-d556875b6-bv9c7.yaml
+    vivo-inventario-d556875b6-n72ct.yaml
+    vivo-pedidos-695c45477d-9kmrj.yaml
+    vivo-pedidos-695c45477d-cvhvf.yaml
+    vivo-resenas-84d68785c4-7f9wr.yaml
+    vivo-resenas-84d68785c4-h778r.yaml
+Applying 12 policy rule(s) to 35 resource(s)...
+pass: 52, fail: 0, warn: 0, error: 0, skip: 0 
+
+--- PROHIBIDOS: P9/pruebas/kyverno/deploy-latest.yaml, deploy-sin-limites.yaml, deploy-root.yaml
+Applying 12 policy rule(s) to 3 resource(s)...
+policy prohibir-tag-latest -> resource aroma-prod/Deployment/prueba-latest failed:
+1 - autogen-prohibir-latest validation error: El tag 'latest' esta prohibido: use un tag de version fijo. rule autogen-prohibir-latest failed at path /spec/template/spec/containers/0/image/
+policy exigir-ejecucion-sin-root -> resource aroma-prod/Deployment/prueba-root failed:
+1 - autogen-exigir-no-root validation error: El pod debe ejecutarse sin root: securityContext.runAsNonRoot=true, o runAsUser mayor que 0, sin que ningun contenedor lo anule. rule autogen-exigir-no-root[0] failed at path /spec/template/spec/containers/0/securityContext/runAsUser/ rule autogen-exigir-no-root[1] failed at path /spec/template/spec/containers/0/securityContext/runAsNonRoot/ rule autogen-exigir-no-root[2] failed at path /spec/template/spec/containers/0/securityContext/runAsUser/
+policy exigir-limites-cpu-memoria -> resource aroma-prod/Deployment/prueba-sin-limites failed:
+1 - autogen-exigir-limites validation error: Todo contenedor debe declarar resources.limits.cpu y resources.limits.memory. rule autogen-exigir-limites failed at path /spec/template/spec/containers/0/resources/
+pass: 9, fail: 3, warn: 0, error: 0, skip: 0 
