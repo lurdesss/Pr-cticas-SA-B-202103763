@@ -1,0 +1,58 @@
+# Practica 10: construye y publica en GHCR las imagenes instrumentadas con
+# OpenTelemetry de P10/services (gateway, pedidos-service, catalogo-service).
+#
+# Es un workflow aparte del de la Practica 7 (ci-cd.yml, que construye
+# P5/services y despliega en un kind efimero): asi P10 no cambia ni rompe el
+# pipeline anterior. Publica en los MISMOS paquetes publicos de GHCR con la
+# etiqueta "p10-<sha corto>" (nunca latest): aroma-gitops fija ese tag en
+# los values de cada chart.
+name: P10 imagenes instrumentadas
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "P10/services/**"
+      - ".github/workflows/p10-imagenes.yml"
+  workflow_dispatch: {}
+
+env:
+  REGISTRO: ghcr.io
+
+jobs:
+  imagenes:
+    name: Build + push (P10)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Nombre del registro y etiqueta
+        id: vars
+        run: |
+          echo "propietario=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "tag=p10-${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - name: Iniciar sesion en GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRO }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir y publicar
+        run: |
+          set -e
+          base="${{ env.REGISTRO }}/${{ steps.vars.outputs.propietario }}"
+          tag="${{ steps.vars.outputs.tag }}"
+          for s in gateway pedidos-service catalogo-service; do
+            img="$base/$s:$tag"
+            echo "== $img =="
+            docker build -t "$img" "P10/services/$s"
+            # Comprobacion minima: el SDK de OpenTelemetry y pino existen en la imagen.
+            docker run --rm --entrypoint node "$img" -e "import('@opentelemetry/auto-instrumentations-node/register').then(()=>import('pino')).then(()=>console.log('ok otel+pino'))"
+            docker push "$img"
+          done
+          echo "### Imagenes publicadas con la etiqueta \`$tag\`" >> "$GITHUB_STEP_SUMMARY"

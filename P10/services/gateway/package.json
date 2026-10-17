@@ -1,0 +1,22 @@
+{
+  "name": "aroma-gateway",
+  "version": "1.0.0",
+  "description": "API Gateway de Aroma: unico punto de entrada a los microservicios Instrumentado con OpenTelemetry (P10).",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node --import @opentelemetry/auto-instrumentations-node/register src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "1.9.1",
+    "@opentelemetry/auto-instrumentations-node": "0.80.0",
+    "amqplib": "^0.10.4",
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^2.0.6",
+    "pino": "10.3.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
