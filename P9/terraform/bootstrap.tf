@@ -174,5 +174,7 @@ resource "helm_release" "aroma_root" {
     }
   })]
 
-  depends_on = [helm_release.argocd]
+  # La StorageClass de los datos debe existir antes de que ArgoCD cree el
+  # PostgreSQL (ola 2 de aroma-root).
+  depends_on = [helm_release.argocd, kubernetes_storage_class_v1.aroma_local]
 }
