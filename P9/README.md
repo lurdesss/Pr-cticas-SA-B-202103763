@@ -21,6 +21,16 @@
 | **RTO y RPO declarados** | **Objetivos** (declarados antes de medir en [`P9/dr/OBJETIVOS-RTO-RPO.md`](dr/OBJETIVOS-RTO-RPO.md)): **RTO 15 min** y **RPO 1 h**. **Medidos:** RTO **11 min 28 s** en el intento 1, con intervención para corregir la restauración, y **20 min 38 s** en el intento 2, que **no cumple**. La infraestructura sola se recupera en 8 min 07 s y 9 min 55 s. RPO **10 s** en la prueba de restauración (2 pedidos posteriores al backup perdidos) y **0 pedidos perdidos** en las dos reconstrucciones. |
 | **Video demostrativo** | **No entregado.** |
 
+### Documentos de la entrega
+
+| Documento | Criterio |
+|---|---|
+| [`RUNBOOK.md`](RUNBOOK.md): procedimiento por escenario, con comandos, orden de dependencias y verificación en cada paso | 1.1 Runbook |
+| [`INFORME-DR.md`](INFORME-DR.md): los 6 campos de la plantilla 4.2 | 1.2 Informe de DR |
+| [Diagrama del bootstrap](#2-diagrama-del-bootstrap-orden-de-reconstrucción-y-dependencias) (sección 2 de este README) | 1.3 Diagrama |
+| [`PREGUNTAS-TEORICAS.md`](PREGUNTAS-TEORICAS.md): comportamiento del sistema ante pérdidas y sus límites | 1.4 Preguntas teóricas |
+| [`GUIA-CALIFICACION.md`](GUIA-CALIFICACION.md): preparación del día y un comando por criterio | — |
+
 ---
 
 ## 1. Qué se construyó
@@ -162,12 +172,16 @@ flowchart TD
 
 ```
 P9/
-├── README.md                 este documento
+├── README.md                 este documento (tabla 4.1 y diagrama del bootstrap)
+├── RUNBOOK.md                runbook de recuperación
+├── INFORME-DR.md             informe de la prueba de DR (plantilla 4.2)
+├── PREGUNTAS-TEORICAS.md     preguntas teóricas sobre este sistema
+├── GUIA-CALIFICACION.md      preparación y comandos para la calificación
 ├── bootstrap.ps1             punto de entrada único del bootstrap
 ├── terraform/                clúster kind, namespaces, cuotas, RBAC, StorageClass, ArgoCD, raíz
 ├── scripts/                  exportar y restaurar la llave de Sealed Secrets (DPAPI)
-├── dr/                       objetivos RTO/RPO y scripts de pruebas y recuperación
-├── pruebas/                  manifiestos que Kyverno debe rechazar y verificador corregido
+├── dr/                       objetivos RTO/RPO, scripts de pruebas, recuperación y preparación
+├── pruebas/                  manifiestos que Kyverno debe rechazar, verificador corregido y p9.conf
 ├── evidencias/               registros con marcas de tiempo de cada prueba
 └── docs/                     enunciado y verificador oficial
 ```
