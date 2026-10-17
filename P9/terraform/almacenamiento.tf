@@ -6,13 +6,21 @@
 # Velero busca los volumenes para copiarlos con Kopia, asi que Velero los
 # omite sin error: el backup sale "Completed" pero sin los datos (detectado
 # en el Bloque 8a al revisar los PodVolumeBackups: solo aparecian los
-# emptyDir). Con volumeType "local" el provisionador crea PV de tipo local,
+# emptyDir). Con el tipo "local" el provisionador crea PV de tipo local,
 # que el kubelet si monta en el directorio del pod y Velero si respalda.
+#
+# El tipo se declara con la ANOTACION defaultVolumeType del StorageClass
+# (el provisionador la lee si el PVC no trae su propia anotacion
+# volumeType). Un primer intento con parameters.volumeType no tuvo efecto:
+# los PV siguieron saliendo hostPath (comprobado en el cluster).
 resource "kubernetes_storage_class_v1" "aroma_local" {
   metadata {
     name = "aroma-local"
     labels = {
       "app.kubernetes.io/part-of" = "aroma"
+    }
+    annotations = {
+      defaultVolumeType = "local"
     }
   }
 
@@ -21,10 +29,6 @@ resource "kubernetes_storage_class_v1" "aroma_local" {
   # Espera a que el pod se programe para crear el volumen en ESE nodo
   # (con anti-afinidad, cada instancia de PostgreSQL en su worker).
   volume_binding_mode = "WaitForFirstConsumer"
-
-  parameters = {
-    volumeType = "local"
-  }
 
   depends_on = [null_resource.cluster_kind]
 }
