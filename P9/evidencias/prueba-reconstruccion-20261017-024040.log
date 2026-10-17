@@ -1,0 +1,69 @@
+﻿[2026-10-17 02:40:40.622 -06:00] PRUEBA DE RECONSTRUCCION COMPLETA (objetivo RTO: 15 min)
+[2026-10-17 02:40:40.867 -06:00] pedidos antes del desastre: 4
+    1 2026-10-17 06:57:26.945727+00 ENSAYO-ANTES-1
+    2 2026-10-17 06:57:32.149731+00 ENSAYO-ANTES-2
+    3 2026-10-17 06:57:32.235908+00 ENSAYO-ANTES-3
+    4 2026-10-17 07:25:02.227137+00 ENSAYO-POST-RESTAURACION
+[2026-10-17 02:40:41.051 -06:00] ultimo backup horario Completed: respaldo-horario-aroma-20261017080004 (completado 2026-10-17T08:00:29Z)
+[2026-10-17 02:40:41.059 -06:00] DESASTRE: kind delete cluster --name aroma-p9
+    Deleting cluster "aroma-p9" ...
+    Deleted nodes: ["aroma-p9-worker2" "aroma-p9-control-plane" "aroma-p9-worker"]
+[2026-10-17 02:40:48.855 -06:00] cluster eliminado (MinIO, estado HCP y copia de la llave quedan fuera del cluster)
+[2026-10-17 02:40:48.859 -06:00] RECUPERACION inicio (t=0): P9/bootstrap.ps1
+[2026-10-17 02:48:56.414 -06:00] bootstrap terminado (exito=True) a t=08:07; registro: bootstrap-20261017-024049.log
+[2026-10-17 02:48:56.414 -06:00] restauracion de datos: P9/dr/restaurar-datos.ps1
+[2026-10-17 02:48:56 -06:00] INICIO restauracion de datos de PostgreSQL (aroma-pg)
+[2026-10-17 02:48:57 -06:00] backup elegido: respaldo-horario-aroma-20261017080004 (completado 2026-10-17T08:00:29Z; pgdata: aroma-pg-0=227592075 bytes, aroma-pg-1=210117308 bytes)
+[2026-10-17 02:48:57 -06:00] PASO 2 pausar la reconciliacion de ArgoCD en aroma-bd
+[2026-10-17 02:48:57 -06:00] PASO 3 retirar el PostgreSQL actual (StatefulSet, pods y PVC)
+[2026-10-17 02:48:57 -06:00] BD retirada
+[2026-10-17 02:48:57 -06:00] PASO 4 velero restore restaurar-aroma-pg-20261017-024857 desde respaldo-horario-aroma-20261017080004
+[2026-10-17 02:49:03 -06:00] restore Completed: items 24/24, advertencias 16; pgdata restaurado: 
+[2026-10-17 02:49:03 -06:00] FALLA: el restore no recupero pgdata con datos
+[2026-10-17 02:49:03.488 -06:00] restauracion de datos terminada (exito=False) a t=08:14
+[2026-10-17 02:49:03.488 -06:00] RECUPERACION fin: RTO medido = 00:08:14 (495 s) | objetivo 15 min -> NO CUMPLE
+[2026-10-17 02:49:03.488 -06:00] continuidad de secretos tras la reconstruccion: P9/dr/verificar-secretos.ps1
+[2026-10-17 02:49:03 -06:00] Verificacion de continuidad de secretos (contexto kind-aroma-p9)
+[2026-10-17 02:49:04 -06:00] OK     llave del cluster = copia de respaldo (huella cert 32c82412bb648652...; llaves en cluster: 1, en copia: 1)
+[2026-10-17 02:49:04 -06:00] OK     controlador registro la llave existente: sealed-secrets-key2g8wj
+[2026-10-17 02:49:04 -06:00] OK     SealedSecret velero/velero-minio-credentials descifrado (Synced=True)
+[2026-10-17 02:49:04 -06:00] OK     Secret velero/velero-minio-credentials existe (claves: cloud)
+[2026-10-17 02:49:04 -06:00] OK     Velero autentica en MinIO con la credencial descifrada (BSL default: Available)
+[2026-10-17 02:49:04 -06:00] Resultado: continuidad de secretos VERIFICADA
+[2026-10-17 02:49:04.694 -06:00] pedidos despues de la recuperacion: 0 | recuperados: 0 de 4 | perdidos: 4
+    perdido: 1 2026-10-17 06:57:26.945727+00 ENSAYO-ANTES-1
+    perdido: 2 2026-10-17 06:57:32.149731+00 ENSAYO-ANTES-2
+    perdido: 3 2026-10-17 06:57:32.235908+00 ENSAYO-ANTES-3
+    perdido: 4 2026-10-17 07:25:02.227137+00 ENSAYO-POST-RESTAURACION
+[2026-10-17 02:49:04.709 -06:00] FIN prueba de reconstruccion
+[2026-10-17 02:50:00.786 -0600] DIAGNOSTICO: restore sin pgdata por carrera con el operador (seguia creando el cluster nuevo al borrarlo); limpieza del estado intermedio
+[2026-10-17 02:50:27.724 -0600] limpieza: sin postgresql, StatefulSet, pods ni PVC de aroma-pg durante 20 s seguidos
+[2026-10-17 02:51:01.390 -06:00] REINTENTO de la restauracion de datos con el paso 3 corregido (espera de estado final del operador + 20 s de estabilidad)
+[2026-10-17 02:51:01 -06:00] INICIO restauracion de datos de PostgreSQL (aroma-pg)
+[2026-10-17 02:51:02 -06:00] backup elegido: respaldo-horario-aroma-20261017080004 (completado 2026-10-17T08:00:29Z; pgdata: aroma-pg-0=227592075 bytes, aroma-pg-1=210117308 bytes)
+[2026-10-17 02:51:02 -06:00] PASO 2 pausar la reconciliacion de ArgoCD en aroma-bd
+[2026-10-17 02:51:02 -06:00] PASO 3 retirar el PostgreSQL actual (StatefulSet, pods y PVC)
+[2026-10-17 02:51:17 -06:00] BD retirada (estable 20 s)
+[2026-10-17 02:51:17 -06:00] PASO 4 velero restore restaurar-aroma-pg-20261017-025117 desde respaldo-horario-aroma-20261017080004
+[2026-10-17 02:51:39 -06:00] restore Completed: items 24/24, advertencias ; pgdata restaurado: aroma-pg-0=Completed 227592075 bytes, aroma-pg-1=Completed 210117308 bytes
+[2026-10-17 02:51:39 -06:00] PASO 5 reanudar aroma-bd (revision bbe87c6)
+[2026-10-17 02:51:44 -06:00] PASO 6 reiniciar el operador de Zalando (sincronizacion completa sobre lo restaurado)
+[2026-10-17 02:52:05 -06:00] postgresql Running, 2 instancias listas
+[2026-10-17 02:52:05 -06:00] PASO 7 reiniciar los pods de catalogo, inventario, pedidos y resenas
+[2026-10-17 02:52:17 -06:00] VERIFICACION: gateway /api/salud=200 | primaria=aroma-pg-0 | productos= | pedidos=
+[2026-10-17 02:52:17 -06:00] FIN restauracion verificada (restore restaurar-aroma-pg-20261017-025117 desde respaldo-horario-aroma-20261017080004)
+[2026-10-17 02:52:17.349 -06:00] INTENTO 1 - recuperacion completa con datos (exito=True): RTO real = 00:11:28 (688 s) desde t=0 02:40:48.859, incluye diagnostico y correccion del script | objetivo 15 min -> CUMPLE
+[2026-10-17 02:52:34.087 -0600] VERIFICACION DE CONTENIDO (manual; la del script fallo por el '--' de PowerShell, corregido):
+    primaria aroma-pg-0: productos=9 insumos=6 pedidos=4
+    replica  aroma-pg-1: productos=9 pedidos=4
+    pedidos recuperados:
+      1 2026-10-17 06:57:26.945727+00 ENSAYO-ANTES-1
+      2 2026-10-17 06:57:32.149731+00 ENSAYO-ANTES-2
+      3 2026-10-17 06:57:32.235908+00 ENSAYO-ANTES-3
+      4 2026-10-17 07:25:02.227137+00 ENSAYO-POST-RESTAURACION
++ Cluster: aroma-pg (7697517907768029252) -------+----+-------------+-----+------------+-----+
+| Member     | Host        | Role    | State     | TL | Receive LSN | Lag | Replay LSN | Lag |
++------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+| aroma-pg-0 | 10.244.2.23 | Leader  | running   |  5 |             |     |            |     |
+| aroma-pg-1 | 10.244.1.26 | Replica | streaming |  5 |   0/824AC00 |   0 |  0/824AC00 |   0 |
++------------+-------------+---------+-----------+----+-------------+-----+------------+-----+

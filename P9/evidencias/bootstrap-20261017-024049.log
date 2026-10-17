@@ -1,0 +1,817 @@
+﻿[2026-10-17 02:40:49.121 -06:00] INICIO bootstrap P9 (cluster aroma-p9)
+[2026-10-17 02:40:49.128 -06:00] PASO 1 verificar herramientas, Docker y MinIO
+v4.2.4+g3900f43
+[2026-10-17 02:40:49.756 -06:00] FIN PASO 1
+[2026-10-17 02:40:49.758 -06:00] PASO 2 terraform init (backend remoto HCP Terraform)
+Initializing the backend...
+
+Initializing provider plugins...
+- Reusing previous version of hashicorp/null from the dependency lock file
+- Reusing previous version of hashicorp/kubernetes from the dependency lock file
+- Reusing previous version of hashicorp/helm from the dependency lock file
+- Using previously-installed hashicorp/null v3.3.2
+- Using previously-installed hashicorp/kubernetes v2.38.0
+- Using previously-installed hashicorp/helm v2.17.0
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+[2026-10-17 02:40:56.115 -06:00] FIN PASO 2
+[2026-10-17 02:40:56.116 -06:00] PASO 3 comparar estado remoto con el cluster real
+[2026-10-17 02:40:57.720 -06:00] El cluster no existe y el estado tiene 17 recursos: se limpian del estado
+Removed helm_release.argocd
+Removed helm_release.aroma_root
+Removed kubernetes_limit_range.limites["aroma-prod"]
+Removed kubernetes_limit_range.limites["aroma-staging"]
+Removed kubernetes_namespace.ambiente["aroma-prod"]
+Removed kubernetes_namespace.ambiente["aroma-staging"]
+Removed kubernetes_resource_quota.cuota["aroma-prod"]
+Removed kubernetes_resource_quota.cuota["aroma-staging"]
+Removed kubernetes_role.desplegador["aroma-prod"]
+Removed kubernetes_role.desplegador["aroma-staging"]
+Removed kubernetes_role_binding.desplegador["aroma-prod"]
+Removed kubernetes_role_binding.desplegador["aroma-staging"]
+Removed kubernetes_service_account.desplegador["aroma-prod"]
+Removed kubernetes_service_account.desplegador["aroma-staging"]
+Removed kubernetes_storage_class_v1.aroma_local
+Removed null_resource.cluster_kind
+Removed null_resource.llave_sealed_secrets
+Successfully removed 17 resource instance(s).
+[2026-10-17 02:41:01.112 -06:00] FIN PASO 3
+[2026-10-17 02:41:01.117 -06:00] PASO 4 terraform apply del cluster kind (1 control-plane + 2 workers)
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # null_resource.cluster_kind will be created
+  + resource "null_resource" "cluster_kind" {
+      + id       = (known after apply)
+      + triggers = {
+          + "nombre_cluster" = "kind-aroma-p9"
+        }
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+null_resource.cluster_kind: Creating...
+null_resource.cluster_kind: Provisioning with 'local-exec'...
+null_resource.cluster_kind (local-exec): Executing: ["PowerShell" "-Command" "$nombre = \"aroma-p9\"\n$existe = kind get clusters 2>$null | Select-String -Pattern \"^$nombre$\"\nif (-not $existe) {\n  kind create cluster --name $nombre --config \"./kind-config.yaml\" --wait 180s\n  if ($LASTEXITCODE -ne 0) { exit 1 }\n} else {\n  Write-Host \"El cluster '$nombre' ya existe, no se recrea.\"\n}\n"]
+null_resource.cluster_kind (local-exec): Creating cluster "aroma-p9" ...
+null_resource.cluster_kind (local-exec):  • Ensuring node image (kindest/node:v1.37.0) 🖼️  ...
+null_resource.cluster_kind (local-exec):  ✓ Ensuring node image (kindest/node:v1.37.0) 🖼️
+null_resource.cluster_kind (local-exec):  • Preparing nodes 📦 📦 📦   ...
+null_resource.cluster_kind (local-exec):  ✓ Preparing nodes 📦 📦 📦
+null_resource.cluster_kind (local-exec):  • Writing configuration 📜  ...
+null_resource.cluster_kind (local-exec):  ✓ Writing configuration 📜
+null_resource.cluster_kind (local-exec):  • Starting control-plane 🕹️  ...
+null_resource.cluster_kind: Still creating... [00m10s elapsed]
+null_resource.cluster_kind (local-exec):  ✓ Starting control-plane 🕹️
+null_resource.cluster_kind (local-exec):  • Installing CNI 🔌  ...
+null_resource.cluster_kind (local-exec):  ✓ Installing CNI 🔌
+null_resource.cluster_kind (local-exec):  • Installing StorageClass 💾  ...
+null_resource.cluster_kind (local-exec):  ✓ Installing StorageClass 💾
+null_resource.cluster_kind (local-exec):  • Joining worker nodes 🚜  ...
+null_resource.cluster_kind: Still creating... [00m20s elapsed]
+null_resource.cluster_kind (local-exec):  ✓ Joining worker nodes 🚜
+null_resource.cluster_kind (local-exec):  • Waiting ≤ 3m0s for control-plane = Ready ⏳  ...
+null_resource.cluster_kind: Still creating... [00m30s elapsed]
+null_resource.cluster_kind (local-exec):  ✓ Waiting ≤ 3m0s for control-plane = Ready ⏳
+null_resource.cluster_kind (local-exec):  • Ready after 5s 💚
+null_resource.cluster_kind (local-exec): Set kubectl context to "kind-aroma-p9"
+null_resource.cluster_kind (local-exec): You can now use your cluster with:
+
+null_resource.cluster_kind (local-exec): kubectl cluster-info --context kind-aroma-p9
+
+null_resource.cluster_kind (local-exec): Have a nice day! 👋
+null_resource.cluster_kind: Creation complete after 34s [id=548150694781862007]
+
+Warning: Resource targeting is in effect
+
+You are creating a plan with the -target option, which means that the result
+of this plan may not represent all of the changes requested by the current
+configuration.
+
+The -target option is not for routine use, and is provided only for
+exceptional situations such as recovering from errors or mistakes, or when
+Terraform specifically suggests to use it as part of an error message.
+
+Warning: Applied changes may be incomplete
+
+The plan was created with the -target option in effect, so some changes
+requested in the configuration may have been ignored and the output values
+may not be fully updated. Run the following command to verify that no other
+changes are pending:
+    terraform plan
+
+Note that the -target option is not suitable for routine use, and is provided
+only for exceptional situations such as recovering from errors or mistakes,
+or when Terraform specifically suggests to use it as part of an error
+message.
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+namespaces_creados = [
+  "aroma-prod",
+  "aroma-staging",
+]
+NAME                     STATUS     ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION                              CONTAINER-RUNTIME
+aroma-p9-control-plane   Ready      control-plane   25s   v1.37.0   172.18.0.3    <none>        Debian GNU/Linux 13 (trixie)   6.18.33.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+aroma-p9-worker          NotReady   <none>          8s    v1.37.0   172.18.0.4    <none>        Debian GNU/Linux 13 (trixie)   6.18.33.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+aroma-p9-worker2         NotReady   <none>          8s    v1.37.0   172.18.0.2    <none>        Debian GNU/Linux 13 (trixie)   6.18.33.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+[2026-10-17 02:41:43.124 -06:00] FIN PASO 4
+[2026-10-17 02:41:43.125 -06:00] PASO 5 conectar MinIO a la red kind
+[2026-10-17 02:41:43.191 -06:00] FIN PASO 5
+[2026-10-17 02:41:43.197 -06:00] PASO 6 terraform apply completo (llave Sealed Secrets, ArgoCD, aroma-root)
+null_resource.cluster_kind: Refreshing state... [id=548150694781862007]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # helm_release.argocd will be created
+  + resource "helm_release" "argocd" {
+      + atomic                     = false
+      + chart                      = "argo-cd"
+      + cleanup_on_fail            = false
+      + create_namespace           = true
+      + dependency_update          = false
+      + disable_crd_hooks          = false
+      + disable_openapi_validation = false
+      + disable_webhooks           = false
+      + force_update               = false
+      + id                         = (known after apply)
+      + lint                       = false
+      + manifest                   = (known after apply)
+      + max_history                = 0
+      + metadata                   = (known after apply)
+      + name                       = "argocd"
+      + namespace                  = "argocd"
+      + pass_credentials           = false
+      + recreate_pods              = false
+      + render_subchart_notes      = true
+      + replace                    = false
+      + repository                 = "https://argoproj.github.io/argo-helm"
+      + reset_values               = false
+      + reuse_values               = false
+      + skip_crds                  = false
+      + status                     = "deployed"
+      + timeout                    = 300
+      + values                     = [
+          + <<-EOT
+                "configs":
+                  "cm":
+                    "application.resourceTrackingMethod": "annotation"
+                    "resource.customizations.health.argoproj.io_Application": |
+                      hs = {}
+                      hs.status = "Progressing"
+                      hs.message = ""
+                      if obj.status ~= nil then
+                        if obj.status.health ~= nil then
+                          hs.status = obj.status.health.status
+                          if obj.status.health.message ~= nil then
+                            hs.message = obj.status.health.message
+                          end
+                        end
+                      end
+                      return hs
+            EOT,
+        ]
+      + verify                     = false
+      + version                    = "7.7.11"
+      + wait                       = true
+      + wait_for_jobs              = false
+
+      + set {
+          + name  = "configs.params.server\\.insecure"
+          + value = "true"
+            # (1 unchanged attribute hidden)
+        }
+    }
+
+  # helm_release.aroma_root will be created
+  + resource "helm_release" "aroma_root" {
+      + atomic                     = false
+      + chart                      = "argocd-apps"
+      + cleanup_on_fail            = false
+      + create_namespace           = false
+      + dependency_update          = false
+      + disable_crd_hooks          = false
+      + disable_openapi_validation = false
+      + disable_webhooks           = false
+      + force_update               = false
+      + id                         = (known after apply)
+      + lint                       = false
+      + manifest                   = (known after apply)
+      + max_history                = 0
+      + metadata                   = (known after apply)
+      + name                       = "aroma-root"
+      + namespace                  = "argocd"
+      + pass_credentials           = false
+      + recreate_pods              = false
+      + render_subchart_notes      = true
+      + replace                    = false
+      + repository                 = "https://argoproj.github.io/argo-helm"
+      + reset_values               = false
+      + reuse_values               = false
+      + skip_crds                  = false
+      + status                     = "deployed"
+      + timeout                    = 300
+      + values                     = [
+          + <<-EOT
+                "applications":
+                  "aroma-root":
+                    "destination":
+                      "namespace": "argocd"
+                      "server": "https://kubernetes.default.svc"
+                    "finalizers":
+                    - "resources-finalizer.argocd.argoproj.io"
+                    "namespace": "argocd"
+                    "project": "default"
+                    "source":
+                      "directory":
+                        "recurse": true
+                      "path": "apps"
+                      "repoURL": "https://github.com/lurdesss/aroma-gitops.git"
+                      "targetRevision": "main"
+                    "syncPolicy":
+                      "automated":
+                        "prune": true
+                        "selfHeal": true
+                      "retry":
+                        "backoff":
+                          "duration": "10s"
+                          "factor": 2
+                          "maxDuration": "3m"
+                        "limit": 10
+                      "syncOptions":
+                      - "CreateNamespace=true"
+            EOT,
+        ]
+      + verify                     = false
+      + version                    = "2.0.6"
+      + wait                       = true
+      + wait_for_jobs              = false
+    }
+
+  # kubernetes_limit_range.limites["aroma-prod"] will be created
+  + resource "kubernetes_limit_range" "limites" {
+      + id = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "limites-aroma-prod"
+          + namespace        = "aroma-prod"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+
+      + spec {
+          + limit {
+              + default         = {
+                  + "cpu"    = "500m"
+                  + "memory" = "512Mi"
+                }
+              + default_request = {
+                  + "cpu"    = "50m"
+                  + "memory" = "64Mi"
+                }
+              + type            = "Container"
+            }
+        }
+    }
+
+  # kubernetes_limit_range.limites["aroma-staging"] will be created
+  + resource "kubernetes_limit_range" "limites" {
+      + id = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "limites-aroma-staging"
+          + namespace        = "aroma-staging"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+
+      + spec {
+          + limit {
+              + default         = {
+                  + "cpu"    = "500m"
+                  + "memory" = "512Mi"
+                }
+              + default_request = {
+                  + "cpu"    = "50m"
+                  + "memory" = "64Mi"
+                }
+              + type            = "Container"
+            }
+        }
+    }
+
+  # kubernetes_namespace.ambiente["aroma-prod"] will be created
+  + resource "kubernetes_namespace" "ambiente" {
+      + id                               = (known after apply)
+      + wait_for_default_service_account = false
+
+      + metadata {
+          + generation       = (known after apply)
+          + labels           = {
+              + "app.kubernetes.io/part-of" = "aroma"
+              + "practica"                  = "p9-dr"
+            }
+          + name             = "aroma-prod"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+    }
+
+  # kubernetes_namespace.ambiente["aroma-staging"] will be created
+  + resource "kubernetes_namespace" "ambiente" {
+      + id                               = (known after apply)
+      + wait_for_default_service_account = false
+
+      + metadata {
+          + generation       = (known after apply)
+          + labels           = {
+              + "app.kubernetes.io/part-of" = "aroma"
+              + "practica"                  = "p9-dr"
+            }
+          + name             = "aroma-staging"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+    }
+
+  # kubernetes_resource_quota.cuota["aroma-prod"] will be created
+  + resource "kubernetes_resource_quota" "cuota" {
+      + id = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "cuota-aroma-prod"
+          + namespace        = "aroma-prod"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+
+      + spec {
+          + hard = {
+              + "limits.cpu"      = "10"
+              + "limits.memory"   = "8Gi"
+              + "requests.cpu"    = "3"
+              + "requests.memory" = "4Gi"
+            }
+        }
+    }
+
+  # kubernetes_resource_quota.cuota["aroma-staging"] will be created
+  + resource "kubernetes_resource_quota" "cuota" {
+      + id = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "cuota-aroma-staging"
+          + namespace        = "aroma-staging"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+
+      + spec {
+          + hard = {
+              + "limits.cpu"      = "4"
+              + "limits.memory"   = "6Gi"
+              + "requests.cpu"    = "2"
+              + "requests.memory" = "3Gi"
+            }
+        }
+    }
+
+  # kubernetes_role.desplegador["aroma-prod"] will be created
+  + resource "kubernetes_role" "desplegador" {
+      + id = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "aroma-desplegador"
+          + namespace        = "aroma-prod"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+
+      + rule {
+          + api_groups = [
+              + null,
+            ]
+          + resources  = [
+              + "configmaps",
+              + "persistentvolumeclaims",
+              + "pods",
+              + "pods/log",
+              + "secrets",
+              + "services",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+      + rule {
+          + api_groups = [
+              + "apps",
+            ]
+          + resources  = [
+              + "deployments",
+              + "replicasets",
+              + "statefulsets",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+      + rule {
+          + api_groups = [
+              + "argoproj.io",
+            ]
+          + resources  = [
+              + "analysisruns",
+              + "analysistemplates",
+              + "rollouts",
+              + "rollouts/status",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+      + rule {
+          + api_groups = [
+              + "autoscaling",
+            ]
+          + resources  = [
+              + "horizontalpodautoscalers",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+      + rule {
+          + api_groups = [
+              + "policy",
+            ]
+          + resources  = [
+              + "poddisruptionbudgets",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+    }
+
+  # kubernetes_role.desplegador["aroma-staging"] will be created
+  + resource "kubernetes_role" "desplegador" {
+      + id = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "aroma-desplegador"
+          + namespace        = "aroma-staging"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+
+      + rule {
+          + api_groups = [
+              + null,
+            ]
+          + resources  = [
+              + "configmaps",
+              + "persistentvolumeclaims",
+              + "pods",
+              + "pods/log",
+              + "secrets",
+              + "services",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+      + rule {
+          + api_groups = [
+              + "apps",
+            ]
+          + resources  = [
+              + "deployments",
+              + "replicasets",
+              + "statefulsets",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+      + rule {
+          + api_groups = [
+              + "argoproj.io",
+            ]
+          + resources  = [
+              + "analysisruns",
+              + "analysistemplates",
+              + "rollouts",
+              + "rollouts/status",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+      + rule {
+          + api_groups = [
+              + "autoscaling",
+            ]
+          + resources  = [
+              + "horizontalpodautoscalers",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+      + rule {
+          + api_groups = [
+              + "policy",
+            ]
+          + resources  = [
+              + "poddisruptionbudgets",
+            ]
+          + verbs      = [
+              + "create",
+              + "delete",
+              + "get",
+              + "list",
+              + "patch",
+              + "update",
+              + "watch",
+            ]
+        }
+    }
+
+  # kubernetes_role_binding.desplegador["aroma-prod"] will be created
+  + resource "kubernetes_role_binding" "desplegador" {
+      + id = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "aroma-desplegador"
+          + namespace        = "aroma-prod"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+
+      + role_ref {
+          + api_group = "rbac.authorization.k8s.io"
+          + kind      = "Role"
+          + name      = "aroma-desplegador"
+        }
+
+      + subject {
+          + api_group = (known after apply)
+          + kind      = "ServiceAccount"
+          + name      = "aroma-desplegador"
+          + namespace = "aroma-prod"
+        }
+    }
+
+  # kubernetes_role_binding.desplegador["aroma-staging"] will be created
+  + resource "kubernetes_role_binding" "desplegador" {
+      + id = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "aroma-desplegador"
+          + namespace        = "aroma-staging"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+
+      + role_ref {
+          + api_group = "rbac.authorization.k8s.io"
+          + kind      = "Role"
+          + name      = "aroma-desplegador"
+        }
+
+      + subject {
+          + api_group = (known after apply)
+          + kind      = "ServiceAccount"
+          + name      = "aroma-desplegador"
+          + namespace = "aroma-staging"
+        }
+    }
+
+  # kubernetes_service_account.desplegador["aroma-prod"] will be created
+  + resource "kubernetes_service_account" "desplegador" {
+      + automount_service_account_token = true
+      + default_secret_name             = (known after apply)
+      + id                              = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "aroma-desplegador"
+          + namespace        = "aroma-prod"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+    }
+
+  # kubernetes_service_account.desplegador["aroma-staging"] will be created
+  + resource "kubernetes_service_account" "desplegador" {
+      + automount_service_account_token = true
+      + default_secret_name             = (known after apply)
+      + id                              = (known after apply)
+
+      + metadata {
+          + generation       = (known after apply)
+          + name             = "aroma-desplegador"
+          + namespace        = "aroma-staging"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+    }
+
+  # kubernetes_storage_class_v1.aroma_local will be created
+  + resource "kubernetes_storage_class_v1" "aroma_local" {
+      + allow_volume_expansion = true
+      + id                     = (known after apply)
+      + reclaim_policy         = "Delete"
+      + storage_provisioner    = "rancher.io/local-path"
+      + volume_binding_mode    = "WaitForFirstConsumer"
+
+      + metadata {
+          + annotations      = {
+              + "defaultVolumeType" = "local"
+            }
+          + generation       = (known after apply)
+          + labels           = {
+              + "app.kubernetes.io/part-of" = "aroma"
+            }
+          + name             = "aroma-local"
+          + resource_version = (known after apply)
+          + uid              = (known after apply)
+        }
+    }
+
+  # null_resource.llave_sealed_secrets will be created
+  + resource "null_resource" "llave_sealed_secrets" {
+      + id       = (known after apply)
+      + triggers = {
+          + "cluster" = "548150694781862007"
+        }
+    }
+
+Plan: 16 to add, 0 to change, 0 to destroy.
+null_resource.llave_sealed_secrets: Creating...
+null_resource.llave_sealed_secrets: Provisioning with 'local-exec'...
+null_resource.llave_sealed_secrets (local-exec): Executing: ["PowerShell" "-NoProfile" "-ExecutionPolicy" "Bypass" "-Command" "& './../scripts/restaurar-llave-sealed-secrets.ps1' -Contexto 'kind-aroma-p9'; exit $LASTEXITCODE"]
+kubernetes_namespace.ambiente["aroma-prod"]: Creating...
+kubernetes_namespace.ambiente["aroma-staging"]: Creating...
+kubernetes_storage_class_v1.aroma_local: Creating...
+kubernetes_namespace.ambiente["aroma-prod"]: Creation complete after 0s [id=aroma-prod]
+kubernetes_namespace.ambiente["aroma-staging"]: Creation complete after 0s [id=aroma-staging]
+kubernetes_storage_class_v1.aroma_local: Creation complete after 0s [id=aroma-local]
+kubernetes_service_account.desplegador["aroma-staging"]: Creating...
+kubernetes_service_account.desplegador["aroma-prod"]: Creating...
+kubernetes_limit_range.limites["aroma-staging"]: Creating...
+kubernetes_resource_quota.cuota["aroma-prod"]: Creating...
+kubernetes_limit_range.limites["aroma-prod"]: Creating...
+kubernetes_resource_quota.cuota["aroma-staging"]: Creating...
+kubernetes_role.desplegador["aroma-staging"]: Creating...
+kubernetes_role.desplegador["aroma-prod"]: Creating...
+kubernetes_limit_range.limites["aroma-prod"]: Creation complete after 0s [id=aroma-prod/limites-aroma-prod]
+kubernetes_service_account.desplegador["aroma-prod"]: Creation complete after 0s [id=aroma-prod/aroma-desplegador]
+kubernetes_service_account.desplegador["aroma-staging"]: Creation complete after 0s [id=aroma-staging/aroma-desplegador]
+kubernetes_limit_range.limites["aroma-staging"]: Creation complete after 0s [id=aroma-staging/limites-aroma-staging]
+kubernetes_role.desplegador["aroma-staging"]: Creation complete after 0s [id=aroma-staging/aroma-desplegador]
+kubernetes_resource_quota.cuota["aroma-prod"]: Creation complete after 0s [id=aroma-prod/cuota-aroma-prod]
+kubernetes_resource_quota.cuota["aroma-staging"]: Creation complete after 0s [id=aroma-staging/cuota-aroma-staging]
+kubernetes_role.desplegador["aroma-prod"]: Creation complete after 0s [id=aroma-prod/aroma-desplegador]
+kubernetes_role_binding.desplegador["aroma-staging"]: Creating...
+kubernetes_role_binding.desplegador["aroma-prod"]: Creating...
+kubernetes_role_binding.desplegador["aroma-prod"]: Creation complete after 0s [id=aroma-prod/aroma-desplegador]
+kubernetes_role_binding.desplegador["aroma-staging"]: Creation complete after 0s [id=aroma-staging/aroma-desplegador]
+null_resource.llave_sealed_secrets (local-exec):   secret/sealed-secrets-key2g8wj created
+null_resource.llave_sealed_secrets (local-exec): Llave de Sealed Secrets restaurada en kube-system.
+null_resource.llave_sealed_secrets: Creation complete after 0s [id=3626055187107522027]
+helm_release.argocd: Creating...
+helm_release.argocd: Still creating... [00m10s elapsed]
+helm_release.argocd: Still creating... [00m20s elapsed]
+helm_release.argocd: Still creating... [00m30s elapsed]
+helm_release.argocd: Still creating... [00m40s elapsed]
+helm_release.argocd: Still creating... [00m50s elapsed]
+helm_release.argocd: Creation complete after 56s [id=argocd]
+helm_release.aroma_root: Creating...
+helm_release.aroma_root: Creation complete after 2s [id=aroma-root]
+
+Apply complete! Resources: 16 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+namespaces_creados = [
+  "aroma-prod",
+  "aroma-staging",
+]
+[2026-10-17 02:42:57.223 -06:00] FIN PASO 6
+[2026-10-17 02:42:57.225 -06:00] PASO 7 esperar aroma-root y sus Applications hijas Synced/Healthy (max 25 min)
+[2026-10-17 02:42:57.492 -06:00] estado: aroma-root=/
+[2026-10-17 02:43:12.759 -06:00] estado: argo-rollouts=OutOfSync/Missing aroma-root=OutOfSync/Progressing kyverno=OutOfSync/Missing postgres-operator=OutOfSync/Missing sealed-secrets=Synced/Healthy velero=Synced/Progressing velero-secrets=Synced/Healthy
+[2026-10-17 02:43:29.031 -06:00] estado: argo-rollouts=Synced/Progressing aroma-root=OutOfSync/Progressing kyverno=OutOfSync/Missing postgres-operator=Synced/Progressing sealed-secrets=Synced/Healthy velero=Synced/Progressing velero-secrets=Synced/Healthy
+[2026-10-17 02:43:44.177 -06:00] estado: argo-rollouts=Synced/Progressing aroma-root=OutOfSync/Progressing kyverno=OutOfSync/Missing postgres-operator=Synced/Healthy sealed-secrets=Synced/Healthy velero=Synced/Progressing velero-secrets=Synced/Healthy
+[2026-10-17 02:43:59.319 -06:00] estado: argo-rollouts=Synced/Healthy aroma-root=OutOfSync/Progressing kyverno=Synced/Progressing postgres-operator=Synced/Healthy sealed-secrets=Synced/Healthy velero=Synced/Progressing velero-secrets=Synced/Healthy
+[2026-10-17 02:44:14.459 -06:00] estado: argo-rollouts=Synced/Healthy aroma-root=OutOfSync/Progressing kyverno=Synced/Progressing postgres-operator=Synced/Healthy sealed-secrets=Synced/Healthy velero=Synced/Healthy velero-secrets=Synced/Healthy
+[2026-10-17 02:44:44.835 -06:00] estado: argo-rollouts=Synced/Healthy aroma-bd=Synced/Healthy aroma-root=Synced/Degraded catalogo=Synced/Progressing gateway=Synced/Degraded inventario=Synced/Progressing kyverno=Synced/Healthy kyverno-politicas=Synced/Healthy pedidos=Synced/Progressing postgres-operator=Synced/Healthy resenas=Synced/Progressing sealed-secrets=Synced/Healthy velero=Synced/Healthy velero-schedules=Synced/Healthy velero-secrets=Synced/Healthy
+[2026-10-17 02:45:17.107 -06:00] estado: argo-rollouts=Synced/Healthy aroma-bd=Synced/Healthy aroma-root=Synced/Progressing catalogo=Synced/Progressing gateway=Synced/Progressing inventario=Synced/Progressing kyverno=Synced/Healthy kyverno-politicas=Synced/Healthy pedidos=Synced/Progressing postgres-operator=Synced/Healthy resenas=Synced/Progressing sealed-secrets=Synced/Healthy velero=Synced/Healthy velero-schedules=Synced/Healthy velero-secrets=Synced/Healthy
+[2026-10-17 02:46:36.564 -06:00] estado: argo-rollouts=Synced/Healthy aroma-bd=Synced/Healthy aroma-root=Synced/Progressing catalogo=Synced/Progressing gateway=Synced/Healthy inventario=Synced/Progressing kyverno=Synced/Healthy kyverno-politicas=Synced/Healthy pedidos=Synced/Progressing postgres-operator=Synced/Healthy resenas=Synced/Progressing sealed-secrets=Synced/Healthy velero=Synced/Healthy velero-schedules=Synced/Healthy velero-secrets=Synced/Healthy
+[2026-10-17 02:48:56.088 -06:00] estado: argo-rollouts=Synced/Healthy aroma-bd=Synced/Healthy aroma-root=Synced/Healthy catalogo=Synced/Healthy gateway=Synced/Healthy inventario=Synced/Healthy kyverno=Synced/Healthy kyverno-politicas=Synced/Healthy pedidos=Synced/Healthy postgres-operator=Synced/Healthy resenas=Synced/Healthy sealed-secrets=Synced/Healthy velero=Synced/Healthy velero-schedules=Synced/Healthy velero-secrets=Synced/Healthy
+[2026-10-17 02:48:56.090 -06:00] FIN PASO 7
+NAME                     STATUS   ROLES           AGE     VERSION
+aroma-p9-control-plane   Ready    control-plane   7m38s   v1.37.0
+aroma-p9-worker          Ready    <none>          7m21s   v1.37.0
+aroma-p9-worker2         Ready    <none>          7m21s   v1.37.0
+NAME                SYNC STATUS   HEALTH STATUS
+argo-rollouts       Synced        Healthy
+aroma-bd            Synced        Healthy
+aroma-root          Synced        Healthy
+catalogo            Synced        Healthy
+gateway             Synced        Healthy
+inventario          Synced        Healthy
+kyverno             Synced        Healthy
+kyverno-politicas   Synced        Healthy
+pedidos             Synced        Healthy
+postgres-operator   Synced        Healthy
+resenas             Synced        Healthy
+sealed-secrets      Synced        Healthy
+velero              Synced        Healthy
+velero-schedules    Synced        Healthy
+velero-secrets      Synced        Healthy
+NAME      PHASE       LAST VALIDATED   AGE     DEFAULT
+default   Available   24s              5m45s   true
+[2026-10-17 02:48:56.373 -06:00] FIN bootstrap P9: duracion 00:08:07 (487 s)
+[2026-10-17 02:48:56.374 -06:00] Registro: C:\Users\hp victus\Desktop\LOURDES\Pr-cticas-SA-B-202103763\P9\evidencias\bootstrap-20261017-024049.log

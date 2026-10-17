@@ -43,7 +43,14 @@ function Linea([string]$t) {
 }
 function Kc { & kubectl --context $Contexto @args 2>$null }
 function Kj { ((& kubectl --context $Contexto @args -o json 2>$null) | Out-String) | ConvertFrom-Json }
-function Detener([string]$t) { Linea "FALLA: $t"; exit 1 }
+function Detener([string]$t) {
+  Linea "FALLA: $t"
+  if ((Kc get application aroma-bd -n argocd -o jsonpath='{.metadata.annotations.argocd\.argoproj\.io/skip-reconcile}') -eq "true") {
+    Linea ("AVISO: aroma-bd queda EN PAUSA para poder reintentar la restauracion. Para reanudar sin restaurar: " +
+      "kubectl annotate application aroma-bd -n argocd argocd.argoproj.io/skip-reconcile-")
+  }
+  exit 1
+}
 function Esperar([scriptblock]$cond, [string]$desc) {
   $limite = (Get-Date).AddMinutes($MinutosEspera)
   while ((Get-Date) -lt $limite) { if (& $cond) { return $true }; Start-Sleep -Seconds 5 }
@@ -88,9 +95,24 @@ Kc annotate application aroma-bd -n argocd argocd.argoproj.io/skip-reconcile=tru
 
 # ------------------------------------------------ 3. retirar la BD actual
 Linea "PASO 3 retirar el PostgreSQL actual (StatefulSet, pods y PVC)"
-if (Kc get postgresql aroma-pg -n $ns -o name) { Kc delete postgresql aroma-pg -n $ns --wait=true --timeout=180s | Out-Null }
-Esperar { -not (Kc get sts,pvc,pods -n $ns -l cluster-name=aroma-pg -o name) } "que el operador borre StatefulSet, pods y PVC" | Out-Null
-Linea "BD retirada"
+# Si el operador todavia esta creando el cluster (justo despues de una
+# reconstruccion), borrarlo a mitad deja que termine de crear StatefulSet y
+# PVC DESPUES de la comprobacion, y Velero omite esos objetos "ya
+# existentes" sin restaurar pgdata (fallo real en la reconstruccion oficial
+# del 17/10/2026, intento 1). Por eso: esperar un estado final del operador,
+# borrar y exigir 20 s seguidos sin ningun objeto de la BD.
+if (Kc get postgresql aroma-pg -n $ns -o name) {
+  Esperar { (Kj get postgresql aroma-pg -n $ns).status.PostgresClusterStatus -in @("Running", "CreateFailed", "UpdateFailed", "SyncFailed") } "que el operador termine de crear/sincronizar el cluster antes de retirarlo" | Out-Null
+  Linea "estado del operador antes de retirar: $((Kj get postgresql aroma-pg -n $ns).status.PostgresClusterStatus)"
+  Kc delete postgresql aroma-pg -n $ns --wait=true --timeout=180s | Out-Null
+}
+$script:estable = 0
+Esperar {
+  $quedan = @(Kc get postgresql,sts,pvc,pods -n $ns -l cluster-name=aroma-pg -o name) + @(Kc get postgresql -n $ns -o name) | Where-Object { $_ }
+  if ($quedan.Count -eq 0) { $script:estable++ } else { $script:estable = 0 }
+  $script:estable -ge 4
+} "20 s seguidos sin postgresql, StatefulSet, pods ni PVC de aroma-pg" | Out-Null
+Linea "BD retirada (estable 20 s)"
 
 # ----------------------------------------------------------- 4. restore
 $nombreRestore = "restaurar-aroma-pg-" + (Get-Date -Format "yyyyMMdd-HHmmss")
@@ -129,9 +151,12 @@ Start-Sleep -Seconds 4
 try { $codigo = (Invoke-WebRequest http://127.0.0.1:18001/api/salud -UseBasicParsing -TimeoutSec 10).StatusCode } catch { $codigo = "error" }
 Stop-Process -Id $pf.Id -Force -ErrorAction SilentlyContinue
 $pri = (Kj get pods -n $ns -l "application=spilo,spilo-role=master").items[0].metadata.name
-$productos = Kc exec -n $ns $pri -c postgres -- psql -U postgres -d catalogo_db -At -c "select count(*) from productos;"
-$pedidos = Kc exec -n $ns $pri -c postgres -- psql -U postgres -d pedidos_db -At -c "select count(*) from pedidos;"
+$productos = Kc exec -n $ns $pri -c postgres '--' psql -U postgres -d catalogo_db -At -c "select count(*) from productos;"
+$pedidos = Kc exec -n $ns $pri -c postgres '--' psql -U postgres -d pedidos_db -At -c "select count(*) from pedidos;"
 Linea "VERIFICACION: gateway /api/salud=$codigo | primaria=$pri | productos=$productos | pedidos=$pedidos"
 if ($codigo -ne 200) { Detener "el gateway no responde 200 tras la restauracion" }
+# /api/salud no consulta la BD (hallazgo del Bloque 8b): el contenido se
+# exige aparte. Un conteo vacio o en 0 es una restauracion fallida.
+if (-not ("$productos" -match '^\d+$' -and [int]"$productos" -gt 0)) { Detener "no se pudo verificar el contenido de catalogo_db (productos='$productos')" }
 Linea "FIN restauracion verificada (restore $nombreRestore desde $Respaldo)"
 exit 0
