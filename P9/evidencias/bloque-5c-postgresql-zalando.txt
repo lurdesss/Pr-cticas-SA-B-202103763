@@ -1,0 +1,290 @@
+﻿=== Evidencia Bloque 5c: PostgreSQL con operador de Zalando (2026-10-16 11:34:00 -06:00)
+Commits GitOps: 90f0a08 (migracion) y 682ba0e (un solo PDB)
+
+Motivo: CloudNativePG define el recurso 'backups' (postgresql.cnpg.io) y 'kubectl get backups -n velero'
+resolvia a el en lugar de backups.velero.io; verificar_p9.sh no veia los backups de Velero.
+
+--- kubectl api-resources (recurso backups, ahora unico)
+backups velero.io/v1 true Backup
+
+--- kubectl get backups -n velero
+NAME                            AGE
+manual-aroma-20261016-055103    4h57m
+manual-llaves-20261016-055103   4h57m
+
+--- postgresql y StatefulSet
+NAME       TEAM    VERSION   PODS   VOLUME   CPU-REQUEST   MEMORY-REQUEST   AGE   STATUS
+aroma-pg   aroma   17        2      1Gi      100m          256Mi            26m   Running
+NAME       READY   AGE
+aroma-pg   2/2     26m
+
+--- pods de PostgreSQL por nodo y rol
+NAME         READY   STATUS    RESTARTS   AGE     IP            NODE               NOMINATED NODE   READINESS GATES   SPILO-ROLE
+aroma-pg-0   1/1     Running   0          4m27s   10.244.2.29   aroma-p9-worker2   <none>           <none>            replica
+aroma-pg-1   1/1     Running   0          4m44s   10.244.1.27   aroma-p9-worker    <none>           <none>            master
+
+--- patronictl list
++ Cluster: aroma-pg (7697314124485541956) -------+----+-------------+-----+------------+-----+
+| Member     | Host        | Role    | State     | TL | Receive LSN | Lag | Replay LSN | Lag |
++------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+| aroma-pg-0 | 10.244.2.29 | Replica | streaming |  2 |   0/434BB80 |   0 |  0/434BB80 |   0 |
+| aroma-pg-1 | 10.244.1.27 | Leader  | running   |  2 |             |     |            |     |
++------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+
+--- PVC
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pgdata-aroma-pg-0   Bound    pvc-b4478b07-4728-4107-8fad-c207ea20b76e   1Gi        RWO            standard       <unset>                 26m
+pgdata-aroma-pg-1   Bound    pvc-3161c2f4-c7e8-49e3-b92c-53d200d0f1a6   1Gi        RWO            standard       <unset>                 23m
+
+--- PDB (uno solo sobre PostgreSQL: postgres-aroma-pg-pdb; critical-op no cubre pods)
+NAME                                MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+catalogo                            1               N/A               1                     67m
+gateway                             2               N/A               1                     67m
+inventario                          1               N/A               1                     67m
+pedidos                             1               N/A               1                     67m
+postgres-aroma-pg-critical-op-pdb   N/A             0                 0                     4m18s
+postgres-aroma-pg-pdb               1               N/A               1                     4m21s
+resenas                             1               N/A               1                     67m
+
+--- pg_hba de Spilo (rechaza conexiones remotas sin SSL)
+hostssl|{+zalandos}|127.0.0.1|pam
+host|{all}|127.0.0.1|md5
+hostssl|{+zalandos}|::1|pam
+host|{all}|::1|md5
+hostssl|{standby}|all|md5
+hostnossl|{all}|all|reject
+hostssl|{+zalandos}|all|pam
+hostssl|{all}|all|md5
+
+--- datos
+productos primaria: 9
+productos replica:  9
+pedidos:            1
+
+--- Applications
+NAME                SYNC STATUS   HEALTH STATUS
+argo-rollouts       Synced        Healthy
+aroma-bd            Synced        Healthy
+aroma-root          Synced        Healthy
+catalogo            Synced        Healthy
+gateway             Synced        Healthy
+inventario          Synced        Healthy
+kyverno             Synced        Healthy
+pedidos             Synced        Healthy
+postgres-operator   Synced        Healthy
+resenas             Synced        Healthy
+sealed-secrets      Synced        Healthy
+velero              Synced        Healthy
+velero-schedules    Synced        Healthy
+velero-secrets      Synced        Healthy
+
+################ verificar_p9.sh ORIGINAL (sin modificar, hash 367900de0c69946a) ################
+================================================================
+ VERIFICACION PRACTICA 9 - v1.0
+ Carnet: 202103763        Fecha: 2026-10-16 11:32
+ Hash del script: 367900de0c69946a
+================================================================
+
+--- 0. Herramientas y contexto (debe verificarlo el auxiliar)
+  [OK]    Todas las herramientas presentes
+  Contexto de kubectl: kind-aroma-p9
+  [OK]    Acceso al cluster confirmado
+
+--- 1. Repositorios
+  [OK]    Repositorio de codigo accesible
+  [OK]    Repositorio GitOps accesible
+  [OK]    Carpeta /P9 presente
+  [FALLA] README de entrega AUSENTE
+
+--- 2.1 Bootstrap automatizado desde cero (14 pts)
+  [OK]    Punto de entrada presente: P9/bootstrap.ps1
+  Pasos automatizados detectados en el bootstrap: 20
+  [OK]    Terraform instala ArgoCD (capa de plataforma)
+  Aplicaciones registradas en ArgoCD: 14
+  Aplicacion raiz 'aroma-root': sync=Synced  aplicaciones hijas=13
+  [OK]    Patron app-of-apps operativo
+  [OK]    Aplicacion raiz sincronizada
+  >> 2.1 = 14 / 14
+
+--- 2.2 Estado remoto y disciplina de IaC (8 pts)
+  [OK]    Backend remoto declarado: backend "remote"
+  [OK]    Se evidencia bloqueo de estado
+  [OK]    Sin archivos de estado en el repositorio
+  [OK]    Sin credenciales evidentes en el codigo
+  >> 2.2 = 8 / 8
+
+--- 2.3 Respaldo y restauracion con Velero (14 pts)
+  [OK]    Velero instalado en el namespace velero
+verificar_p9.sh: line 175: [: 2
+0: integer expected
+  [FALLA] Sin respaldos programados: solo respaldos manuales
+verificar_p9.sh: line 186: [: 2
+0: integer expected
+  [FALLA] Ningun respaldo completado
+  destino: provider=aws bucket=velero-backups estado=Available
+  [FALLA] Destino de respaldo no configurado o interno al cluster
+  [FALLA] Los respaldos NO incluyen volumenes: se respalda solo la definicion
+  >> 2.3 = 2 / 14
+
+--- 2.4 Continuidad de los secretos (8 pts)
+  [OK]    Mecanismo de secretos: SealedSecrets
+  [OK]    El procedimiento de respaldo de la llave esta documentado
+  [FALLA] El respaldo no cubre el namespace donde vive la llave
+  >> 2.4 = 5 / 8
+
+--- 2.5 Resiliencia ante perdida de nodo (8 pts)
+  [OK]    PodDisruptionBudget definido (7)
+  pdb=catalogo minAvailable=1 maxUnavailable=- saludables=2
+  pdb=gateway minAvailable=2 maxUnavailable=- saludables=3
+  pdb=inventario minAvailable=1 maxUnavailable=- saludables=2
+  pdb=pedidos minAvailable=1 maxUnavailable=- saludables=2
+  pdb=postgres-aroma-pg-critical-op-pdb minAvailable=- maxUnavailable=0 saludables=0
+  pdb=postgres-aroma-pg-pdb minAvailable=1 maxUnavailable=- saludables=2
+  pdb=resenas minAvailable=1 maxUnavailable=- saludables=2
+  [OK]    Anti-afinidad o distribucion topologica declarada
+  Replicas minimas entre las cargas de trabajo: 2
+  [OK]    Toda carga de trabajo tiene 2 o mas replicas
+  >> 2.5 = 8 / 8
+
+--- 2.6 Restauracion de datos verificada (8 pts)
+  [OK]    PVC 'pgdata-aroma-pg-0' presente (fase=Bound)
+verificar_p9.sh: line 264: [: 0
+0: integer expected
+  [FALLA] Nunca se ha ejecutado una restauracion: el respaldo no esta probado
+  [OK]    Evidencia de verificacion de datos presente en el repositorio
+  >> 2.6 = 5 / 8
+
+--- Comprobaciones informativas
+  [FALLA] No se encuentra el runbook
+  [OK]    El informe declara RTO y RPO
+3m24s       Normal    NoPods                         poddisruptionbudget/postgres-aroma-pg-critical-op-pdb   No matching pods found
+3m21s       Normal    NoPods                         poddisruptionbudget/postgres-aroma-pg-critical-op-pdb   No matching pods found
+3m11s       Warning   MultiplePodDisruptionBudgets   pod/aroma-pg-0                                          Pod "aroma-prod"/"aroma-pg-0" matches multiple PodDisruptionBudgets.  Chose "postgres-aroma-pg-pdb" arbitrarily.
+2m51s       Warning   MultiplePodDisruptionBudgets   pod/aroma-pg-0                                          Pod "aroma-prod"/"aroma-pg-0" matches multiple PodDisruptionBudgets.  Chose "aroma-pg" arbitrarily.
+2m51s       Warning   MultiplePodDisruptionBudgets   pod/aroma-pg-1                                          Pod "aroma-prod"/"aroma-pg-1" matches multiple PodDisruptionBudgets.  Chose "aroma-pg" arbitrarily.
+
+================================================================
+ RESUMEN - carnet 202103763
+================================================================
+  2.1 Bootstrap automatizado ....... 14 / 14
+  2.2 Estado remoto e IaC ..........  8 / 8
+  2.3 Respaldo con Velero ..........  2 / 14
+  2.4 Continuidad de secretos ......  5 / 8
+  2.5 Resiliencia ante fallo .......  8 / 8
+  2.6 Restauracion verificada ......  5 / 8
+  --------------------------------------------
+  CONOCIMIENTO ..................... 42 / 60
+
+  Pendiente de evaluacion presencial: 40 pts
+    1.1 Runbook (12)   1.2 Informe de DR (12)
+    1.3 Diagrama del bootstrap (6)   1.4 Preguntas teoricas (10)
+
+  REQUISITOS ELIMINATORIOS INCUMPLIDOS: readme sin-respaldo
+
+  Duracion: 9s    Reporte: reporte_p9_202103763.txt
+================================================================
+
+################ COPIA CORREGIDA (7 lineas) ################
+El original agrega una llave de cierre sobrante al JSON en "${X:-{}}" y jq falla; afecta a cualquier maquina. Correccion: ${X:-"{}"}
+================================================================
+ VERIFICACION PRACTICA 9 - v1.0
+ Carnet: 202103763        Fecha: 2026-10-16 11:33
+ Hash del script: 6bfd62fb64ce1b63
+================================================================
+
+--- 0. Herramientas y contexto (debe verificarlo el auxiliar)
+  [OK]    Todas las herramientas presentes
+  Contexto de kubectl: kind-aroma-p9
+  [OK]    Acceso al cluster confirmado
+
+--- 1. Repositorios
+  [OK]    Repositorio de codigo accesible
+  [OK]    Repositorio GitOps accesible
+  [OK]    Carpeta /P9 presente
+  [FALLA] README de entrega AUSENTE
+
+--- 2.1 Bootstrap automatizado desde cero (14 pts)
+  [OK]    Punto de entrada presente: P9/bootstrap.ps1
+  Pasos automatizados detectados en el bootstrap: 20
+  [OK]    Terraform instala ArgoCD (capa de plataforma)
+  Aplicaciones registradas en ArgoCD: 14
+  Aplicacion raiz 'aroma-root': sync=Synced  aplicaciones hijas=13
+  [OK]    Patron app-of-apps operativo
+  [OK]    Aplicacion raiz sincronizada
+  >> 2.1 = 14 / 14
+
+--- 2.2 Estado remoto y disciplina de IaC (8 pts)
+  [OK]    Backend remoto declarado: backend "remote"
+  [OK]    Se evidencia bloqueo de estado
+  [OK]    Sin archivos de estado en el repositorio
+  [OK]    Sin credenciales evidentes en el codigo
+  >> 2.2 = 8 / 8
+
+--- 2.3 Respaldo y restauracion con Velero (14 pts)
+  [OK]    Velero instalado en el namespace velero
+  [OK]    Respaldo programado (2 schedule)
+  schedule=respaldo-diario-aroma cron=0 3 * * * ttl=360h0m0s
+  schedule=respaldo-llaves cron=0 4 * * 0 ttl=8760h0m0s
+  [OK]    Politica de retencion declarada (ttl)
+  [OK]    2 respaldo(s) completado(s)
+  ultimo=manual-aroma-20261016-055103 completado=2026-10-16T11:51:04Z items=16
+  destino: provider=aws bucket=velero-backups estado=Available
+  [OK]    Destino de respaldo externo configurado
+  [OK]    Los respaldos incluyen volumenes persistentes
+  >> 2.3 = 14 / 14
+
+--- 2.4 Continuidad de los secretos (8 pts)
+  [OK]    Mecanismo de secretos: SealedSecrets
+  [OK]    El procedimiento de respaldo de la llave esta documentado
+  [OK]    El respaldo de Velero incluye el namespace de la llave
+  >> 2.4 = 8 / 8
+
+--- 2.5 Resiliencia ante perdida de nodo (8 pts)
+  [OK]    PodDisruptionBudget definido (7)
+  pdb=catalogo minAvailable=1 maxUnavailable=- saludables=2
+  pdb=gateway minAvailable=2 maxUnavailable=- saludables=3
+  pdb=inventario minAvailable=1 maxUnavailable=- saludables=2
+  pdb=pedidos minAvailable=1 maxUnavailable=- saludables=2
+  pdb=postgres-aroma-pg-critical-op-pdb minAvailable=- maxUnavailable=0 saludables=0
+  pdb=postgres-aroma-pg-pdb minAvailable=1 maxUnavailable=- saludables=2
+  pdb=resenas minAvailable=1 maxUnavailable=- saludables=2
+  [OK]    Anti-afinidad o distribucion topologica declarada
+  Replicas minimas entre las cargas de trabajo: 2
+  [OK]    Toda carga de trabajo tiene 2 o mas replicas
+  >> 2.5 = 8 / 8
+
+--- 2.6 Restauracion de datos verificada (8 pts)
+  [OK]    PVC 'pgdata-aroma-pg-0' presente (fase=Bound)
+  [FALLA] Nunca se ha ejecutado una restauracion: el respaldo no esta probado
+  [OK]    Evidencia de verificacion de datos presente en el repositorio
+  >> 2.6 = 5 / 8
+
+--- Comprobaciones informativas
+  [FALLA] No se encuentra el runbook
+  [OK]    El informe declara RTO y RPO
+3m31s       Normal    NoPods                         poddisruptionbudget/postgres-aroma-pg-critical-op-pdb   No matching pods found
+3m28s       Normal    NoPods                         poddisruptionbudget/postgres-aroma-pg-critical-op-pdb   No matching pods found
+3m18s       Warning   MultiplePodDisruptionBudgets   pod/aroma-pg-0                                          Pod "aroma-prod"/"aroma-pg-0" matches multiple PodDisruptionBudgets.  Chose "postgres-aroma-pg-pdb" arbitrarily.
+2m58s       Warning   MultiplePodDisruptionBudgets   pod/aroma-pg-0                                          Pod "aroma-prod"/"aroma-pg-0" matches multiple PodDisruptionBudgets.  Chose "aroma-pg" arbitrarily.
+2m58s       Warning   MultiplePodDisruptionBudgets   pod/aroma-pg-1                                          Pod "aroma-prod"/"aroma-pg-1" matches multiple PodDisruptionBudgets.  Chose "aroma-pg" arbitrarily.
+
+================================================================
+ RESUMEN - carnet 202103763
+================================================================
+  2.1 Bootstrap automatizado ....... 14 / 14
+  2.2 Estado remoto e IaC ..........  8 / 8
+  2.3 Respaldo con Velero .......... 14 / 14
+  2.4 Continuidad de secretos ......  8 / 8
+  2.5 Resiliencia ante fallo .......  8 / 8
+  2.6 Restauracion verificada ......  5 / 8
+  --------------------------------------------
+  CONOCIMIENTO ..................... 57 / 60
+
+  Pendiente de evaluacion presencial: 40 pts
+    1.1 Runbook (12)   1.2 Informe de DR (12)
+    1.3 Diagrama del bootstrap (6)   1.4 Preguntas teoricas (10)
+
+  REQUISITOS ELIMINATORIOS INCUMPLIDOS: readme
+
+  Duracion: 7s    Reporte: reporte_p9_202103763.txt
+================================================================
