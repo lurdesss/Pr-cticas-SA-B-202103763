@@ -1,0 +1,55 @@
+=== Evidencia Bloque 8a: respaldo de PostgreSQL con datos reales y hook (2026-10-17 00:31:09 -0600)
+
+PROBLEMA DETECTADO: el primer backup del Schedule horario (manual-horario-20261016-235113) salio Completed
+pero sus PodVolumeBackups solo incluian emptyDir (tmp, dshm): el volumen pgdata NO se respaldaba.
+Causa: la StorageClass 'standard' de kind crea PV de tipo hostPath, que el kubelet no monta en
+/var/lib/kubelet/pods y el node-agent de Velero omite sin error.
+Correccion: StorageClass aroma-local (Terraform, P9/terraform/almacenamiento.tf) con la anotacion
+defaultVolumeType=local. Primer intento con parameters.volumeType: sin efecto (PV siguieron hostPath).
+
+--- StorageClasses
+NAME                 PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+aroma-local          rancher.io/local-path   Delete          WaitForFirstConsumer   true                   11m
+standard (default)   rancher.io/local-path   Delete          WaitForFirstConsumer   false                  17h
+anotacion defaultVolumeType de aroma-local: local
+
+--- PVC y tipo de PV (ahora local, uno por worker)
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pgdata-aroma-pg-0   Bound    pvc-0e3ecc77-43a2-4b71-ac33-f95aa7594239   1Gi        RWO            aroma-local    <unset>                 10m
+pgdata-aroma-pg-1   Bound    pvc-32b7f487-1911-4457-84dd-acfa5eec09ca   1Gi        RWO            aroma-local    <unset>                 10m
+  pvc-0e3ecc77-43a2-4b71-ac33-f95aa7594239: local.path=/var/local-path-provisioner/pvc-0e3ecc77-43a2-4b71-ac33-f95aa7594239_aroma-prod_pgdata-aroma-pg-0 hostPath= nodo=aroma-p9-worker2
+  pvc-32b7f487-1911-4457-84dd-acfa5eec09ca: local.path=/var/local-path-provisioner/pvc-32b7f487-1911-4457-84dd-acfa5eec09ca_aroma-prod_pgdata-aroma-pg-1 hostPath= nodo=aroma-p9-worker
+
+--- Patroni
++ Cluster: aroma-pg (7697517907768029252) -------+----+-------------+-----+------------+-----+
+| Member     | Host        | Role    | State     | TL | Receive LSN | Lag | Replay LSN | Lag |
++------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+| aroma-pg-0 | 10.244.2.29 | Leader  | running   |  1 |             |     |            |     |
+| aroma-pg-1 | 10.244.1.32 | Replica | streaming |  1 |   0/377BAF8 |   0 |  0/377BAF8 |   0 |
++------------+-------------+---------+-----------+----+-------------+-----+------------+-----+
+
+--- Backup manual-horario-20261017-003001 (desde Schedule respaldo-horario-aroma)
+fase=Completed inicio=2026-10-17T06:30:01Z fin=2026-10-17T06:30:43Z items=314 hooksIntentados=2 hooksFallidos=
+
+--- PodVolumeBackups de PostgreSQL (pgdata ahora incluido, con bytes)
+POD                          VOLUMEN   FASE        BYTES       UPLOADER
+aroma-pg-0                   pgdata    Completed   106754279   kopia
+aroma-pg-1                   dshm      Completed   1076152     kopia
+aroma-pg-0                   dshm      Completed   1076152     kopia
+aroma-pg-1                   pgdata    Completed   89936670    kopia
+
+--- Volcado logico escrito por el hook dentro de cada volumen
+  aroma-pg-0: -rw-r--r-- 1 postgres postgres 238035 Oct 17 06:30 /home/postgres/pgdata/respaldo-logico/dumpall.sql
+  aroma-pg-1: -rw-r--r-- 1 postgres postgres 238035 Oct 17 06:30 /home/postgres/pgdata/respaldo-logico/dumpall.sql
+
+--- Schedules
+NAME                     STATUS    SCHEDULE    LASTBACKUP   AGE   PAUSED
+respaldo-diario-aroma    Enabled   0 3 * * *   127m         17h   
+respaldo-horario-aroma   Enabled   0 * * * *   30m          40m   
+respaldo-llaves          Enabled   0 4 * * 0                17h   
+
+--- ConfigMap de restore-wait (limites + uid numerico para Kyverno/kubelet)
+{"cpuLimit":"200m","cpuRequest":"50m","image":"velero/velero:v1.15.0","memLimit":"128Mi","memRequest":"64Mi","secCtx":"runAsNonRoot: true\nrunAsUser: 1000\nrunAsGroup: 1000\nallowPrivilegeEscalation: false\nreadOnlyRootFilesystem: true\ncapabilities:\n  drop: [\"ALL\"]\n"}
+
+--- Servicios: GET /api/salud via gateway
+{"servicio":"gateway","estado":"arriba","dependencias":[{"servicio":"catalogo","estado":"arriba","codigo":200,"ms":17},{"servicio":"inventario","estado":"arriba","codigo":200,"ms":6},{"servicio":"pedidos","estado":"arriba","codigo":200,"ms":6},{"servicio":"resenas","estado":"arriba","codigo":200,"ms":8}]} HTTP=200
