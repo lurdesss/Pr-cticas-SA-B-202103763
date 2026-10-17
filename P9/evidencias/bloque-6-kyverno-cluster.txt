@@ -1,0 +1,119 @@
+=== Evidencia Bloque 6: Kyverno en el cluster (2026-10-16 23:14:54 -0600)
+Commits: aroma-gitops 7abfec4 | codigo 8d7caf0
+
+--- kubectl get clusterpolicy
+NAME                         ADMISSION   BACKGROUND   READY   AGE   MESSAGE
+exigir-ejecucion-sin-root    true        true         True    12m   Ready
+exigir-limites-cpu-memoria   true        true         True    12m   Ready
+prohibir-tag-latest          true        true         True    12m   Ready
+
+--- Kyverno: admission controller con 2 replicas (una por worker) + PDB; hook de limpieza ya no atascado
+NAME                                                 READY   STATUS    RESTARTS      AGE    IP            NODE               NOMINATED NODE   READINESS GATES
+pod/kyverno-admission-controller-7cff9dd9fd-9rwsm    1/1     Running   0             3m4s   10.244.1.18   aroma-p9-worker    <none>           <none>
+pod/kyverno-admission-controller-7cff9dd9fd-rxmvv    1/1     Running   2 (51m ago)   16h    10.244.2.11   aroma-p9-worker2   <none>           <none>
+pod/kyverno-background-controller-55bb88dd68-2xxtt   1/1     Running   3 (51m ago)   16h    10.244.1.10   aroma-p9-worker    <none>           <none>
+pod/kyverno-cleanup-controller-6d7f764ccd-5jfsc      1/1     Running   2 (51m ago)   16h    10.244.1.8    aroma-p9-worker    <none>           <none>
+pod/kyverno-reports-controller-7d968f8899-h4k2c      1/1     Running   3 (51m ago)   16h    10.244.1.5    aroma-p9-worker    <none>           <none>
+
+NAME                                                      MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+poddisruptionbudget.policy/kyverno-admission-controller   1               N/A               1                     3m5s
+
+--- Applications (aroma-root y kyverno Synced/Healthy)
+NAME                SYNC STATUS   HEALTH STATUS
+argo-rollouts       Synced        Healthy
+aroma-bd            Synced        Healthy
+aroma-root          Synced        Healthy
+catalogo            Synced        Healthy
+gateway             Synced        Healthy
+inventario          Synced        Healthy
+kyverno             Synced        Healthy
+kyverno-politicas   Synced        Healthy
+pedidos             Synced        Healthy
+postgres-operator   Synced        Healthy
+resenas             Synced        Healthy
+sealed-secrets      Synced        Healthy
+velero              Synced        Healthy
+velero-schedules    Synced        Healthy
+velero-secrets      Synced        Healthy
+
+--- RECHAZO REAL del webhook: kubectl apply --dry-run=server -f P9/pruebas/kyverno/deploy-latest.yaml
+Error from server: error when creating "P9/pruebas/kyverno/deploy-latest.yaml": admission webhook "validate.kyverno.svc-fail" denied the request: 
+
+resource Deployment/aroma-prod/prueba-latest was blocked due to the following policies 
+
+prohibir-tag-latest:
+  autogen-prohibir-latest: 'validation error: El tag ''latest'' esta prohibido: use
+    un tag de version fijo. rule autogen-prohibir-latest failed at path /spec/template/spec/containers/0/image/'
+
+--- RECHAZO REAL del webhook: kubectl apply --dry-run=server -f P9/pruebas/kyverno/deploy-sin-limites.yaml
+Error from server: error when creating "P9/pruebas/kyverno/deploy-sin-limites.yaml": admission webhook "validate.kyverno.svc-fail" denied the request: 
+
+resource Deployment/aroma-prod/prueba-sin-limites was blocked due to the following policies 
+
+exigir-limites-cpu-memoria:
+  autogen-exigir-limites: 'validation error: Todo contenedor debe declarar resources.limits.cpu
+    y resources.limits.memory. rule autogen-exigir-limites failed at path /spec/template/spec/containers/0/resources/limits/'
+
+--- RECHAZO REAL del webhook: kubectl apply --dry-run=server -f P9/pruebas/kyverno/deploy-root.yaml
+Error from server: error when creating "P9/pruebas/kyverno/deploy-root.yaml": admission webhook "validate.kyverno.svc-fail" denied the request: 
+
+resource Deployment/aroma-prod/prueba-root was blocked due to the following policies 
+
+exigir-ejecucion-sin-root:
+  autogen-exigir-no-root: 'validation error: El pod debe ejecutarse sin root: securityContext.runAsNonRoot=true,
+    o runAsUser mayor que 0, sin que ningun contenedor lo anule. rule autogen-exigir-no-root[0]
+    failed at path /spec/template/spec/containers/0/securityContext/runAsUser/ rule
+    autogen-exigir-no-root[1] failed at path /spec/template/spec/containers/0/securityContext/runAsNonRoot/
+    rule autogen-exigir-no-root[2] failed at path /spec/template/spec/containers/0/securityContext/runAsUser/'
+
+--- CONTROL: Deployment que cumple las 3 politicas (tag fijo, limites, runAsNonRoot) -> aceptado
+deployment.apps/control-ok created (server dry run)
+
+--- Reportes de politicas (escaneo en segundo plano de lo que ya corre en aroma-prod)
+NAME                                   KIND          NAME                         PASS   FAIL   WARN   ERROR   SKIP   AGE
+02579a43-3338-4f15-a496-9795b12fb5c3   Deployment    inventario                   4      0      0      0       0      11m
+0861d35d-75fe-415c-bf99-f268c9762ee5   Pod           resenas-84d68785c4-7f9wr     4      0      0      0       0      11m
+1d846568-8a3a-4fd3-98bb-7a5bcbe1f1ad   Pod           gateway-7d6c77bb6b-w5cwc     4      0      0      0       0      11m
+2cdbba25-7a10-486d-b142-e511a7fa2149   ReplicaSet    resenas-7896c7d488           4      0      0      0       0      11m
+30dabebc-7fc0-46c8-b4a1-437e386331e2   Pod           pedidos-695c45477d-9kmrj     4      0      0      0       0      11m
+418c3c31-a154-43a5-a92e-4cf6e59fcaa6   Pod           inventario-d556875b6-n72ct   4      0      0      0       0      11m
+43d1fe10-7c06-449d-ad7d-6e3b79b35575   StatefulSet   aroma-pg                     4      0      0      0       0      11m
+4494f7da-3462-4e21-8634-4d9d36c08041   ReplicaSet    gateway-7d6c77bb6b           4      0      0      0       0      11m
+4acf02e0-8241-4a81-8c95-57a8295d889d   ReplicaSet    catalogo-99c785c8b           4      0      0      0       0      11m
+5051e28f-fa99-4490-8f3c-60fcc030dcb7   Pod           inventario-d556875b6-bv9c7   4      0      0      0       0      11m
+566d46d4-6c0c-456a-822b-b6d56448b3e1   Pod           aroma-pg-0                   4      0      0      0       0      11m
+70e7e104-6cba-49e4-9dad-ad74e61e01ff   Pod           aroma-pg-1                   4      0      0      0       0      11m
+7ce7cc54-1e7d-421f-8d6e-880a6ea299ab   Pod           gateway-7d6c77bb6b-msnsz     4      0      0      0       0      11m
+7d6179c4-b43c-474e-96e1-d3bd17573a46   Deployment    catalogo                     4      0      0      0       0      11m
+7f47e51d-f04c-4ed7-8e64-5619b2e7c13d   ReplicaSet    resenas-84d68785c4           4      0      0      0       0      11m
+8a69d280-0c8a-4594-826f-7e9f4f26918d   Deployment    pedidos                      4      0      0      0       0      11m
+8cb41402-5b5a-44ee-900c-a8348f99ca1f   Pod           pedidos-695c45477d-cvhvf     4      0      0      0       0      11m
+9dec00f1-fd8f-413d-b3e1-909e75008535   ReplicaSet    pedidos-695c45477d           4      0      0      0       0      11m
+aeafba2d-72dc-431e-b5ab-46c7c4b74e4d   ReplicaSet    pedidos-5ff95669d8           4      0      0      0       0      11m
+b2a7f631-c7f9-4950-9b8a-e88a746a3bf3   Deployment    resenas                      4      0      0      0       0      11m
+c4e53fa8-5e9c-41bf-843d-31c0a3ab3fb4   ReplicaSet    catalogo-7ffcff8784          4      0      0      0       0      11m
+ded3b1e9-6771-4213-bea3-72440fe218c3   Pod           resenas-84d68785c4-h778r     4      0      0      0       0      11m
+e2921feb-bbb4-4533-a4dd-d17065bb4ad8   Pod           gateway-7d6c77bb6b-shjfd     4      0      0      0       0      11m
+e66e43de-b817-4d4e-8a50-9a7038cde37b   ReplicaSet    inventario-5787d949f6        4      0      0      0       0      11m
+ecb53f1c-c206-4be3-846a-4cfef9efe4ce   Pod           catalogo-7ffcff8784-5kcmh    4      0      0      0       0      11m
+ed0e261e-a9e9-4fbf-8baa-42436ae5afed   Pod           catalogo-7ffcff8784-vlmvc    4      0      0      0       0      11m
+f9784b00-d08a-44e1-aa91-1ceb26e3ecdd   ReplicaSet    inventario-d556875b6         4      0      0      0       0      11m
+
+--- Totales PASS/FAIL en aroma-prod
+pass=108 fail=0 warn=0 error=0
+
+--- pods de aroma-prod siguen sanos
+NAME                         READY   STATUS    RESTARTS      AGE   IP            NODE               NOMINATED NODE   READINESS GATES
+aroma-pg-0                   1/1     Running   1 (51m ago)   11h   10.244.2.13   aroma-p9-worker2   <none>           <none>
+aroma-pg-1                   1/1     Running   1 (51m ago)   11h   10.244.1.15   aroma-p9-worker    <none>           <none>
+catalogo-7ffcff8784-5kcmh    1/1     Running   8 (51m ago)   12h   10.244.1.16   aroma-p9-worker    <none>           <none>
+catalogo-7ffcff8784-vlmvc    1/1     Running   1 (51m ago)   11h   10.244.2.16   aroma-p9-worker2   <none>           <none>
+gateway-7d6c77bb6b-msnsz     1/1     Running   1 (51m ago)   12h   10.244.2.10   aroma-p9-worker2   <none>           <none>
+gateway-7d6c77bb6b-shjfd     1/1     Running   1 (51m ago)   12h   10.244.2.9    aroma-p9-worker2   <none>           <none>
+gateway-7d6c77bb6b-w5cwc     1/1     Running   1 (51m ago)   12h   10.244.1.11   aroma-p9-worker    <none>           <none>
+inventario-d556875b6-bv9c7   1/1     Running   1 (51m ago)   11h   10.244.2.15   aroma-p9-worker2   <none>           <none>
+inventario-d556875b6-n72ct   1/1     Running   8 (51m ago)   12h   10.244.1.12   aroma-p9-worker    <none>           <none>
+pedidos-695c45477d-9kmrj     1/1     Running   8 (51m ago)   12h   10.244.1.14   aroma-p9-worker    <none>           <none>
+pedidos-695c45477d-cvhvf     1/1     Running   1 (51m ago)   11h   10.244.2.12   aroma-p9-worker2   <none>           <none>
+resenas-84d68785c4-7f9wr     1/1     Running   8 (51m ago)   12h   10.244.1.17   aroma-p9-worker    <none>           <none>
+resenas-84d68785c4-h778r     1/1     Running   1 (51m ago)   11h   10.244.2.17   aroma-p9-worker2   <none>           <none>
