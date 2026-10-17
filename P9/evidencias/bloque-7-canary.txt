@@ -1,0 +1,68 @@
+﻿[2026-10-16 23:26:27 -06:00] Observando rollout/gateway en aroma-prod (version estable inicial: 7d6c77bb6b)
+[2026-10-16 23:26:27 -06:00] fase=Healthy paso=7/7 peso-canary= estable=7d6c77bb6b canary=7d6c77bb6b replicas listas=3/3 imagen=v1.0.0
+[2026-10-16 23:32:48 -06:00] fase=Progressing paso=0/7 peso-canary= estable=7d6c77bb6b canary=7fb5f888f4 replicas listas=3/3 imagen=afd721271b2d
+[2026-10-16 23:32:53 -06:00] fase=Paused paso=1/7 peso-canary= estable=7d6c77bb6b canary=7fb5f888f4 replicas listas=3/3 imagen=afd721271b2d
+[2026-10-16 23:33:24 -06:00] fase=Progressing paso=2/7 peso-canary= estable=7d6c77bb6b canary=7fb5f888f4 replicas listas=3/3 imagen=afd721271b2d
+[2026-10-16 23:33:24 -06:00] AnalysisRun gateway-7fb5f888f4-2-2: Running tasa-de-fallos-canary: Running (exitos= fallos=)
+[2026-10-16 23:33:50 -06:00] fase=Progressing paso=3/7 peso-canary= estable=7d6c77bb6b canary=7fb5f888f4 replicas listas=3/3 imagen=afd721271b2d
+[2026-10-16 23:33:50 -06:00] AnalysisRun gateway-7fb5f888f4-2-2: Successful tasa-de-fallos-canary: Successful (exitos=1 fallos=)
+[2026-10-16 23:33:55 -06:00] fase=Paused paso=4/7 peso-canary= estable=7d6c77bb6b canary=7fb5f888f4 replicas listas=3/3 imagen=afd721271b2d
+[2026-10-16 23:34:21 -06:00] fase=Progressing paso=5/7 peso-canary= estable=7d6c77bb6b canary=7fb5f888f4 replicas listas=3/3 imagen=afd721271b2d
+[2026-10-16 23:34:21 -06:00] AnalysisRun gateway-7fb5f888f4-2-5: Running tasa-de-fallos-canary: Running (exitos= fallos=)
+[2026-10-16 23:34:46 -06:00] fase=Progressing paso=6/7 peso-canary= estable=7d6c77bb6b canary=7fb5f888f4 replicas listas=3/3 imagen=afd721271b2d
+[2026-10-16 23:34:47 -06:00] AnalysisRun gateway-7fb5f888f4-2-5: Successful tasa-de-fallos-canary: Successful (exitos=1 fallos=)
+[2026-10-16 23:34:52 -06:00] fase=Healthy paso=7/7 peso-canary= estable=7fb5f888f4 canary=7fb5f888f4 replicas listas=3/3 imagen=afd721271b2d
+[2026-10-16 23:34:52 -06:00] COMPLETADO: version nueva al 100 % y marcada como estable (7fb5f888f4)
+
+=== Detalle posterior (2026-10-16 23:35:12 -0600)
+Commit GitOps que disparo el canary: 3aa1f2a (charts/gateway/values-prod.yaml imagen.tag v1.0.0 -> afd721271b2d)
+Duracion del canary: 23:32:48 -> 23:34:52 = 2 min 04 s (7 pasos: 33% -> pausa 30s -> analisis -> 66% -> pausa 30s -> analisis -> 100%)
+
+--- AnalysisRuns
+NOMBRE                   FASE         INICIO                 METRICA                 RESULTADO
+gateway-7fb5f888f4-2-2   Successful   2026-10-17T05:33:20Z   tasa-de-fallos-canary   Successful
+gateway-7fb5f888f4-2-5   Successful   2026-10-17T05:34:20Z   tasa-de-fallos-canary   Successful
+
+--- Salida real del Job de analisis de cada paso (decide por codigo de salida)
+job.batch/781f148f-f830-4740-89c5-7055dd123f97.tasa-de-fallos-canary.1:
+    canary: 0 fallos de 20 peticiones (maximo permitido 5 %)
+    RESULTADO: exito -> el canary puede avanzar
+    succeeded=1 failed=
+job.batch/e86514f1-4a62-439f-953b-2b0d3abb5a32.tasa-de-fallos-canary.1:
+    canary: 0 fallos de 20 peticiones (maximo permitido 5 %)
+    RESULTADO: exito -> el canary puede avanzar
+    succeeded=1 failed=
+
+--- ReplicaSets del Rollout (version anterior escalada a 0, nueva estable)
+RS                   DESEADAS   LISTAS   IMAGEN
+gateway-7d6c77bb6b   0          <none>   ghcr.io/lurdesss/pr-cticas-sa-b-202103763/gateway:v1.0.0
+gateway-7fb5f888f4   3          3        ghcr.io/lurdesss/pr-cticas-sa-b-202103763/gateway:afd721271b2d
+
+--- Eventos del Rollout
+2m29s       Normal   ScalingReplicaSet       rollout/gateway   Scaled up ReplicaSet gateway-7fb5f888f4 (revision 2) from 0 to 1
+2m22s       Normal   SwitchService           rollout/gateway   Switched selector for service 'gateway-canary' from '7d6c77bb6b' to '7fb5f888f4'
+2m22s       Normal   ScalingReplicaSet       rollout/gateway   Scaled down ReplicaSet gateway-7d6c77bb6b (revision 1) from 3 to 2
+2m22s       Normal   RolloutStepCompleted    rollout/gateway   Rollout step 1/7 completed (setWeight: 33)
+112s        Normal   AnalysisRunRunning      rollout/gateway   Step Analysis Run 'gateway-7fb5f888f4-2-2' Status New: 'Running' Previous: ''
+112s        Normal   RolloutStepCompleted    rollout/gateway   Rollout step 2/7 completed (pause: 30s)
+86s         Normal   RolloutStepCompleted    rollout/gateway   Rollout step 3/7 completed (analysis)
+86s         Normal   ScalingReplicaSet       rollout/gateway   Scaled up ReplicaSet gateway-7fb5f888f4 (revision 2) from 1 to 2
+86s         Normal   AnalysisRunSuccessful   rollout/gateway   Step Analysis Run 'gateway-7fb5f888f4-2-2' Status New: 'Successful' Previous: 'Running'
+82s         Normal   ScalingReplicaSet       rollout/gateway   Scaled down ReplicaSet gateway-7d6c77bb6b (revision 1) from 2 to 1
+82s         Normal   RolloutPaused           rollout/gateway   Rollout is paused (CanaryPauseStep)
+82s         Normal   RolloutStepCompleted    rollout/gateway   Rollout step 4/7 completed (setWeight: 66)
+52s         Normal   RolloutResumed          rollout/gateway   Rollout is resumed
+52s         Normal   RolloutStepCompleted    rollout/gateway   Rollout step 5/7 completed (pause: 30s)
+52s         Normal   AnalysisRunRunning      rollout/gateway   Step Analysis Run 'gateway-7fb5f888f4-2-5' Status New: 'Running' Previous: ''
+29s         Normal   AnalysisRunSuccessful   rollout/gateway   Step Analysis Run 'gateway-7fb5f888f4-2-5' Status New: 'Successful' Previous: 'Running'
+29s         Normal   RolloutStepCompleted    rollout/gateway   Rollout step 6/7 completed (analysis)
+29s         Normal   ScalingReplicaSet       rollout/gateway   Scaled up ReplicaSet gateway-7fb5f888f4 (revision 2) from 2 to 3
+25s         Normal   ScalingReplicaSet       rollout/gateway   Scaled down ReplicaSet gateway-7d6c77bb6b (revision 1) from 1 to 0
+25s         Normal   RolloutStepCompleted    rollout/gateway   Rollout step 7/7 completed (setWeight: 100)
+
+--- Estado final
+NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+gateway   3         3         3            3           13h
+NAME         SYNC STATUS   HEALTH STATUS
+gateway      Synced        Healthy
+aroma-root   Synced        Healthy
